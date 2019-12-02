@@ -2,9 +2,13 @@ cmake_minimum_required(VERSION 3.13)
 
 # Create project
 project(lingo)
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Add module paths
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
+
+# Include modules
+include(targets)
 
 # Enable testing
 enable_testing()
