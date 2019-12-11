@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+
+  <Type Name="lingo::basic_string_view_storage&lt;*&gt;">
+    <DisplayString>{_data,[_size &amp; (~null_terminated_bit)]}</DisplayString>
+    <Expand>
+      <Item Name="data">_data</Item>
+      <Item Name="size">_size &amp; (~null_terminated_bit)</Item>
+      <Item Name="null_terminated">(_size &amp; null_terminated_bit) != 0</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="lingo::basic_string_view&lt;*,*,*&gt;">
+    <DisplayString>{_storage}</DisplayString>
+    <Expand>
+      <Item Name="data">_storage._data</Item>
+      <Item Name="size">_storage._size &amp; (~_storage.null_terminated_bit)</Item>
+      <Item Name="null_terminated">(_storage._size &amp; _storage.null_terminated_bit) != 0</Item>
+    </Expand>
+  </Type>
+	
+</AutoVisualizer>

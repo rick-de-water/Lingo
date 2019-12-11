@@ -20,7 +20,7 @@ function(lingo_add_library TARGET)
 	lingo_add_target("${TARGET}")
 endfunction()
 
-function(aether_add_executable TARGET)
+function(lingo_add_executable TARGET)
 	# Create executable
 	add_executable("${TARGET}" ${ARGN} "")
 	

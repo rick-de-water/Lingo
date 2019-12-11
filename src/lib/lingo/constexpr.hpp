@@ -14,6 +14,10 @@
 #endif
 #endif
 
+#ifdef __cpp_if_constexpr
+#define LINGO_HAS_IF_CONSTEXPR
+#endif
+
 #ifdef LINGO_HAS_CONSTEXPR11
 #define LINGO_CONSTEXPR11 constexpr
 #else
@@ -37,5 +41,12 @@
 #else
 #define LINGO_CONSTEXPR20
 #endif
+
+#ifdef LINGO_HAS_IF_CONSTEXPR
+#define LINGO_IF_CONSTEXPR if constexpr
+#else
+#define LINGO_IF_CONSTEXPR if
+#endif
+
 
 #endif

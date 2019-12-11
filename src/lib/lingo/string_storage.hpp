@@ -27,39 +27,61 @@ namespace lingo
 		};
 
 		template <typename UnitT>
-		struct basic_string_storage_members
+		union basic_string_storage_members_union
 		{
-			union
-			{
-				basic_string_storage_members_long<UnitT> _long;
-				basic_string_storage_members_short<UnitT> _short;
-			} _specific;
+			basic_string_storage_members_long<UnitT> _long;
+			basic_string_storage_members_short<UnitT> _short;
+		};
 
-			UnitT _padding[(sizeof(UnitT*) / sizeof(UnitT)) - 1];
+		template <typename UnitT>
+		struct basic_string_storage_members_requires_padding
+		{
+			static constexpr bool value = (sizeof(basic_string_storage_members_union<UnitT>) + sizeof(UnitT)) < sizeof(void*) * 4;
+		};
+
+		template <typename UnitT, bool Padding = basic_string_storage_members_requires_padding<UnitT>::value>
+		struct basic_string_storage_members;
+
+		template <typename UnitT>
+		struct basic_string_storage_members<UnitT, true>
+		{
+			basic_string_storage_members_union<UnitT> _specific;
+			char _padding[sizeof(void*) * 4 - (sizeof(basic_string_storage_members_union<UnitT>) + sizeof(UnitT))];
 			UnitT _last_char;
 		};
 
-		static_assert(sizeof(basic_string_storage_members<char>) == sizeof(void*) * 4, "string storage is the correct size");
-		static_assert(sizeof(basic_string_storage_members<char16_t>) == sizeof(void*) * 4, "string storage is the correct size");
-		static_assert(sizeof(basic_string_storage_members<char32_t>) == sizeof(void*) * 4, "string storage is the correct size");
-		static_assert(sizeof(basic_string_storage_members<long long>) == sizeof(void*) * 4, "string storage is the correct size");
+		template <typename UnitT>
+		struct basic_string_storage_members<UnitT, false>
+		{
+			basic_string_storage_members_union<UnitT> _specific;
+			UnitT _last_char;
+		};
+
+		static_assert(sizeof(basic_string_storage_members<uint_least8_t>) == sizeof(void*) * 4, "string storage is the correct size");
+		static_assert(sizeof(basic_string_storage_members<uint_least16_t>) == sizeof(void*) * 4, "string storage is the correct size");
+		static_assert(sizeof(basic_string_storage_members<uint_least32_t>) == sizeof(void*) * 4, "string storage is the correct size");
+		static_assert(sizeof(basic_string_storage_members<uint_least64_t>) == sizeof(void*) * 4, "string storage is the correct size");
 	}
 
 	template <typename UnitT, typename Allocator = std::allocator<UnitT>>
-	class basic_string_storage : private internal::basic_string_storage_members<UnitT>
+	class basic_string_storage : public internal::basic_string_storage_members<UnitT>
 	{
 		public:
+		using allocator_type = Allocator;
+
 		using value_type = UnitT;
-		using reference = UnitT&;
-		using const_reference = const UnitT&;
-		using pointer = UnitT*;
-		using const_pointer = const UnitT*;
+		using reference = value_type&;
+		using const_reference = const value_type&;
+		using pointer = value_type*;
+		using const_pointer = const value_type*;
 
-		using size_type = std::size_t;
-		using difference_type = std::ptrdiff_t;
+		using size_type = typename allocator_type::size_type;
+		using difference_type = typename allocator_type::difference_type;
 
+		private:
 		static LINGO_CONSTEXPR11 value_type long_marker = std::numeric_limits<value_type>::max();
 
+		public:
 		basic_string_storage() noexcept = default;
 
 		pointer data() const noexcept
@@ -109,10 +131,10 @@ namespace lingo
 		}
 	};
 
-	static_assert(sizeof(basic_string_storage<char>) == sizeof(void*) * 4, "string storage is the correct size");
-	static_assert(sizeof(basic_string_storage<char16_t>) == sizeof(void*) * 4, "string storage is the correct size");
-	static_assert(sizeof(basic_string_storage<char32_t>) == sizeof(void*) * 4, "string storage is the correct size");
-	static_assert(sizeof(basic_string_storage<long long>) == sizeof(void*) * 4, "string storage is the correct size");
+	static_assert(sizeof(basic_string_storage<uint_least8_t>) == sizeof(void*) * 4, "string storage is the correct size");
+	static_assert(sizeof(basic_string_storage<uint_least16_t>) == sizeof(void*) * 4, "string storage is the correct size");
+	static_assert(sizeof(basic_string_storage<uint_least32_t>) == sizeof(void*) * 4, "string storage is the correct size");
+	static_assert(sizeof(basic_string_storage<uint_least64_t>) == sizeof(void*) * 4, "string storage is the correct size");
 }
 
 #endif

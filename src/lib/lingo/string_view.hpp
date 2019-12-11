@@ -5,8 +5,8 @@
 #include <lingo/string_view_storage.hpp>
 #include <lingo/strlen.hpp>
 
-#include <lingo/sets/ascii.hpp>
-#include <lingo/sets/unicode.hpp>
+#include <lingo/set/ascii.hpp>
+#include <lingo/set/unicode.hpp>
 
 #include <lingo/encoding/none.hpp>
 #include <lingo/encoding/utf8.hpp>
@@ -18,18 +18,18 @@
 
 namespace lingo
 {
-	template <typename UnitT, typename CharacterSet, typename Encoding>
+	template <typename UnitT, typename Encoding, typename CharacterSet>
 	class basic_string_view
 	{
 		public:
-		using character_set_type = CharacterSet;
 		using encoding_type = Encoding;
+		using character_set_type = CharacterSet;
 
 		using value_type = UnitT;
-		using reference = UnitT&;
-		using const_reference = const UnitT&;
-		using pointer = UnitT*;
-		using const_pointer = const UnitT*;
+		using reference = value_type&;
+		using const_reference = const value_type&;
+		using pointer = value_type*;
+		using const_pointer = const value_type*;
 
 		using size_type = std::size_t;
 		using difference_type = std::ptrdiff_t;
@@ -39,6 +39,10 @@ namespace lingo
 		using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 		using reverse_iterator = const_reverse_iterator;
 
+		private:
+		using storage_type = basic_string_view_storage<value_type>;
+
+		public:
 		LINGO_CONSTEXPR11 basic_string_view() noexcept = default;
 		LINGO_CONSTEXPR11 basic_string_view(const basic_string_view&) noexcept = default;
 		LINGO_CONSTEXPR11 basic_string_view(basic_string_view&&) noexcept = default;
@@ -73,22 +77,22 @@ namespace lingo
 			return const_iterator(data() + size());
 		}
 
-		LINGO_CONSTEXPR11 iterator rbegin() const noexcept
+		LINGO_CONSTEXPR11 reverse_iterator rbegin() const noexcept
 		{
 			return crbegin();
 		}
 
-		LINGO_CONSTEXPR11 iterator rend() const noexcept
+		LINGO_CONSTEXPR11 reverse_iterator rend() const noexcept
 		{
 			return crend();
 		}
 
-		LINGO_CONSTEXPR11 const_iterator crbegin() const noexcept
+		LINGO_CONSTEXPR11 const_reverse_iterator crbegin() const noexcept
 		{
 			return const_reverse_iterator(cend());
 		}
 
-		LINGO_CONSTEXPR11 const_iterator crend() const noexcept
+		LINGO_CONSTEXPR11 const_reverse_iterator crend() const noexcept
 		{
 			return const_reverse_iterator(cbegin());
 		}
@@ -98,15 +102,15 @@ namespace lingo
 			return data()[pos];
 		}
 
-		LINGO_CONSTEXPR11 const_reference at(size_type pos) const
+		LINGO_CONSTEXPR14 const_reference at(size_type pos) const
 		{
-			if (pos < length())
+			if (pos < size())
 			{
 				return operator[](pos);
 			}
 			else
 			{
-				throw std::out_of_range();
+				throw std::out_of_range("Index out of range");
 			}
 		}
 
@@ -130,17 +134,11 @@ namespace lingo
 			return _storage.size();
 		}
 
-		LINGO_CONSTEXPR11 size_type length() const noexcept
-		{
-			return size();
-		}
-
 		LINGO_CONSTEXPR11 size_type max_size() const noexcept
 		{
 			return _storage.max_size();
 		}
 
-		[[nodiscard]]
 		LINGO_CONSTEXPR11 bool empty() const noexcept
 		{
 			return size() == 0;
@@ -151,15 +149,77 @@ namespace lingo
 			return _storage.null_terminated();
 		}
 
+		LINGO_CONSTEXPR14 basic_string_view remove_prefix(size_type n) noexcept
+		{
+			assert(n <= size());
+			if (n == 0)
+			{
+				return basic_string_view(data(), 0, false);
+			}
+			else
+			{
+				basic_string_view removed(data(), n, false);
+				_storage = storage_type(data() + n, size() - n, null_terminated());
+				return removed;
+			}
+		}
+
+		LINGO_CONSTEXPR14 basic_string_view remove_suffix(size_type n) noexcept
+		{
+			assert(n <= size());
+			if (n == 0)
+			{
+				return basic_string_view(data() + size(), 0, null_terminated());
+			}
+			else
+			{
+				basic_string_view removed(data() + (size() - n), n, null_terminated());
+				_storage = storage_type(data(), size() - n, false);
+				return removed;
+			}
+		}
+
+		LINGO_CONSTEXPR14 void swap(basic_string_view& other) noexcept
+		{
+			_storage.swap(other._storage);
+		}
+
 		LINGO_CONSTEXPR11 basic_string_view& operator = (const basic_string_view&) noexcept = default;
 		LINGO_CONSTEXPR11 basic_string_view& operator = (basic_string_view&&) noexcept = default;
 		
 		private:
-		basic_string_view_storage<UnitT> _storage;
+		storage_type _storage;
 	};
 
-	using ascii_string_view = basic_string_view<char, sets::ascii, encoding::none>;
-	using utf8_string_view = basic_string_view<char, sets::unicode, encoding::utf8>;
+	template <typename UnitT, typename Encoding, typename CharacterSet>
+	LINGO_CONSTEXPR14 bool operator == (basic_string_view<UnitT, Encoding, CharacterSet> left, basic_string_view<UnitT, Encoding, CharacterSet> right)
+	{
+		using size_type = typename basic_string_view<UnitT, Encoding, CharacterSet>::size_type;
+
+		if (left.size() != right.size())
+		{
+			return false;
+		}
+
+		for (size_type i = 0; i < left.size(); ++i)
+		{
+			if (left[i] != right[i])
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	template <typename UnitT, typename Encoding, typename CharacterSet>
+	LINGO_CONSTEXPR14 bool operator != (basic_string_view<UnitT, Encoding, CharacterSet> left, basic_string_view<UnitT, Encoding, CharacterSet> right)
+	{
+		return !(left == right);
+	}
+
+	using ascii_string_view = basic_string_view<char, encoding::none<char, char>, set::ascii>;
+	using utf8_string_view = basic_string_view<char, encoding::utf8<char, char32_t>, set::unicode>;
 
 	using string_view = utf8_string_view;
 }

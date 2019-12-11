@@ -11,7 +11,7 @@ namespace lingo
 	{
 		struct unicode
 		{
-			static LINGO_CONSTEXPR11 size_t size()
+			static LINGO_CONSTEXPR11 size_t size() noexcept
 			{
 				return 0x110000;
 			}

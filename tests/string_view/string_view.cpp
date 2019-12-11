@@ -1,2 +1,0 @@
-#include <catch/catch.hpp>
-

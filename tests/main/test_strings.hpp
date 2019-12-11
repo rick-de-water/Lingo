@@ -1,7 +1,9 @@
-#ifndef H_LINGO_TEST_TESTSTRINGS
+﻿#ifndef H_LINGO_TEST_TESTSTRINGS
 #define H_LINGO_TEST_TESTSTRINGS
 
 #include <lingo/constexpr.hpp>
+
+#include <test_types.hpp>
 
 #include <array>
 #include <cstddef>
@@ -30,17 +32,27 @@ namespace lingo
 {
 	namespace test
 	{
-		using unit_types = std::tuple<
-			char,
-			wchar_t,
-			#if __cpp_char8_t
-			char8_t,
-			#endif
-			char16_t,
-			char32_t
-			>;
+		struct base_test_string
+		{
+			const char32_t* data;
+			std::size_t size;
+		};
 
-		template <typename UnitT>
+		LINGO_CONSTEXPR11 base_test_string base_test_strings[] =
+		{
+			{U"", 0},
+			{U"a", 1},
+			{U"fgdfg", 5},
+			{U"ghfgnghbndfggdfgsdfg", 32},
+			{U"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam risus massa, gravida ac mauris et, fermentum dapibus nisi. Nunc egestas urna a suscipit tincidunt. Quisque mattis quam ac turpis tempor hendrerit. Sed vel eleifend lacus. Donec eget imperdiet odio, et fermentum massa. Phasellus augue ante, auctor id imperdiet eu, bibendum id urna. Maecenas vel massa ac lorem lacinia mollis sit amet ac dui. Aenean mollis tellus nisl, eget finibus ligula dictum vitae.", 463},
+			{U"abcdefghijklmnopqrstuvwxyz\0a12342346dfgdffgdsfasfgdfgdfgdfgcggngg67553454342413dfdfghdffasdfdfhghszghfgh", 26},
+			{U"모든 국민은 종교의 자유를 가진다, 모든 국민은 직업선택의 자유를 가진다. 대법원장과 대법관이 ", 53},
+			{U"दारी विकास मेंभटृ स्वतंत्र गुजरना समस्याओ सामूहिक पढाए देखने तकनीकी अविरोधता निर्माता उन्हे लिये शुरुआत उद्योग शारिरिक विषय होसके उनको एसलिये पासपाई एकत्रित समाजो ऎसाजीस शारिरिक पहोच शीघ्र समजते दर्शाता शारिरिक अर्थपुर्ण सहित कर्य बनाने शुरुआत सुचनाचलचित्र संपुर्ण स्वतंत्र ढांचा पहोच सहयोग कोहम नयेलिए वास्तविक भाषा शुरुआत निरपेक्ष सादगि भीयह दिशामे अनुकूल निर्माण नवंबर जैसे आधुनिक परिभाषित भेदनक्षमता बनाकर", 419},
+			{U"製へーは程葉均がつそ選再ツサトチ愛視ぜび馬周ノユスフ繰載に一之職手安げどと際白づらお権端じび造59庁課偏啓87元ムノコル作棋稲那けい。点ん営転がスの同根ニヌヲメ界不93逸テコネ省63援び最生らしっぱ感択ヱテ発個転ハ売報こえゆけ雨常サユフ前9無る図見ニラユエ舎著負ユヒ主権り翻布益げ。", 141},
+			{U"ლორემ იფსუმ დოლორ სით ამეთ, მეი ფოსსით ფაცილის აცცუსამუს უთ, ფაულო სცრიფთა ყუი უთ. ჰას ცუ ჰაბემუს ადოლესცენს, ეუ უსუ ცეთერო ინთელლეგებათ. ნიბჰ მეის ეამ თე, ეთ დოლორე ფეთენთიუმ დიგნისსიმ იუს. ეუ ნუმყუამ ვოლუმუს ფორენსიბუს სეა. ენიმ ჰომერო თე ჰის, ეუმ ან ელით ომნეს. ეთ უსუ ცოფიოსაე თაციმათეს, იდ ჰას მუციუს ცომმუნე ინციდერინთ.", 325},
+		};
+
+		/*template <typename UnitT>
 		struct cstring
 		{
 			const UnitT* string;
@@ -106,7 +118,7 @@ namespace lingo
 			{
 				return TEST_CSTRINGS(char32_t, U);
 			}
-		};
+		};*/
 	}
 }
 

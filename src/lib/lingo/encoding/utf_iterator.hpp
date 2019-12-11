@@ -202,7 +202,7 @@ namespace lingo
 			}
 
 			template <typename CharacterSet>
-			LINGO_CONSTEXPR14 utf_iterator(basic_string_view<UnitT, CharacterSet, utf8> string) noexcept:
+			LINGO_CONSTEXPR14 utf_iterator(basic_string_view<UnitT, utf8<UnitT>, CharacterSet> string) noexcept:
 				_current(string.data()),
 				_end(string.data() + string.size()),
 				_code_point(parse())
