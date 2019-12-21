@@ -27,9 +27,9 @@ namespace lingo
 		LINGO_CONSTEXPR11 basic_string_view_storage(const basic_string_view_storage&) noexcept = default;
 		LINGO_CONSTEXPR11 basic_string_view_storage(basic_string_view_storage&&) noexcept = default;
 
-		LINGO_CONSTEXPR11 basic_string_view_storage(const_pointer string, size_type length, bool null_terminated) noexcept:
-			_data(string),
-			_size(length | (null_terminated ? null_terminated_bit : 0))
+		LINGO_CONSTEXPR11 basic_string_view_storage(const_pointer cstring, size_type size, bool null_terminated) noexcept:
+			_data(cstring),
+			_size(size | (null_terminated ? null_terminated_bit : 0))
 		{
 		}
 
@@ -71,6 +71,9 @@ namespace lingo
 		const_pointer _data = &null_terminator;
 		size_type _size = null_terminated_bit;
 	};
+
+	template <typename UnitT>
+	LINGO_CONSTEXPR11 UnitT basic_string_view_storage<UnitT>::null_terminator;
 }
 
 

@@ -24,20 +24,16 @@ Here are a few implementation examples:
 ## Code Unit
 A code unit is the smallest unit of storage that can store part of or sometimes the entire code point, depending on the value of the code point and the encoding. These are usually represented by types such as `char`, `char16_t` and `char32_t`.
 
+The name is also commonly shortened to `unit`.
+
 ## Code Point
 A code point is a single number that is stored in a set of one or more code units, based on the encoding, and has its meaning defined by the character set.
 
 A code point is **NOT** a character! It can be, but it can also be a modifier for the surrounding code points, such as accents (e + " = ë).
 
-## Character
+The name is also commonly shortened to `point`.
 
-**TODO**
-
-## Grapheme
-
-**TODO**
-
-## Grapheme Cluster
-
-**TODO**
-
+## TODO
+* Character
+* Grapheme
+* Grapheme Cluster

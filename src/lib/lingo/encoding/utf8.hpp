@@ -3,7 +3,8 @@
 
 #include <lingo/constexpr.hpp>
 
-#include <lingo/error/error_code.hpp>
+#include <lingo/encoding/result.hpp>
+#include <lingo/encoding/point_iterator.hpp>
 
 #include <cassert>
 #include <climits>
@@ -14,19 +15,6 @@ namespace lingo
 {
 	namespace encoding
 	{
-		struct encode_result
-		{
-			std::size_t size;
-			error::error_code error;
-		};
-
-		template <typename PointT>
-		struct decode_result
-		{
-			PointT point;
-			error::error_code error;
-		};
-
 		template <typename UnitT, typename PointT>
 		struct utf8
 		{
@@ -63,75 +51,59 @@ namespace lingo
 
 			static LINGO_CONSTEXPR14 size_type point_size(point_type point) noexcept
 			{
-				LINGO_IF_CONSTEXPR(std::is_signed<point_type>::value && !point_has_7_bit_maginude)
+				// Check if the point is too big to be encoded
+				LINGO_IF_CONSTEXPR(std::is_signed<point_type>::value && !point_has_21_bit_maginude)
 				{
-					std::int_fast16_t extended_point = static_cast<std::int_fast16_t>(point);
-					extended_point -= static_cast<std::int_fast16_t>(std::numeric_limits<point_type>::min()) * 2;
-					if (extended_point < 0x80)
+					if (point < -(0x110000 / 2) || point >= (0x110000 / 2))
 					{
-						return 1;
+						return 0;
 					}
 				}
 				else
 				{
-					if (point >= 0 && point < 0x80)
+					if (point >= 0x110000)
 					{
-						return 1;
+						return 0;
 					}
 				}
 
-				LINGO_IF_CONSTEXPR(std::is_signed<point_type>::value && !point_has_11_bit_maginude)
+				// Calculate the actual code point
+				char32_t code_point;
+				LINGO_IF_CONSTEXPR(std::is_signed<point_type>::value)
 				{
-					std::int_fast16_t extended_point = static_cast<std::int_fast16_t>(point);
-					extended_point -= static_cast<std::int_fast16_t>(std::numeric_limits<point_type>::min()) * 2;
-					if (extended_point < 0x800)
+					if (point >= 0)
 					{
-						return 2;
+						code_point = static_cast<char32_t>(point);
+					}
+					else
+					{
+						code_point = static_cast<int_least32_t>(point);
+						code_point += -static_cast<std::int_fast16_t>(std::numeric_limits<point_type>::min()) * 2;
 					}
 				}
 				else
 				{
-					if (point >= 0 && point < 0x800)
-					{
-						return 2;
-					}
+					code_point = static_cast<char32_t>(point);
 				}
+				assert(code_point < 0x110000);
 
-				LINGO_IF_CONSTEXPR(std::is_signed<point_type>::value && !point_has_16_bit_maginude)
+				// Calculate size
+				if (code_point < 0x80)
 				{
-					std::int_fast32_t extended_point = static_cast<std::int_fast32_t>(point);
-					extended_point -= static_cast<std::int_fast32_t>(std::numeric_limits<point_type>::min()) * 2;
-					if (extended_point < 0x10000)
-					{
-						return 3;
-					}
+					return 1;
+				}
+				else if (code_point < 0x800)
+				{
+					return 2;
+				}
+				else if (code_point < 0x10000)
+				{
+					return 3;
 				}
 				else
 				{
-					if (point >= 0 && point < 0x10000)
-					{
-						return 3;
-					}
+					return 4;
 				}
-
-				LINGO_IF_CONSTEXPR(!point_has_21_bit_maginude)
-				{
-					std::int_fast32_t extended_point = static_cast<std::int_fast32_t>(point);
-					extended_point -= static_cast<std::int_fast32_t>(std::numeric_limits<point_type>::min()) * 2;
-					if (extended_point < 0x110000)
-					{
-						return 4;
-					}
-				}
-				else
-				{
-					if (point >= 0 && point < 0x110000)
-					{
-						return 4;
-					}
-				}
-				
-				return 0;
 			}
 
 			static LINGO_CONSTEXPR14 size_type unit_size(unit_type unit) noexcept
@@ -184,8 +156,8 @@ namespace lingo
 					}
 					else
 					{
-						LINGO_CONSTEXPR11 int_fast16_t offset = static_cast<std::int_fast16_t>(std::numeric_limits<unit_type>::min()) * 2;
-						return sizes[static_cast<int_fast16_t>(unit) - offset];
+						difference_type offset = static_cast<difference_type>(std::numeric_limits<unit_type>::min()) * 2LL;
+						return sizes[static_cast<difference_type>(unit) - offset];
 					}
 				}
 				else
@@ -221,7 +193,7 @@ namespace lingo
 				}
 
 				// Return the result
-				return { required_size, error::error_code::none };
+				return { required_size, error::error_code::success };
 			}
 
 			static LINGO_CONSTEXPR14 decode_result<point_type> decode_point(const unit_type* buffer, size_type buffer_size) noexcept
@@ -274,9 +246,15 @@ namespace lingo
 				}
 
 				// Return the result
-				return  { code_point, error::error_code::none };
+				return { code_point, error::error_code::success };
 			}
 		};
+
+		template <typename UnitT, typename PointT>
+		LINGO_CONSTEXPR11 UnitT utf8<UnitT, PointT>::point_size_markers[4];
+
+		template <typename UnitT, typename PointT>
+		using basic_utf8_point_iterator = lingo::encoding::point_iterator<utf8<UnitT, PointT>>;
 	}
 }
 

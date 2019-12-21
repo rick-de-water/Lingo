@@ -15,7 +15,7 @@ LINGO_TEST_CASE("string_view has the correct exception specifications")
 	REQUIRE(noexcept(::new(std::nothrow) string_view(std::declval<string_view&&>())));
 	REQUIRE(noexcept(::new(std::nothrow) string_view(std::declval<const unit_type*>())));
 	REQUIRE(noexcept(::new(std::nothrow) string_view(std::declval<const unit_type*>(), std::declval<size_type>(), std::declval<bool>())));
-	REQUIRE(std::is_nothrow_default_constructible_v<string_view>);
+	REQUIRE(std::is_nothrow_default_constructible<string_view>::value);
 
 	REQUIRE(noexcept(std::declval<string_view&>() = std::declval<const string_view&>()));
 	REQUIRE(noexcept(std::declval<string_view&>() = std::declval<string_view&&>()));
@@ -46,50 +46,50 @@ LINGO_TEST_CASE("string_view has the correct types")
 	LINGO_TEST_TYPEDEFS;
 
 	// Typedefs
-	REQUIRE(std::is_same<encoding_type, string_view::encoding_type>::value);
-	REQUIRE(std::is_same<character_set_type, string_view::character_set_type>::value);
+	REQUIRE(std::is_same<encoding_type, typename string_view::encoding_type>::value);
+	REQUIRE(std::is_same<character_set_type, typename string_view::character_set_type>::value);
 
-	REQUIRE(std::is_same<unit_type, string_view::value_type>::value);
-	REQUIRE(std::is_same<unit_type&, string_view::reference>::value);
-	REQUIRE(std::is_same<const unit_type&, string_view::const_reference>::value);
-	REQUIRE(std::is_same<unit_type*, string_view::pointer>::value);
-	REQUIRE(std::is_same<const unit_type*, string_view::const_pointer>::value);
+	REQUIRE(std::is_same<unit_type, typename string_view::value_type>::value);
+	REQUIRE(std::is_same<unit_type&, typename string_view::reference>::value);
+	REQUIRE(std::is_same<const unit_type&, typename string_view::const_reference>::value);
+	REQUIRE(std::is_same<unit_type*, typename string_view::pointer>::value);
+	REQUIRE(std::is_same<const unit_type*, typename string_view::const_pointer>::value);
 
-	REQUIRE(std::is_same<size_type, string_view::size_type>::value);
-	REQUIRE(std::is_same<difference_type, string_view::difference_type>::value);
+	REQUIRE(std::is_same<size_type, typename string_view::size_type>::value);
+	REQUIRE(std::is_same<difference_type, typename string_view::difference_type>::value);
 
-	REQUIRE(std::is_same<string_view::iterator, string_view::const_iterator>::value);
-	REQUIRE(std::is_same<string_view::reverse_iterator, string_view::const_reverse_iterator>::value);
+	REQUIRE(std::is_same<typename string_view::iterator, typename string_view::const_iterator>::value);
+	REQUIRE(std::is_same<typename string_view::reverse_iterator, typename string_view::const_reverse_iterator>::value);
 
 	// Return values
-	REQUIRE(std::is_same<string_view::iterator, decltype(std::declval<string_view>().begin())>::value);
-	REQUIRE(std::is_same<string_view::iterator, decltype(std::declval<const string_view>().begin())>::value);
-	REQUIRE(std::is_same<string_view::iterator, decltype(std::declval<string_view>().end())>::value);
-	REQUIRE(std::is_same<string_view::iterator, decltype(std::declval<const string_view>().end())>::value);
-	REQUIRE(std::is_same<string_view::const_iterator, decltype(std::declval<string_view>().cbegin())>::value);
-	REQUIRE(std::is_same<string_view::const_iterator, decltype(std::declval<const string_view>().cbegin())>::value);
-	REQUIRE(std::is_same<string_view::const_iterator, decltype(std::declval<string_view>().cend())>::value);
-	REQUIRE(std::is_same<string_view::const_iterator, decltype(std::declval<const string_view>().cend())>::value);
-	REQUIRE(std::is_same<string_view::reverse_iterator, decltype(std::declval<string_view>().rbegin())>::value);
-	REQUIRE(std::is_same<string_view::reverse_iterator, decltype(std::declval<const string_view>().rbegin())>::value);
-	REQUIRE(std::is_same<string_view::reverse_iterator, decltype(std::declval<string_view>().rend())>::value);
-	REQUIRE(std::is_same<string_view::reverse_iterator, decltype(std::declval<const string_view>().rend())>::value);
-	REQUIRE(std::is_same<string_view::const_reverse_iterator, decltype(std::declval<string_view>().crbegin())>::value);
-	REQUIRE(std::is_same<string_view::const_reverse_iterator, decltype(std::declval<const string_view>().crbegin())>::value);
-	REQUIRE(std::is_same<string_view::const_reverse_iterator, decltype(std::declval<string_view>().crend())>::value);
-	REQUIRE(std::is_same<string_view::const_reverse_iterator, decltype(std::declval<const string_view>().crend())>::value);
+	REQUIRE(std::is_same<typename string_view::iterator, decltype(std::declval<string_view>().begin())>::value);
+	REQUIRE(std::is_same<typename string_view::iterator, decltype(std::declval<const string_view>().begin())>::value);
+	REQUIRE(std::is_same<typename string_view::iterator, decltype(std::declval<string_view>().end())>::value);
+	REQUIRE(std::is_same<typename string_view::iterator, decltype(std::declval<const string_view>().end())>::value);
+	REQUIRE(std::is_same<typename string_view::const_iterator, decltype(std::declval<string_view>().cbegin())>::value);
+	REQUIRE(std::is_same<typename string_view::const_iterator, decltype(std::declval<const string_view>().cbegin())>::value);
+	REQUIRE(std::is_same<typename string_view::const_iterator, decltype(std::declval<string_view>().cend())>::value);
+	REQUIRE(std::is_same<typename string_view::const_iterator, decltype(std::declval<const string_view>().cend())>::value);
+	REQUIRE(std::is_same<typename string_view::reverse_iterator, decltype(std::declval<string_view>().rbegin())>::value);
+	REQUIRE(std::is_same<typename string_view::reverse_iterator, decltype(std::declval<const string_view>().rbegin())>::value);
+	REQUIRE(std::is_same<typename string_view::reverse_iterator, decltype(std::declval<string_view>().rend())>::value);
+	REQUIRE(std::is_same<typename string_view::reverse_iterator, decltype(std::declval<const string_view>().rend())>::value);
+	REQUIRE(std::is_same<typename string_view::const_reverse_iterator, decltype(std::declval<string_view>().crbegin())>::value);
+	REQUIRE(std::is_same<typename string_view::const_reverse_iterator, decltype(std::declval<const string_view>().crbegin())>::value);
+	REQUIRE(std::is_same<typename string_view::const_reverse_iterator, decltype(std::declval<string_view>().crend())>::value);
+	REQUIRE(std::is_same<typename string_view::const_reverse_iterator, decltype(std::declval<const string_view>().crend())>::value);
 
-	REQUIRE(std::is_same<string_view::const_reference, decltype(std::declval<string_view>().front())>::value);
-	REQUIRE(std::is_same<string_view::const_reference, decltype(std::declval<const string_view>().front())>::value);
-	REQUIRE(std::is_same<string_view::const_reference, decltype(std::declval<string_view>().back())>::value);
-	REQUIRE(std::is_same<string_view::const_reference, decltype(std::declval<const string_view>().back())>::value);
+	REQUIRE(std::is_same<typename string_view::const_reference, decltype(std::declval<string_view>().front())>::value);
+	REQUIRE(std::is_same<typename string_view::const_reference, decltype(std::declval<const string_view>().front())>::value);
+	REQUIRE(std::is_same<typename string_view::const_reference, decltype(std::declval<string_view>().back())>::value);
+	REQUIRE(std::is_same<typename string_view::const_reference, decltype(std::declval<const string_view>().back())>::value);
 
-	REQUIRE(std::is_same<string_view::const_pointer, decltype(std::declval<string_view>().data())>::value);
-	REQUIRE(std::is_same<string_view::const_pointer, decltype(std::declval<const string_view>().data())>::value);
-	REQUIRE(std::is_same<string_view::size_type, decltype(std::declval<string_view>().size())>::value);
-	REQUIRE(std::is_same<string_view::size_type, decltype(std::declval<const string_view>().size())>::value);
-	REQUIRE(std::is_same<string_view::size_type, decltype(std::declval<string_view>().max_size())>::value);
-	REQUIRE(std::is_same<string_view::size_type, decltype(std::declval<const string_view>().max_size())>::value);
+	REQUIRE(std::is_same<typename string_view::const_pointer, decltype(std::declval<string_view>().data())>::value);
+	REQUIRE(std::is_same<typename string_view::const_pointer, decltype(std::declval<const string_view>().data())>::value);
+	REQUIRE(std::is_same<typename string_view::size_type, decltype(std::declval<string_view>().size())>::value);
+	REQUIRE(std::is_same<typename string_view::size_type, decltype(std::declval<const string_view>().size())>::value);
+	REQUIRE(std::is_same<typename string_view::size_type, decltype(std::declval<string_view>().max_size())>::value);
+	REQUIRE(std::is_same<typename string_view::size_type, decltype(std::declval<const string_view>().max_size())>::value);
 	REQUIRE(std::is_same<bool, decltype(std::declval<string_view>().empty())>::value);
 	REQUIRE(std::is_same<bool, decltype(std::declval<const string_view>().empty())>::value);
 	REQUIRE(std::is_same<bool, decltype(std::declval<string_view>().null_terminated())>::value);
@@ -103,13 +103,13 @@ LINGO_TEST_CASE("A default constructed string_view is an empty null terminated s
 	LINGO_CONSTEXPR11 string_view sv;
 	REQUIRE(sv.size() == 0);
 	REQUIRE(sv.null_terminated());
-	REQUIRE(sv.data()[0] == unit_type(0));
+	REQUIRE(sv.data()[0] == unit_type{});
 }
 
 LINGO_TEST_CASE("string_view can be constructed from a cstring")
 {
 	LINGO_TEST_TYPEDEFS;
-
+	
 	for (auto& test_string : lingo::test::generate_test_strings<encoding_type>())
 	{
 		const string_view test_string_view1(test_string.data);

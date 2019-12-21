@@ -16,16 +16,23 @@
 #include <memory>
 #include <stdexcept>
 
+#ifdef __cpp_lib_string_view
+#include <string_view>
+#endif
+
 namespace lingo
 {
-	template <typename UnitT, typename Encoding, typename CharacterSet>
+	template <typename Encoding, typename CharacterSet>
 	class basic_string_view
 	{
 		public:
 		using encoding_type = Encoding;
 		using character_set_type = CharacterSet;
 
-		using value_type = UnitT;
+		using unit_type = typename encoding_type::unit_type;
+		using point_type = typename encoding_type::point_type;
+
+		using value_type = unit_type;
 		using reference = value_type&;
 		using const_reference = const value_type&;
 		using pointer = value_type*;
@@ -40,6 +47,8 @@ namespace lingo
 		using reverse_iterator = const_reverse_iterator;
 
 		private:
+		static_assert(std::is_same<typename character_set_type::point_type, typename encoding_type::point_type>::value, "character_set_type::point_type must be the same type as encoding_type::point_type");
+
 		using storage_type = basic_string_view_storage<value_type>;
 
 		public:
@@ -47,13 +56,18 @@ namespace lingo
 		LINGO_CONSTEXPR11 basic_string_view(const basic_string_view&) noexcept = default;
 		LINGO_CONSTEXPR11 basic_string_view(basic_string_view&&) noexcept = default;
 
-		LINGO_CONSTEXPR11 basic_string_view(const_pointer string) noexcept:
-			basic_string_view(string, strlen(string), true)
+		LINGO_CONSTEXPR11 basic_string_view(const_pointer cstring) noexcept:
+			basic_string_view(cstring, strlen(cstring), true)
 		{
 		}
 
-		LINGO_CONSTEXPR11 basic_string_view(const_pointer string, size_type length, bool null_terminated) noexcept:
-			_storage(string, length, null_terminated)
+		LINGO_CONSTEXPR11 basic_string_view(const_pointer cstring, size_type size) noexcept:
+			basic_string_view(cstring, size, false)
+		{
+		}
+
+		LINGO_CONSTEXPR11 basic_string_view(const_pointer cstring, size_type size, bool null_terminated) noexcept:
+			_storage(cstring, size, null_terminated)
 		{
 		}
 
@@ -149,6 +163,14 @@ namespace lingo
 			return _storage.null_terminated();
 		}
 
+		#ifdef __cpp_lib_string_view
+		template <typename Traits = std::char_traits<value_type>>
+		LINGO_CONSTEXPR17 std::basic_string_view<value_type, Traits> std() const noexcept
+		{
+			return std::basic_string_view<value_type, Traits>(data(), size());
+		}
+		#endif
+
 		LINGO_CONSTEXPR14 basic_string_view remove_prefix(size_type n) noexcept
 		{
 			assert(n <= size());
@@ -191,10 +213,10 @@ namespace lingo
 		storage_type _storage;
 	};
 
-	template <typename UnitT, typename Encoding, typename CharacterSet>
-	LINGO_CONSTEXPR14 bool operator == (basic_string_view<UnitT, Encoding, CharacterSet> left, basic_string_view<UnitT, Encoding, CharacterSet> right)
+	template <typename Encoding, typename CharacterSet>
+	LINGO_CONSTEXPR14 bool operator == (basic_string_view<Encoding, CharacterSet> left, basic_string_view<Encoding, CharacterSet> right)
 	{
-		using size_type = typename basic_string_view<UnitT, Encoding, CharacterSet>::size_type;
+		using size_type = typename basic_string_view<Encoding, CharacterSet>::size_type;
 
 		if (left.size() != right.size())
 		{
@@ -212,14 +234,14 @@ namespace lingo
 		return true;
 	}
 
-	template <typename UnitT, typename Encoding, typename CharacterSet>
-	LINGO_CONSTEXPR14 bool operator != (basic_string_view<UnitT, Encoding, CharacterSet> left, basic_string_view<UnitT, Encoding, CharacterSet> right)
+	template <typename Encoding, typename CharacterSet>
+	LINGO_CONSTEXPR14 bool operator != (basic_string_view<Encoding, CharacterSet> left, basic_string_view<Encoding, CharacterSet> right)
 	{
 		return !(left == right);
 	}
 
-	using ascii_string_view = basic_string_view<char, encoding::none<char, char>, set::ascii>;
-	using utf8_string_view = basic_string_view<char, encoding::utf8<char, char32_t>, set::unicode>;
+	using ascii_string_view = basic_string_view<encoding::none<char, char>, set::ascii>;
+	using utf8_string_view = basic_string_view<encoding::utf8<char, char32_t>, set::unicode<char32_t>>;
 
 	using string_view = utf8_string_view;
 }

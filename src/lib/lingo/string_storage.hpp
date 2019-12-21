@@ -2,8 +2,11 @@
 #define H_LINGO_STRING_STORAGE
 
 #include <lingo/constexpr.hpp>
+#include <lingo/compressed_pair.hpp>
 
+#include <cassert>
 #include <cstddef>
+#include <cstring>
 #include <limits>
 #include <memory>
 #include <type_traits>
@@ -13,58 +16,67 @@ namespace lingo
 	namespace internal
 	{
 		template <typename UnitT>
-		struct basic_string_storage_members_long
+		struct basic_string_storage_long_marker
+		{
+			static LINGO_CONSTEXPR11 UnitT value = std::numeric_limits<UnitT>::max();
+		};
+
+		template <typename UnitT>
+		struct basic_string_storage_data_requires_padding
+		{
+			static LINGO_CONSTEXPR11 bool value = sizeof(UnitT) < sizeof(void*);
+		};
+
+		template <typename UnitT, bool Padding = basic_string_storage_data_requires_padding<UnitT>::value>
+		struct basic_string_storage_data_long;
+
+		template <typename UnitT>
+		struct basic_string_storage_data_long<UnitT, true>
 		{
 			UnitT* _data;
 			std::size_t _size;
 			std::size_t _capacity;
+			char _padding[sizeof(void*) - sizeof(UnitT)];
+			UnitT _last_unit;
 		};
 
 		template <typename UnitT>
-		struct basic_string_storage_members_short
+		struct basic_string_storage_data_long<UnitT, false>
 		{
-			UnitT _data[(sizeof(UnitT*) * 3) / sizeof(UnitT)];
+			UnitT* _data;
+			std::size_t _size;
+			std::size_t _capacity;
+			UnitT _last_unit;
 		};
 
 		template <typename UnitT>
-		union basic_string_storage_members_union
+		struct basic_string_storage_data_short
 		{
-			basic_string_storage_members_long<UnitT> _long;
-			basic_string_storage_members_short<UnitT> _short;
+			UnitT _data[(sizeof(void*) * 4) / sizeof(UnitT) - 1];
+			UnitT _last_unit;
 		};
 
 		template <typename UnitT>
-		struct basic_string_storage_members_requires_padding
+		union basic_string_storage_data
 		{
-			static constexpr bool value = (sizeof(basic_string_storage_members_union<UnitT>) + sizeof(UnitT)) < sizeof(void*) * 4;
+			basic_string_storage_data() noexcept:
+				_short{}
+			{
+				_short._last_unit = UnitT(((sizeof(void*) * 4) / sizeof(UnitT)) - 1);
+			}
+
+			basic_string_storage_data_long<UnitT> _long;
+			basic_string_storage_data_short<UnitT> _short;
 		};
 
-		template <typename UnitT, bool Padding = basic_string_storage_members_requires_padding<UnitT>::value>
-		struct basic_string_storage_members;
-
-		template <typename UnitT>
-		struct basic_string_storage_members<UnitT, true>
-		{
-			basic_string_storage_members_union<UnitT> _specific;
-			char _padding[sizeof(void*) * 4 - (sizeof(basic_string_storage_members_union<UnitT>) + sizeof(UnitT))];
-			UnitT _last_char;
-		};
-
-		template <typename UnitT>
-		struct basic_string_storage_members<UnitT, false>
-		{
-			basic_string_storage_members_union<UnitT> _specific;
-			UnitT _last_char;
-		};
-
-		static_assert(sizeof(basic_string_storage_members<uint_least8_t>) == sizeof(void*) * 4, "string storage is the correct size");
-		static_assert(sizeof(basic_string_storage_members<uint_least16_t>) == sizeof(void*) * 4, "string storage is the correct size");
-		static_assert(sizeof(basic_string_storage_members<uint_least32_t>) == sizeof(void*) * 4, "string storage is the correct size");
-		static_assert(sizeof(basic_string_storage_members<uint_least64_t>) == sizeof(void*) * 4, "string storage is the correct size");
+		static_assert(sizeof(basic_string_storage_data<uint_least8_t>) == sizeof(void*) * 4, "string storage is the correct size");
+		static_assert(sizeof(basic_string_storage_data<uint_least16_t>) == sizeof(void*) * 4, "string storage is the correct size");
+		static_assert(sizeof(basic_string_storage_data<uint_least32_t>) == sizeof(void*) * 4, "string storage is the correct size");
+		static_assert(sizeof(basic_string_storage_data<uint_least64_t>) == sizeof(void*) * 4, "string storage is the correct size");
 	}
 
 	template <typename UnitT, typename Allocator = std::allocator<UnitT>>
-	class basic_string_storage : public internal::basic_string_storage_members<UnitT>
+	class basic_string_storage 
 	{
 		public:
 		using allocator_type = Allocator;
@@ -78,21 +90,38 @@ namespace lingo
 		using size_type = typename allocator_type::size_type;
 		using difference_type = typename allocator_type::difference_type;
 
-		private:
-		static LINGO_CONSTEXPR11 value_type long_marker = std::numeric_limits<value_type>::max();
-
 		public:
-		basic_string_storage() noexcept = default;
+		basic_string_storage() noexcept(
+			std::is_nothrow_constructible<allocator_type>::value &&
+			std::is_nothrow_constructible<basic_string_storage, const allocator_type&>::value):
+			basic_string_storage(allocator_type())
+		{
+		}
 
-		pointer data() const noexcept
+		explicit basic_string_storage(const allocator_type& allocator) noexcept(std::is_nothrow_copy_constructible<allocator_type>::value):
+			_data{ {}, allocator }
+		{
+		}
+
+		allocator_type get_allocator() const noexcept(std::is_nothrow_copy_constructible<allocator_type>::value)
+		{
+			return _data.second();
+		}
+
+		pointer data() noexcept
+		{
+			return const_cast<pointer>(static_cast<const basic_string_storage*>(this)->data());
+		}
+
+		const_pointer data() const noexcept
 		{
 			if (is_long())
 			{
-				return _specific._long._data;
+				return _data.first()._long._data;
 			}
 			else
 			{
-				return _specific._short._data;
+				return _data.first()._short._data;
 			}
 		}
 
@@ -100,11 +129,58 @@ namespace lingo
 		{
 			if (is_long())
 			{
-				return _specific._long._size;
+				return _data.first()._long._size;
 			}
 			else
 			{
-				return sizeof(internal::basic_string_storage_members_short<value_type>) - _last_char;
+				return ((sizeof(void*) * 4) / sizeof(value_type)) - (static_cast<size_type>(_data.first()._short._last_unit) + 1);
+			}
+		}
+
+		void resize_default_construct(size_type new_size)
+		{
+			assert(new_size <= capacity());
+			const size_type original_size = size();
+			pointer buffer = data();
+			if (new_size > original_size)
+			{
+				default_construct(buffer + original_size, new_size - original_size);
+				buffer[new_size] = value_type{};
+			}
+			else if (new_size < original_size)
+			{
+				buffer[new_size] = value_type{};
+			}
+			set_size(new_size);
+		}
+
+		void resize_copy_construct(size_type new_size, const_pointer source)
+		{
+			assert(new_size <= capacity());
+			const size_type original_size = size();
+			pointer buffer = data();
+			if (new_size > original_size)
+			{
+				copy_contruct(buffer, source, new_size - original_size);
+				buffer[new_size] = value_type{};
+			}
+			else if (new_size < original_size)
+			{
+				buffer[new_size] = value_type{};
+			}
+			set_size(new_size);
+		}
+
+		void set_size(size_type new_size)
+		{
+			assert(new_size <= capacity());
+			if (is_long())
+			{
+				_data.first()._long._size = new_size;
+			}
+			else
+			{
+				_data.first()._short._last_unit = static_cast<value_type>(sizeof(void*) * 4 / sizeof(value_type) - (new_size + 1));
 			}
 		}
 
@@ -117,18 +193,103 @@ namespace lingo
 		{
 			if (is_long())
 			{
-				return _specific._long._capacity;
+				return _data.first()._long._capacity;
 			}
 			else
 			{
-				return sizeof(internal::basic_string_storage_members_short<value_type>);
+				return (sizeof(internal::basic_string_storage_data<value_type>) / sizeof(value_type)) - 1;
 			}
 		}
 
 		bool is_long() const noexcept
 		{
-			return _last_char == long_marker;
+			return _data.first()._long._last_unit == internal::basic_string_storage_long_marker<value_type>::value;
 		}
+
+		void grow(size_type requested_capacity)
+		{
+			// Don't do anything when there is already enough capacity
+			size_type new_capacity = capacity();
+			if (new_capacity >= requested_capacity)
+			{
+				return;
+			}
+
+			// Calculate the new capacity
+			// TODO: handle requested_capacity > max_size
+			if (!is_long() && new_capacity * 2 >= requested_capacity)
+			{
+				new_capacity *= 2;
+			}
+			else
+			{
+				new_capacity = requested_capacity;
+			}
+
+			// Allocate a new buffer
+			allocator_type allocator = get_allocator();
+			pointer original_data = data();
+			const size_type data_size = size();
+			pointer new_data = allocator.allocate(new_capacity + 1);
+
+			// Copy the old data to the new buffer
+			// TODO: rollback on exceptions when the copy constructor can throw
+			copy_contruct(new_data, original_data, data_size);
+
+			// Clean up the original data
+			free(original_data, data_size);
+			
+			// Free original memory if it was allocated by the allocator
+			if (is_long())
+			{
+				allocator.deallocate(original_data, data_size);
+			}
+
+			// Replace the old data pointers with the new ones
+			_data.first()._long = { new_data, data_size, new_capacity };
+			_data.first()._long._last_unit = internal::basic_string_storage_long_marker<value_type>::value;
+		}
+
+		static void default_construct(pointer destination, size_type size)
+		{
+			LINGO_IF_CONSTEXPR(!std::is_trivially_constructible<value_type>::value)
+			{
+				for (size_type i = 0; i < size; ++i)
+				{
+					new (destination + i) value_type();
+				}
+			}
+		}
+
+		static void free(pointer destination, size_type size)
+		{
+			LINGO_IF_CONSTEXPR(!std::is_trivially_destructible<value_type>::value)
+			{
+				for (size_type i = 0; i < size; ++i)
+				{
+					destination[i].~value_type();
+				}
+			}
+		}
+
+		static void copy_contruct(pointer destination, const_pointer source, size_type size) noexcept(std::is_nothrow_copy_constructible<value_type>::value)
+		{
+			// Copy data over to the new data
+			LINGO_IF_CONSTEXPR(std::is_trivially_copyable<value_type>::value)
+			{
+				std::memcpy(destination, source, size * sizeof(value_type));
+			}
+			else
+			{
+				for (size_type i = 0; i < size; ++i)
+				{
+					new (destination + i) value_type(source[i]);
+				}
+			}
+		}
+
+		private:
+		compressed_pair<internal::basic_string_storage_data<UnitT>, allocator_type> _data;
 	};
 
 	static_assert(sizeof(basic_string_storage<uint_least8_t>) == sizeof(void*) * 4, "string storage is the correct size");

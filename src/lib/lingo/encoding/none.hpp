@@ -33,7 +33,7 @@ namespace lingo
 					return 0;
 				}
 
-				buffer[0] = point;
+				buffer[0] = static_cast<unit_type>(point);
 
 				return 1;
 			}
@@ -45,7 +45,7 @@ namespace lingo
 					return 0;
 				}
 
-				return buffer[0];
+				return static_cast<point_type>(buffer[0]);
 			}
 		};
 	}

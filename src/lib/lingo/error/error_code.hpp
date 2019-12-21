@@ -7,7 +7,7 @@ namespace lingo
 	{
 		enum class error_code
 		{
-			none,
+			success,
 
 			buffer_too_small,
 			invalid_point,

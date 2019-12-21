@@ -1,10 +1,4 @@
 function(lingo_add_target TARGET)
-	# Manually set language to C++
-	set_target_properties("${TARGET}" PROPERTIES LINKER_LANGUAGE CXX)
-
-	# Explicit exports only
-	set_target_properties("${TARGET}" PROPERTIES CXX_VISIBILITY_PRESET hidden)
-
 	# Unfiltered files
 	source_group(" " REGULAR_EXPRESSION ".*")
 	

@@ -1,6 +1,7 @@
 #ifndef H_LINGO_TEST_TYPES
 #define H_LINGO_TEST_TYPES
 
+#include <cstdint>
 #include <cstddef>
 #include <tuple>
 #include <utility>
@@ -10,27 +11,27 @@ namespace lingo
 	namespace test
 	{
 		using unit_types = std::tuple<
+			int_least8_t,
+			int_least16_t,
+			int_least32_t,
+			int_least64_t
+
+			/*#ifndef _DEBUG
+			,
 			char,
+			signed char,
+			unsigned char,
 			wchar_t,
 			#if __cpp_char8_t
 			char8_t,
 			#endif
 			char16_t,
 			char32_t,
-			uint64_t
-
-			#ifndef _DEBUG
-			,
-			signed char,
-			unsigned char,
-			int8_t,
-			int16_t,
-			int32_t,
-			int64_t,
-			uint8_t,
-			uint16_t,
-			uint32_t
-			#endif
+			uint_least8_t,
+			uint_least16_t,
+			uint_least32_t,
+			uint_least64_t
+			#endif*/
 		>;
 
 		using point_types = unit_types;
