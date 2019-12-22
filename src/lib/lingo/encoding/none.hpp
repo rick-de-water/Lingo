@@ -5,11 +5,11 @@ namespace lingo
 {
 	namespace encoding
 	{
-		template <typename UnitT, typename PointT>
+		template <typename Unit, typename Point>
 		struct none
 		{
-			using unit_type = UnitT;
-			using point_type = PointT;
+			using unit_type = Unit;
+			using point_type = Point;
 
 			using size_type = std::size_t;
 			using difference_type = std::ptrdiff_t;

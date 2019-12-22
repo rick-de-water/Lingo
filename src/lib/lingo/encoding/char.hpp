@@ -8,10 +8,10 @@ namespace lingo
 {
 	namespace encoding
 	{
-		template <typename UnitT>
+		template <typename Unit>
 		struct char_default_encoding
 		{
-			using type = none<UnitT, UnitT>;
+			using type = none<Unit, Unit>;
 		};
 
 		#if __cpp_char8_t
@@ -22,8 +22,8 @@ namespace lingo
 		};
 		#endif
 
-		template <typename UnitT>
-		using char_default_encoding_t = typename char_default_encoding<UnitT>::type;
+		template <typename Unit>
+		using char_default_encoding_t = typename char_default_encoding<Unit>::type;
 	}
 }
 

@@ -7,11 +7,11 @@
 
 namespace lingo
 {
-	template <typename UnitT>
+	template <typename Unit>
 	class basic_string_view_storage
 	{
 		public:
-		using value_type = UnitT;
+		using value_type = Unit;
 		using reference = value_type&;
 		using const_reference = const value_type&;
 		using pointer = value_type*;
@@ -72,8 +72,8 @@ namespace lingo
 		size_type _size = null_terminated_bit;
 	};
 
-	template <typename UnitT>
-	LINGO_CONSTEXPR11 UnitT basic_string_view_storage<UnitT>::null_terminator;
+	template <typename Unit>
+	LINGO_CONSTEXPR11 Unit basic_string_view_storage<Unit>::null_terminator;
 }
 
 

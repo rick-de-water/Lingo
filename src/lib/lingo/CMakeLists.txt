@@ -31,7 +31,7 @@ lingo_target_sources(lingo PRIVATE "page/unicode.hpp" "page/unicode.cpp" FOLDER 
 
 lingo_target_sources(lingo PRIVATE "page/result.hpp" FOLDER "page/result")
 
-# EncodingT
+# Encoding
 lingo_target_sources(lingo PRIVATE "encoding/none.hpp" FOLDER "encoding/none")
 lingo_target_sources(lingo PRIVATE "encoding/utf8.hpp" FOLDER "encoding/utf")
 

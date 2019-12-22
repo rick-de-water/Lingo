@@ -15,58 +15,58 @@ namespace lingo
 {
 	namespace internal
 	{
-		template <typename UnitT>
+		template <typename Unit>
 		struct basic_string_storage_long_marker
 		{
-			static LINGO_CONSTEXPR11 UnitT value = std::numeric_limits<UnitT>::max();
+			static LINGO_CONSTEXPR11 Unit value = std::numeric_limits<Unit>::max();
 		};
 
-		template <typename UnitT>
+		template <typename Unit>
 		struct basic_string_storage_data_requires_padding
 		{
-			static LINGO_CONSTEXPR11 bool value = sizeof(UnitT) < sizeof(void*);
+			static LINGO_CONSTEXPR11 bool value = sizeof(Unit) < sizeof(void*);
 		};
 
-		template <typename UnitT, bool Padding = basic_string_storage_data_requires_padding<UnitT>::value>
+		template <typename Unit, bool Padding = basic_string_storage_data_requires_padding<Unit>::value>
 		struct basic_string_storage_data_long;
 
-		template <typename UnitT>
-		struct basic_string_storage_data_long<UnitT, true>
+		template <typename Unit>
+		struct basic_string_storage_data_long<Unit, true>
 		{
-			UnitT* _data;
+			Unit* _data;
 			std::size_t _size;
 			std::size_t _capacity;
-			char _padding[sizeof(void*) - sizeof(UnitT)];
-			UnitT _last_unit;
+			char _padding[sizeof(void*) - sizeof(Unit)];
+			Unit _last_unit;
 		};
 
-		template <typename UnitT>
-		struct basic_string_storage_data_long<UnitT, false>
+		template <typename Unit>
+		struct basic_string_storage_data_long<Unit, false>
 		{
-			UnitT* _data;
+			Unit* _data;
 			std::size_t _size;
 			std::size_t _capacity;
-			UnitT _last_unit;
+			Unit _last_unit;
 		};
 
-		template <typename UnitT>
+		template <typename Unit>
 		struct basic_string_storage_data_short
 		{
-			UnitT _data[(sizeof(void*) * 4) / sizeof(UnitT) - 1];
-			UnitT _last_unit;
+			Unit _data[(sizeof(void*) * 4) / sizeof(Unit) - 1];
+			Unit _last_unit;
 		};
 
-		template <typename UnitT>
+		template <typename Unit>
 		union basic_string_storage_data
 		{
 			basic_string_storage_data() noexcept:
 				_short{}
 			{
-				_short._last_unit = UnitT(((sizeof(void*) * 4) / sizeof(UnitT)) - 1);
+				_short._last_unit = Unit(((sizeof(void*) * 4) / sizeof(Unit)) - 1);
 			}
 
-			basic_string_storage_data_long<UnitT> _long;
-			basic_string_storage_data_short<UnitT> _short;
+			basic_string_storage_data_long<Unit> _long;
+			basic_string_storage_data_short<Unit> _short;
 		};
 
 		static_assert(sizeof(basic_string_storage_data<uint_least8_t>) == sizeof(void*) * 4, "string storage is the correct size");
@@ -75,13 +75,13 @@ namespace lingo
 		static_assert(sizeof(basic_string_storage_data<uint_least64_t>) == sizeof(void*) * 4, "string storage is the correct size");
 	}
 
-	template <typename UnitT, typename AllocatorT = std::allocator<UnitT>>
+	template <typename Unit, typename Allocator = std::allocator<Unit>>
 	class basic_string_storage 
 	{
 		public:
-		using allocator_type = AllocatorT;
+		using allocator_type = Allocator;
 
-		using unit_type = UnitT;
+		using unit_type = Unit;
 
 		using value_type = unit_type;
 		using reference = value_type&;

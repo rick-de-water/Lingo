@@ -15,12 +15,12 @@ namespace lingo
 {
 	namespace encoding
 	{
-		template <typename UnitT, typename PointT>
+		template <typename Unit, typename Point>
 		struct utf8
 		{
 			public:
-			using unit_type = UnitT;
-			using point_type = PointT;
+			using unit_type = Unit;
+			using point_type = Point;
 
 			using size_type = std::size_t;
 			using difference_type = std::ptrdiff_t;
@@ -221,13 +221,13 @@ namespace lingo
 				}
 
 				// Mask constants
-				LINGO_CONSTEXPR11 UnitT first_data_masks[] = { UnitT(0b1111'1111), UnitT(0b1111'1111), UnitT(0b0001'1111), UnitT(0b0000'1111), UnitT(0b0000'0111) };
-				LINGO_CONSTEXPR11 UnitT continuation_data_mask = UnitT(0b0011'1111);
-				LINGO_CONSTEXPR11 UnitT continuation_prefix_mask = UnitT(0b1100'0000);
-				LINGO_CONSTEXPR11 UnitT continuation_bits = UnitT(0b1000'0000);
+				LINGO_CONSTEXPR11 Unit first_data_masks[] = { Unit(0b1111'1111), Unit(0b1111'1111), Unit(0b0001'1111), Unit(0b0000'1111), Unit(0b0000'0111) };
+				LINGO_CONSTEXPR11 Unit continuation_data_mask = Unit(0b0011'1111);
+				LINGO_CONSTEXPR11 Unit continuation_prefix_mask = Unit(0b1100'0000);
+				LINGO_CONSTEXPR11 Unit continuation_bits = Unit(0b1000'0000);
 
 				// Get the bits from the first unit
-				PointT code_point = buffer[0] & first_data_masks[code_point_units];
+				Point code_point = buffer[0] & first_data_masks[code_point_units];
 
 				// Get the bits from all the continuation bytes
 				for (std::size_t i = 1; i < code_point_units; ++i)
@@ -250,11 +250,11 @@ namespace lingo
 			}
 		};
 
-		template <typename UnitT, typename PointT>
-		LINGO_CONSTEXPR11 UnitT utf8<UnitT, PointT>::point_size_markers[4];
+		template <typename Unit, typename Point>
+		LINGO_CONSTEXPR11 Unit utf8<Unit, Point>::point_size_markers[4];
 
-		template <typename UnitT, typename PointT>
-		using basic_utf8_point_iterator = lingo::encoding::point_iterator<utf8<UnitT, PointT>>;
+		template <typename Unit, typename Point>
+		using basic_utf8_point_iterator = lingo::encoding::point_iterator<utf8<Unit, Point>>;
 	}
 }
 

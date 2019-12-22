@@ -18,13 +18,13 @@
 #define TEST_CSTRING4(...) __VA_ARGS__"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam risus massa, gravida ac mauris et, fermentum dapibus nisi. Nunc egestas urna a suscipit tincidunt. Quisque mattis quam ac turpis tempor hendrerit. Sed vel eleifend lacus. Donec eget imperdiet odio, et fermentum massa. Phasellus augue ante, auctor id imperdiet eu, bibendum id urna. Maecenas vel massa ac lorem lacinia mollis sit amet ac dui. Aenean mollis tellus nisl, eget finibus ligula dictum vitae."
 #define TEST_CSTRING5(...) __VA_ARGS__"abcdefghijklmnopqrstuvwxyz\0a12342346dfgdffgdsfasfgdfgdfgdfgcggngg67553454342413dfdfghdffasdfdfhghszghfgh"
 
-#define TEST_CSTRINGS(UnitT, ...) { \
-	cstring<UnitT>{ TEST_CSTRING0(__VA_ARGS__), 0 }, \
-	cstring<UnitT>{ TEST_CSTRING1(__VA_ARGS__), 1 }, \
-	cstring<UnitT>{ TEST_CSTRING2(__VA_ARGS__), 5 }, \
-	cstring<UnitT>{ TEST_CSTRING3(__VA_ARGS__), 20 }, \
-	cstring<UnitT>{ TEST_CSTRING4(__VA_ARGS__), 463 }, \
-	cstring<UnitT>{ TEST_CSTRING5(__VA_ARGS__), 26 }, \
+#define TEST_CSTRINGS(Unit, ...) { \
+	cstring<Unit>{ TEST_CSTRING0(__VA_ARGS__), 0 }, \
+	cstring<Unit>{ TEST_CSTRING1(__VA_ARGS__), 1 }, \
+	cstring<Unit>{ TEST_CSTRING2(__VA_ARGS__), 5 }, \
+	cstring<Unit>{ TEST_CSTRING3(__VA_ARGS__), 20 }, \
+	cstring<Unit>{ TEST_CSTRING4(__VA_ARGS__), 463 }, \
+	cstring<Unit>{ TEST_CSTRING5(__VA_ARGS__), 26 }, \
 }
 
 
@@ -52,17 +52,17 @@ namespace lingo
 			{U"ლორემ იფსუმ დოლორ სით ამეთ, მეი ფოსსით ფაცილის აცცუსამუს უთ, ფაულო სცრიფთა ყუი უთ. ჰას ცუ ჰაბემუს ადოლესცენს, ეუ უსუ ცეთერო ინთელლეგებათ. ნიბჰ მეის ეამ თე, ეთ დოლორე ფეთენთიუმ დიგნისსიმ იუს. ეუ ნუმყუამ ვოლუმუს ფორენსიბუს სეა. ენიმ ჰომერო თე ჰის, ეუმ ან ელით ომნეს. ეთ უსუ ცოფიოსაე თაციმათეს, იდ ჰას მუციუს ცომმუნე ინციდერინთ.", 325},
 		};
 
-		/*template <typename UnitT>
+		/*template <typename Unit>
 		struct cstring
 		{
-			const UnitT* string;
+			const Unit* string;
 			size_t length;
 		};
 		
-		template <typename UnitT> struct cstring_generator;
+		template <typename Unit> struct cstring_generator;
 
 		constexpr size_t cstring_count = 6;
-		template <typename UnitT> using cstring_array = std::array<cstring<UnitT>, cstring_count>;
+		template <typename Unit> using cstring_array = std::array<cstring<Unit>, cstring_count>;
 
 		template <>
 		struct cstring_generator<char>

@@ -21,17 +21,17 @@ namespace lingo
 {
 	namespace internal
 	{
-		template <typename EncodingT>
-		using default_allocator = std::allocator<typename EncodingT::unit_type>;
+		template <typename Encoding>
+		using default_allocator = std::allocator<typename Encoding::unit_type>;
 	}
 
-	template <typename EncodingT, typename PageT, typename AllocatorT = internal::default_allocator<EncodingT>>
+	template <typename Encoding, typename Page, typename Allocator = internal::default_allocator<Encoding>>
 	class basic_string
 	{
 		public:
-		using encoding_type = EncodingT;
-		using page_type = PageT;
-		using allocator_type = AllocatorT;
+		using encoding_type = Encoding;
+		using page_type = Page;
+		using allocator_type = Allocator;
 
 		using unit_type = typename encoding_type::unit_type;
 		using point_type = typename encoding_type::point_type;
@@ -225,15 +225,15 @@ namespace lingo
 		storage_type _storage;
 	};
 
-	template <typename EncodingT, typename AllocatorT = internal::default_allocator<EncodingT>>
-	using basic_ascii_string = basic_string<EncodingT, page::ascii, AllocatorT>;
-	template <typename EncodingT, typename AllocatorT = internal::default_allocator<EncodingT>>
-	using basic_unicode_string = basic_string<EncodingT, page::unicode, AllocatorT>;
+	template <typename Encoding, typename Allocator = internal::default_allocator<Encoding>>
+	using basic_ascii_string = basic_string<Encoding, page::ascii, Allocator>;
+	template <typename Encoding, typename Allocator = internal::default_allocator<Encoding>>
+	using basic_unicode_string = basic_string<Encoding, page::unicode, Allocator>;
 
-	template <typename UnitT, typename AllocatorT = internal::default_allocator<encoding::utf8<UnitT, char32_t>>>
-	using basic_utf8_string = basic_unicode_string<encoding::utf8<UnitT, char32_t>, AllocatorT>;
-	template <typename UnitT, typename AllocatorT = internal::default_allocator<encoding::none<UnitT, char32_t>>>
-	using basic_utf32_string = basic_unicode_string<encoding::none<UnitT, char32_t>, AllocatorT>;
+	template <typename Unit, typename Allocator = internal::default_allocator<encoding::utf8<Unit, char32_t>>>
+	using basic_utf8_string = basic_unicode_string<encoding::utf8<Unit, char32_t>, Allocator>;
+	template <typename Unit, typename Allocator = internal::default_allocator<encoding::none<Unit, char32_t>>>
+	using basic_utf32_string = basic_unicode_string<encoding::none<Unit, char32_t>, Allocator>;
 
 	#if __cpp_char8_t
 	using utf8_string = basic_utf8_string<char8_t>;

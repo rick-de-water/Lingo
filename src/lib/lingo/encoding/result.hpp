@@ -15,10 +15,10 @@ namespace lingo
 			error::error_code error;
 		};
 
-		template <typename PointT>
+		template <typename Point>
 		struct decode_result
 		{
-			PointT point;
+			Point point;
 			error::error_code error;
 		};
 	}

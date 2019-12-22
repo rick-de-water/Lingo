@@ -22,18 +22,18 @@ namespace lingo
 {
 	namespace test
 	{
-		template <typename UnitT>
+		template <typename Unit>
 		struct cstring
 		{
-			const UnitT* data;
+			const Unit* data;
 			std::size_t size;
-			std::unique_ptr<UnitT[]> buffer;
+			std::unique_ptr<Unit[]> buffer;
 		};
 
-		template <typename EncodingT>
-		std::vector<cstring<typename EncodingT::unit_type>> generate_test_strings()
+		template <typename Encoding>
+		std::vector<cstring<typename Encoding::unit_type>> generate_test_strings()
 		{
-			using encoding_type = EncodingT;
+			using encoding_type = Encoding;
 			using unit_type = typename encoding_type::unit_type;
 			using point_type = typename encoding_type::point_type;
 

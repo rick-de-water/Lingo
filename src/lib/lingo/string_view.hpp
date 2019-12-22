@@ -22,12 +22,12 @@
 
 namespace lingo
 {
-	template <typename EncodingT, typename PageT>
+	template <typename Encoding, typename Page>
 	class basic_string_view
 	{
 		public:
-		using encoding_type = EncodingT;
-		using page_type = PageT;
+		using encoding_type = Encoding;
+		using page_type = Page;
 
 		using unit_type = typename encoding_type::unit_type;
 		using point_type = typename encoding_type::point_type;
@@ -213,10 +213,10 @@ namespace lingo
 		storage_type _storage;
 	};
 
-	template <typename EncodingT, typename PageT>
-	LINGO_CONSTEXPR14 bool operator == (basic_string_view<EncodingT, PageT> left, basic_string_view<EncodingT, PageT> right)
+	template <typename Encoding, typename Page>
+	LINGO_CONSTEXPR14 bool operator == (basic_string_view<Encoding, Page> left, basic_string_view<Encoding, Page> right)
 	{
-		using size_type = typename basic_string_view<EncodingT, PageT>::size_type;
+		using size_type = typename basic_string_view<Encoding, Page>::size_type;
 
 		if (left.size() != right.size())
 		{
@@ -234,8 +234,8 @@ namespace lingo
 		return true;
 	}
 
-	template <typename EncodingT, typename PageT>
-	LINGO_CONSTEXPR14 bool operator != (basic_string_view<EncodingT, PageT> left, basic_string_view<EncodingT, PageT> right)
+	template <typename Encoding, typename Page>
+	LINGO_CONSTEXPR14 bool operator != (basic_string_view<Encoding, Page> left, basic_string_view<Encoding, Page> right)
 	{
 		return !(left == right);
 	}

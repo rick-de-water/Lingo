@@ -7,10 +7,10 @@
 
 namespace lingo
 {
-	template <typename UnitT>
-	LINGO_CONSTEXPR14 std::size_t strlen(const UnitT* string) noexcept
+	template <typename Unit>
+	LINGO_CONSTEXPR14 std::size_t strlen(const Unit* string) noexcept
 	{
-		const UnitT* null_character = string;
+		const Unit* null_character = string;
 		while (*null_character)
 		{
 			++null_character;
@@ -19,8 +19,8 @@ namespace lingo
 		return null_character - string;
 	}
 
-	template <typename UnitT>
-	LINGO_CONSTEXPR14 std::size_t strlen_s(const UnitT* string, std::size_t maximum_size) noexcept
+	template <typename Unit>
+	LINGO_CONSTEXPR14 std::size_t strlen_s(const Unit* string, std::size_t maximum_size) noexcept
 	{
 		if (string == nullptr)
 		{
