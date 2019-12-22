@@ -47,7 +47,7 @@ LINGO_TEST_CASE("string_view has the correct types")
 
 	// Typedefs
 	REQUIRE(std::is_same<encoding_type, typename string_view::encoding_type>::value);
-	REQUIRE(std::is_same<character_set_type, typename string_view::character_set_type>::value);
+	REQUIRE(std::is_same<page_type, typename string_view::page_type>::value);
 
 	REQUIRE(std::is_same<unit_type, typename string_view::value_type>::value);
 	REQUIRE(std::is_same<unit_type&, typename string_view::reference>::value);

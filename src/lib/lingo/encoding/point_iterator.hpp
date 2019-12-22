@@ -8,16 +8,16 @@
 
 namespace lingo
 {
-	template <typename Encoding, typename CharacterSet>
+	template <typename EncodingT, typename PageT>
 	class basic_string_view;
 
 	namespace encoding
 	{
-		template <typename Encoding>
+		template <typename EncodingT>
 		class point_iterator
 		{
 			public:
-			using encoding_type = Encoding;
+			using encoding_type = EncodingT;
 
 			using unit_type = typename encoding_type::unit_type;
 			using point_type = typename encoding_type::point_type;
@@ -39,8 +39,8 @@ namespace lingo
 			{
 			}
 
-			template <typename CharacterSet>
-			LINGO_CONSTEXPR14 point_iterator(basic_string_view<encoding_type, CharacterSet> string) noexcept:
+			template <typename PageT>
+			LINGO_CONSTEXPR14 point_iterator(basic_string_view<encoding_type, PageT> string) noexcept:
 				_current(string.data()),
 				_end(string.data() + string.size()),
 				_code_point(parse())

@@ -10,7 +10,7 @@ LINGO_TEST_CASE("string has the correct types")
 
 	// Typedefs
 	REQUIRE(std::is_same<encoding_type, typename string::encoding_type>::value);
-	REQUIRE(std::is_same<character_set_type, typename string::character_set_type>::value);
+	REQUIRE(std::is_same<page_type, typename string::page_type>::value);
 
 	REQUIRE(std::is_same<unit_type, typename string::value_type>::value);
 	REQUIRE(std::is_same<unit_type&, typename string::reference>::value);

@@ -1,5 +1,5 @@
-#ifndef H_LINGO_SET_RESULT
-#define H_LINGO_SET_RESULT
+#ifndef H_LINGO_PAGE_RESULT
+#define H_LINGO_PAGE_RESULT
 
 #include <lingo/error/error_code.hpp>
 
@@ -7,7 +7,7 @@
 
 namespace lingo
 {
-	namespace set
+	namespace page
 	{
 		struct to_unicode_result
 		{

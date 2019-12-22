@@ -2,14 +2,16 @@
 
 A lot of the terms used in this document (and through the rest of this project) are commonly used in other contexts, but might have slightly different meanings. This document does not describe what the meaning of these terms is or should in those contexts. It only describes what these terms mean in the context of this project.
 
-## Character set
-A character set assigns meaning to each code point. For example, the character may decide that the number `65` is the letter **A**. It may also decide that `0x0300` is the combining diacritic mark ◌̀  which must be combined with a previous code point. While the first 128 numbers are commonly based on ASCII, and thus have the same mapping, values over 128 can vary wildly between character sets.
+## Code page
+A code page assigns meaning to each code point. For example, the code page may decide that the number `65` is the letter **A**. It may also decide that `0x0300` is the combining diacritic mark ◌̀  which must be combined with a previous code point. While the first 128 numbers are commonly based on ASCII, and have the same mapping, values over 128 can vary wildly between code pages.
+
+The name is also commonly shortened to `page`.
 
 Here are a few implementation examples:
 
-* `lingo::set::ascii`, based on the [ASCII](https://en.wikipedia.org/wiki/ASCII) standard.
-* `lingo::set::iso_8859_1`, based on the [ISO/IEC 8859-1](https://en.wikipedia.org/wiki/ISO/IEC_8859-1) standard.
-* `lingo::set::unicode_12_1_0`, based on version 12.1.0 of the [Unicode](https://en.wikipedia.org/wiki/Unicode) standard.
+* `lingo::page::ascii`, based on the [ASCII](https://en.wikipedia.org/wiki/ASCII) standard.
+* `lingo::page::iso_8859_1`, based on the [ISO/IEC 8859-1](https://en.wikipedia.org/wiki/ISO/IEC_8859-1) standard.
+* `lingo::page::unicode_12_1_0`, based on version 12.1.0 of the [Unicode](https://en.wikipedia.org/wiki/Unicode) standard.
 
 ## Encoding
 An encoding decribes the rules of encoding and decoding code points into code units. For example, an encoding may decide to only use 1 byte for code points below 128, but 2 or more bytes for code points larger than that.

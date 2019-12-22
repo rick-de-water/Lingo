@@ -8,7 +8,7 @@
 
 #include <lingo/encoding/utf8.hpp>
 
-#include <lingo/set/unicode.hpp>
+#include <lingo/page/unicode.hpp>
 
 #include <test_types.hpp>
 
@@ -30,10 +30,10 @@ namespace lingo
 			std::unique_ptr<UnitT[]> buffer;
 		};
 
-		template <typename Encoding>
-		std::vector<cstring<typename Encoding::unit_type>> generate_test_strings()
+		template <typename EncodingT>
+		std::vector<cstring<typename EncodingT::unit_type>> generate_test_strings()
 		{
-			using encoding_type = Encoding;
+			using encoding_type = EncodingT;
 			using unit_type = typename encoding_type::unit_type;
 			using point_type = typename encoding_type::point_type;
 
@@ -62,15 +62,15 @@ namespace lingo
 	}
 }
 
-#define LINGO_TEST_CASE(...) TEMPLATE_LIST_TEST_CASE(__VA_ARGS__, "", lingo::test::test_types)
+#define LINGO_TEST_CASE(...) TEMPLATE_LIST_TEST_CASE(__VA_ARGS__, "", lingo::test::unit_types)
 
 #define LINGO_TEST_TYPEDEFS \
-	using unit_type = typename std::decay<decltype(std::get<0>(std::declval<TestType>()))>::type; \
-	using point_type = typename std::decay<decltype(std::get<1>(std::declval<TestType>()))>::type; \
+	using unit_type = TestType; \
+	using point_type = char32_t; \
 	using encoding_type = lingo::encoding::utf8<unit_type, point_type>; \
-	using character_set_type = lingo::set::unicode<point_type>; \
-	using string = lingo::basic_string<encoding_type, character_set_type>; \
-	using string_view = lingo::basic_string_view<encoding_type, character_set_type>; \
+	using page_type = lingo::page::unicode; \
+	using string = lingo::basic_string<encoding_type, page_type>; \
+	using string_view = lingo::basic_string_view<encoding_type, page_type>; \
 	using size_type = typename string::size_type; \
 	using difference_type = typename string::difference_type
 

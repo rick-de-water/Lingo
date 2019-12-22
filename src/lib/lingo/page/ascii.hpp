@@ -1,5 +1,5 @@
-#ifndef H_LINGO_SETS_ASCII
-#define H_LINGO_SETS_ASCII
+#ifndef H_LINGO_PAGE_ASCII
+#define H_LINGO_PAGE_ASCII
 
 #include <lingo/constexpr.hpp>
 
@@ -7,7 +7,7 @@
 
 namespace lingo
 {
-	namespace set
+	namespace page
 	{
 		struct ascii
 		{

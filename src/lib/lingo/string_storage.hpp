@@ -75,13 +75,15 @@ namespace lingo
 		static_assert(sizeof(basic_string_storage_data<uint_least64_t>) == sizeof(void*) * 4, "string storage is the correct size");
 	}
 
-	template <typename UnitT, typename Allocator = std::allocator<UnitT>>
+	template <typename UnitT, typename AllocatorT = std::allocator<UnitT>>
 	class basic_string_storage 
 	{
 		public:
-		using allocator_type = Allocator;
+		using allocator_type = AllocatorT;
 
-		using value_type = UnitT;
+		using unit_type = UnitT;
+
+		using value_type = unit_type;
 		using reference = value_type&;
 		using const_reference = const value_type&;
 		using pointer = value_type*;
@@ -90,7 +92,8 @@ namespace lingo
 		using size_type = typename allocator_type::size_type;
 		using difference_type = typename allocator_type::difference_type;
 
-		public:
+		static_assert(std::is_same<unit_type, typename allocator_type::value_type>::value, "allocator_type::value_type must be the same type as basic_string_storage::unit_type");
+
 		basic_string_storage() noexcept(
 			std::is_nothrow_constructible<allocator_type>::value &&
 			std::is_nothrow_constructible<basic_string_storage, const allocator_type&>::value):
@@ -289,7 +292,7 @@ namespace lingo
 		}
 
 		private:
-		compressed_pair<internal::basic_string_storage_data<UnitT>, allocator_type> _data;
+		compressed_pair<internal::basic_string_storage_data<unit_type>, allocator_type> _data;
 	};
 
 	static_assert(sizeof(basic_string_storage<uint_least8_t>) == sizeof(void*) * 4, "string storage is the correct size");

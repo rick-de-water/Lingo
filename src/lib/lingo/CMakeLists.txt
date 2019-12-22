@@ -25,13 +25,13 @@ endif()
 lingo_target_sources(lingo PRIVATE "string.hpp" "string_storage.hpp" FOLDER "strings/string")
 lingo_target_sources(lingo PRIVATE "string_view.hpp" "string_view_storage.hpp" FOLDER "strings/string_view")
 
-# Character sets
-lingo_target_sources(lingo PRIVATE "set/ascii.hpp" FOLDER "set/ascii")
-lingo_target_sources(lingo PRIVATE "set/unicode.hpp" "set/unicode.cpp" FOLDER "set/unicode")
+# Code pages
+lingo_target_sources(lingo PRIVATE "page/ascii.hpp" FOLDER "page/ascii")
+lingo_target_sources(lingo PRIVATE "page/unicode.hpp" "page/unicode.cpp" FOLDER "page/unicode")
 
-lingo_target_sources(lingo PRIVATE "set/result.hpp" FOLDER "set/result")
+lingo_target_sources(lingo PRIVATE "page/result.hpp" FOLDER "page/result")
 
-# Encoding
+# EncodingT
 lingo_target_sources(lingo PRIVATE "encoding/none.hpp" FOLDER "encoding/none")
 lingo_target_sources(lingo PRIVATE "encoding/utf8.hpp" FOLDER "encoding/utf")
 

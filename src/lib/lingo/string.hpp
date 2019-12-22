@@ -5,8 +5,8 @@
 #include <lingo/string_storage.hpp>
 #include <lingo/string_view.hpp>
 
-#include <lingo/set/ascii.hpp>
-#include <lingo/set/unicode.hpp>
+#include <lingo/page/ascii.hpp>
+#include <lingo/page/unicode.hpp>
 
 #include <lingo/encoding/none.hpp>
 #include <lingo/encoding/utf8.hpp>
@@ -21,17 +21,17 @@ namespace lingo
 {
 	namespace internal
 	{
-		template <typename Encoding>
-		using default_allocator = std::allocator<typename Encoding::unit_type>;
+		template <typename EncodingT>
+		using default_allocator = std::allocator<typename EncodingT::unit_type>;
 	}
 
-	template <typename Encoding, typename CharacterSet, typename Allocator = internal::default_allocator<Encoding>>
+	template <typename EncodingT, typename PageT, typename AllocatorT = internal::default_allocator<EncodingT>>
 	class basic_string
 	{
 		public:
-		using encoding_type = Encoding;
-		using character_set_type = CharacterSet;
-		using allocator_type = Allocator;
+		using encoding_type = EncodingT;
+		using page_type = PageT;
+		using allocator_type = AllocatorT;
 
 		using unit_type = typename encoding_type::unit_type;
 		using point_type = typename encoding_type::point_type;
@@ -51,11 +51,11 @@ namespace lingo
 		using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
 		private:
-		static_assert(std::is_same<typename character_set_type::point_type, typename encoding_type::point_type>::value, "character_set_type::point_type must be the same type as encoding_type::point_type");
+		static_assert(std::is_same<typename page_type::point_type, typename encoding_type::point_type>::value, "page_type::point_type must be the same type as encoding_type::point_type");
 		static_assert(std::is_same<typename allocator_type::value_type, typename encoding_type::unit_type>::value, "allocator_type::value_type must be the same type as encoding_type::unit_type");
 
 		using storage_type = basic_string_storage<value_type, allocator_type>;
-		using string_view = basic_string_view<encoding_type, character_set_type>;
+		using string_view = basic_string_view<encoding_type, page_type>;
 
 		public:
 		basic_string() noexcept(noexcept(allocator_type())):
@@ -225,17 +225,22 @@ namespace lingo
 		storage_type _storage;
 	};
 
-	template <typename Encoding, typename Allocator = internal::default_allocator<Encoding>>
-	using basic_ascii_string = basic_string<Encoding, set::ascii, Allocator>;
-	template <typename Encoding, typename Allocator = internal::default_allocator<Encoding>>
-	using basic_unicode_string = basic_string<Encoding, set::unicode<char32_t>, Allocator>;
+	template <typename EncodingT, typename AllocatorT = internal::default_allocator<EncodingT>>
+	using basic_ascii_string = basic_string<EncodingT, page::ascii, AllocatorT>;
+	template <typename EncodingT, typename AllocatorT = internal::default_allocator<EncodingT>>
+	using basic_unicode_string = basic_string<EncodingT, page::unicode, AllocatorT>;
 
-	template <typename UnitT, typename Allocator = internal::default_allocator<encoding::utf8<UnitT, char32_t>>>
-	using basic_utf8_string = basic_unicode_string<encoding::utf8<UnitT, char32_t>, Allocator>;
-	template <typename UnitT, typename Allocator = internal::default_allocator<encoding::none<UnitT, char32_t>>>
-	using basic_utf32_string = basic_unicode_string<encoding::none<UnitT, char32_t>, Allocator>;
+	template <typename UnitT, typename AllocatorT = internal::default_allocator<encoding::utf8<UnitT, char32_t>>>
+	using basic_utf8_string = basic_unicode_string<encoding::utf8<UnitT, char32_t>, AllocatorT>;
+	template <typename UnitT, typename AllocatorT = internal::default_allocator<encoding::none<UnitT, char32_t>>>
+	using basic_utf32_string = basic_unicode_string<encoding::none<UnitT, char32_t>, AllocatorT>;
 
+	#if __cpp_char8_t
+	using utf8_string = basic_utf8_string<char8_t>;
+	#else
 	using utf8_string = basic_utf8_string<char>;
+	#endif
+
 	using utf32_string = basic_utf32_string<char32_t>;
 
 	using string = utf8_string;

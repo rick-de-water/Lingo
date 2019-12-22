@@ -5,8 +5,8 @@
 #include <lingo/string_view_storage.hpp>
 #include <lingo/strlen.hpp>
 
-#include <lingo/set/ascii.hpp>
-#include <lingo/set/unicode.hpp>
+#include <lingo/page/ascii.hpp>
+#include <lingo/page/unicode.hpp>
 
 #include <lingo/encoding/none.hpp>
 #include <lingo/encoding/utf8.hpp>
@@ -22,12 +22,12 @@
 
 namespace lingo
 {
-	template <typename Encoding, typename CharacterSet>
+	template <typename EncodingT, typename PageT>
 	class basic_string_view
 	{
 		public:
-		using encoding_type = Encoding;
-		using character_set_type = CharacterSet;
+		using encoding_type = EncodingT;
+		using page_type = PageT;
 
 		using unit_type = typename encoding_type::unit_type;
 		using point_type = typename encoding_type::point_type;
@@ -47,7 +47,7 @@ namespace lingo
 		using reverse_iterator = const_reverse_iterator;
 
 		private:
-		static_assert(std::is_same<typename character_set_type::point_type, typename encoding_type::point_type>::value, "character_set_type::point_type must be the same type as encoding_type::point_type");
+		static_assert(std::is_same<typename page_type::point_type, typename encoding_type::point_type>::value, "page_type::point_type must be the same type as encoding_type::point_type");
 
 		using storage_type = basic_string_view_storage<value_type>;
 
@@ -213,10 +213,10 @@ namespace lingo
 		storage_type _storage;
 	};
 
-	template <typename Encoding, typename CharacterSet>
-	LINGO_CONSTEXPR14 bool operator == (basic_string_view<Encoding, CharacterSet> left, basic_string_view<Encoding, CharacterSet> right)
+	template <typename EncodingT, typename PageT>
+	LINGO_CONSTEXPR14 bool operator == (basic_string_view<EncodingT, PageT> left, basic_string_view<EncodingT, PageT> right)
 	{
-		using size_type = typename basic_string_view<Encoding, CharacterSet>::size_type;
+		using size_type = typename basic_string_view<EncodingT, PageT>::size_type;
 
 		if (left.size() != right.size())
 		{
@@ -234,14 +234,14 @@ namespace lingo
 		return true;
 	}
 
-	template <typename Encoding, typename CharacterSet>
-	LINGO_CONSTEXPR14 bool operator != (basic_string_view<Encoding, CharacterSet> left, basic_string_view<Encoding, CharacterSet> right)
+	template <typename EncodingT, typename PageT>
+	LINGO_CONSTEXPR14 bool operator != (basic_string_view<EncodingT, PageT> left, basic_string_view<EncodingT, PageT> right)
 	{
 		return !(left == right);
 	}
 
-	using ascii_string_view = basic_string_view<encoding::none<char, char>, set::ascii>;
-	using utf8_string_view = basic_string_view<encoding::utf8<char, char32_t>, set::unicode<char32_t>>;
+	using ascii_string_view = basic_string_view<encoding::none<char, char>, page::ascii>;
+	using utf8_string_view = basic_string_view<encoding::utf8<char, char32_t>, page::unicode>;
 
 	using string_view = utf8_string_view;
 }
