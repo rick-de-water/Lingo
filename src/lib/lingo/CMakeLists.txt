@@ -29,6 +29,8 @@ lingo_target_sources(lingo PRIVATE "string_view.hpp" "string_view_storage.hpp" F
 lingo_target_sources(lingo PRIVATE "page/ascii.hpp" FOLDER "page/ascii")
 lingo_target_sources(lingo PRIVATE "page/unicode.hpp" "page/unicode.cpp" FOLDER "page/unicode")
 
+lingo_target_sources(lingo PRIVATE "page/intermediate.hpp" FOLDER "page/intermediate")
+lingo_target_sources(lingo PRIVATE "page/point_mapper.hpp" FOLDER "page/point_mapper")
 lingo_target_sources(lingo PRIVATE "page/result.hpp" FOLDER "page/result")
 
 # Encoding

@@ -13,6 +13,8 @@ namespace lingo
 			invalid_point,
 			invalid_first_unit,
 			invalid_subsequent_unit,
+
+			no_mapping,
 		};
 	}
 }

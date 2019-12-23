@@ -20,20 +20,22 @@ namespace lingo
 				return 0x110000;
 			}
 
+			template <typename SourcePage>
+			static LINGO_CONSTEXPR14 auto map_from(typename SourcePage::point_type point) ->
+				typename std::enable_if<
+					std::is_same<SourcePage, unicode>::value,
+					map_result<point_type>>::type
+			{
+				return map_result<point_type>{ point, error::error_code::success };
+			}
+
 			template <typename DestinationPage>
-			static LINGO_CONSTEXPR11 to_unicode_result to_unicode(point_type point)
+			static LINGO_CONSTEXPR14 auto map_to(point_type point) ->
+				typename std::enable_if<
+					std::is_same<DestinationPage, unicode>::value,
+					map_result<typename DestinationPage::point_type>>::type
 			{
-
-			}
-
-			static LINGO_CONSTEXPR11 to_unicode_result to_unicode(point_type point)
-			{
-				return to_unicode_result{ point, error::error_code::success };
-			}
-
-			static LINGO_CONSTEXPR11 from_unicode_result<point_type> from_unicode(char32_t point)
-			{
-				return from_unicode_result<point_type>{ point, error::error_code::success };
+				return map_result<typename DestinationPage::point_type>{ point, error::error_code::success };
 			}
 		};
 	}

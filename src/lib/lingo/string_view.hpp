@@ -240,9 +240,29 @@ namespace lingo
 		return !(left == right);
 	}
 
-	using ascii_string_view = basic_string_view<encoding::none<char, char>, page::ascii>;
-	using utf8_string_view = basic_string_view<encoding::utf8<char, char32_t>, page::unicode>;
+	// Fixed code page typedefs
+	template <typename Encoding>
+	using basic_ascii_string_view = basic_string_view<Encoding, page::ascii>;
+	template <typename Encoding>
+	using basic_unicode_string_view = basic_string_view<Encoding, page::unicode>;
 
+	// Fixed encoding typedefs
+	template <typename Unit>
+	using basic_utf8_string_view = basic_unicode_string_view<encoding::utf8<Unit, char32_t>>;
+	template <typename Unit>
+	using basic_utf32_string_view = basic_unicode_string_view<encoding::none<Unit, char32_t>>;
+
+	// Fully specialized typedefs
+	using ascii_string_view = basic_ascii_string_view<encoding::none<char, char>>;
+
+	#if __cpp_char8_t
+	using utf8_string_view = basic_utf8_string_view<char8_t>;
+	#else
+	using utf8_string_view = basic_utf8_string_view<char>;
+	#endif
+	using utf32_string_view = basic_utf32_string_view<char32_t>;
+
+	// Default string_view typedef
 	using string_view = utf8_string_view;
 }
 

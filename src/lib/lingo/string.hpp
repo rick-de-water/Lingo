@@ -225,24 +225,29 @@ namespace lingo
 		storage_type _storage;
 	};
 
+	// Fixed code page typedefs
 	template <typename Encoding, typename Allocator = internal::default_allocator<Encoding>>
 	using basic_ascii_string = basic_string<Encoding, page::ascii, Allocator>;
 	template <typename Encoding, typename Allocator = internal::default_allocator<Encoding>>
 	using basic_unicode_string = basic_string<Encoding, page::unicode, Allocator>;
 
+	// Fixed encoding typedefs
 	template <typename Unit, typename Allocator = internal::default_allocator<encoding::utf8<Unit, char32_t>>>
 	using basic_utf8_string = basic_unicode_string<encoding::utf8<Unit, char32_t>, Allocator>;
 	template <typename Unit, typename Allocator = internal::default_allocator<encoding::none<Unit, char32_t>>>
 	using basic_utf32_string = basic_unicode_string<encoding::none<Unit, char32_t>, Allocator>;
+
+	// Fully specialized typedefs
+	using ascii_string = basic_ascii_string<encoding::none<char, char>>;
 
 	#if __cpp_char8_t
 	using utf8_string = basic_utf8_string<char8_t>;
 	#else
 	using utf8_string = basic_utf8_string<char>;
 	#endif
-
 	using utf32_string = basic_utf32_string<char32_t>;
 
+	// Default string typedef
 	using string = utf8_string;
 }
 

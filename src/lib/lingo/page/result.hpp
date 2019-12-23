@@ -9,14 +9,8 @@ namespace lingo
 {
 	namespace page
 	{
-		struct to_unicode_result
-		{
-			char32_t point;
-			error::error_code error;
-		};
-
 		template <typename Point>
-		struct from_unicode_result
+		struct map_result
 		{
 			Point point;
 			error::error_code error;

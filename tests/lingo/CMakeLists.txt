@@ -6,6 +6,12 @@ lingo_target_folder(test_lingo Tests)
 target_link_libraries(test_lingo test_main)
 
 # Add sources
+# Code pages
+lingo_target_sources(test_lingo PRIVATE "page/ascii.cpp" FOLDER "page/ascii")
+lingo_target_sources(test_lingo PRIVATE "page/unicode.cpp" FOLDER "page/unicode")
+
+lingo_target_sources(test_lingo PRIVATE "page/point_mapper.cpp" FOLDER "page/point_mapper")
+
 # Encoding
 lingo_target_sources(test_lingo PRIVATE "encoding/utf8.cpp" FOLDER "encoding/utf8")
 
