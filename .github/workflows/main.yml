@@ -5,10 +5,12 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-      - name: Clone
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
+        with:
+          path: "source"
       - name: Create
         run: |
+          cd source
           mkdir build
           cd build
       - name: Configure
