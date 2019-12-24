@@ -8,15 +8,14 @@ jobs:
       - uses: actions/checkout@v2
         with:
           path: "source"
-      - name: Create
-        run: |
-          cd source
-          mkdir build
-          cd build
+      - run: mkdir build
       - name: Configure
-        run: cmake ..
+        working-directory: ./build
+        run: cmake ../source
       - name: Build
+        working-directory: ./build
         run: cmake --build .
       - name: Test
+        working-directory: ./build
         run: ctest
       
