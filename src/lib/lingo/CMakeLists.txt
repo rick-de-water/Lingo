@@ -2,7 +2,7 @@
 lingo_add_library(lingo)
 lingo_target_folder(lingo Libraries)
 
-target_compile_features(lingo INTERFACE cxx_std_11)
+target_compile_features(lingo PUBLIC cxx_std_11)
 
 # Add settings
 if (MSVC)
@@ -11,7 +11,19 @@ if (MSVC)
 endif()
 
 # Add dependencies
-target_include_directories(lingo PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/..")
+target_include_directories(lingo PUBLIC  
+	"$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/..>"
+	"$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/..>"
+	"$<INSTALL_INTERFACE:include>"
+)
+
+# Generate code from spec files
+include(unicode)
+foreach(INDEX RANGE 1 16)
+	if (NOT INDEX EQUAL 12)
+		unicode_generate_headers("${CMAKE_SOURCE_DIR}/spec/unicode/MAPPINGS/ISO8859/8859-${INDEX}.TXT" "iso_8859_${INDEX}")
+	endif()
+endforeach()
 
 # Add sources
 lingo_target_sources(lingo PRIVATE "constexpr.hpp" "strlen.hpp")
@@ -27,6 +39,7 @@ lingo_target_sources(lingo PRIVATE "string_view.hpp" "string_view_storage.hpp" F
 
 # Code pages
 lingo_target_sources(lingo PRIVATE "page/ascii.hpp" FOLDER "page/ascii")
+lingo_target_sources(lingo PRIVATE "page/iso_8859_1.hpp" FOLDER "page/iso_8859")
 lingo_target_sources(lingo PRIVATE "page/unicode.hpp" "page/unicode.cpp" FOLDER "page/unicode")
 
 lingo_target_sources(lingo PRIVATE "page/intermediate.hpp" FOLDER "page/intermediate")

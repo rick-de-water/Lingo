@@ -2,12 +2,17 @@
 lingo_add_executable(test_lingo)
 lingo_target_folder(test_lingo Tests)
 
+# Add settings
+target_compile_definitions(test_lingo PRIVATE "LINGO_SPEC_DIRECTORY=\"${CMAKE_SOURCE_DIR}/spec\"")
+
 # Add dependencies
 target_link_libraries(test_lingo test_main)
 
 # Add sources
 # Code pages
 lingo_target_sources(test_lingo PRIVATE "page/ascii.cpp" FOLDER "page/ascii")
+lingo_target_sources(test_lingo PRIVATE "page/iso_8859.cpp" FOLDER "page/iso_8859")
+lingo_target_sources(test_lingo PRIVATE "page/iso_8859_1.cpp" FOLDER "page/iso_8859")
 lingo_target_sources(test_lingo PRIVATE "page/unicode.cpp" FOLDER "page/unicode")
 
 lingo_target_sources(test_lingo PRIVATE "page/point_mapper.cpp" FOLDER "page/point_mapper")

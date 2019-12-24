@@ -21,14 +21,14 @@ namespace lingo
 			}
 
 			template <typename SourcePage>
-			static LINGO_CONSTEXPR14 auto map_from(typename SourcePage::point_type point) ->
+			static LINGO_CONSTEXPR14 auto map_from(typename SourcePage::point_type point) noexcept ->
 				typename std::enable_if<
 					std::is_same<SourcePage, unicode>::value,
 					map_result<point_type>>::type
 			{
 				if (point >= 0 && point < 128)
 				{
-					return { static_cast<char>(point), error::error_code::success };
+					return { static_cast<point_type>(point), error::error_code::success };
 				}
 				else
 				{
@@ -37,7 +37,7 @@ namespace lingo
 			}
 
 			template <typename DestinationPage>
-			static LINGO_CONSTEXPR14 auto map_to(point_type point) ->
+			static LINGO_CONSTEXPR14 auto map_to(point_type point) noexcept ->
 				typename std::enable_if<
 					std::is_same<DestinationPage, unicode>::value,
 					map_result<typename DestinationPage::point_type>>::type
