@@ -3,7 +3,9 @@ on: push
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
+    env:
+      DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -18,3 +20,13 @@ jobs:
       - name: Test
         working-directory: ./build
         run: ctest
+      - name: Notify success
+        if: success()
+        uses: Ilshidur/action-discord@9fcf5a3b23977ceb939e82945fdd9882e7ad4654
+        with:
+          args: "YAY"
+      - name: Notify failure
+        if: failure()
+        uses: Ilshidur/action-discord@9fcf5a3b23977ceb939e82945fdd9882e7ad4654
+        with:
+          args: "AWW"
