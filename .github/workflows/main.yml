@@ -12,7 +12,7 @@ jobs:
           mkdir build
           cd build
       - name: Configure
-        run: cmake ../..
+        run: cmake ..
       - name: Build
         run: cmake --build .
       - name: Test
