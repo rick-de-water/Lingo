@@ -14,7 +14,7 @@ namespace lingo
 			using size_type = std::size_t;
 			using difference_type = std::ptrdiff_t;
 
-			static LINGO_CONSTEXPR11 size_type max_point_size = 1;
+			static LINGO_CONSTEXPR11 size_type max_units = 1;
 
 			static LINGO_CONSTEXPR14 size_type point_size(point_type point) noexcept
 			{

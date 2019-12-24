@@ -23,10 +23,7 @@ namespace lingo
 				public:
 				using point_type = unsigned char;
 
-				static LINGO_CONSTEXPR11 std::size_t size() noexcept
-				{
-					return 256;
-				}
+				static LINGO_CONSTEXPR11 std::size_t point_range = 256;
 
 				template <typename DestinationPage>
 				static LINGO_CONSTEXPR14 auto map_to(point_type point) noexcept ->

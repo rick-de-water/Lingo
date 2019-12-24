@@ -47,7 +47,7 @@ namespace lingo
 			static LINGO_CONSTEXPR11 unit_type continuation_unit_data_mask = static_cast<unit_type>(63);
 
 			public:
-			static LINGO_CONSTEXPR11 size_type max_point_size = 4;
+			static LINGO_CONSTEXPR11 size_type max_units = 4;
 
 			static LINGO_CONSTEXPR14 size_type point_size(point_type point) noexcept
 			{
@@ -174,7 +174,7 @@ namespace lingo
 				{
 					return { 0, error::error_code::invalid_point };
 				}
-				assert(required_size <= max_point_size);
+				assert(required_size <= max_units);
 
 				// Check if the buffer is large enough to fit the encoded point
 				if (required_size > buffer_size)

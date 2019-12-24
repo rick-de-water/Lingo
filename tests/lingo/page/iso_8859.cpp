@@ -1,6 +1,7 @@
 #include <catch/catch.hpp>
 
 #include <lingo/page/iso_8859_1.hpp>
+#include <lingo/page/iso_8859_2.hpp>
 #include <lingo/page/unicode.hpp>
 
 #include <lingo/page/intermediate.hpp>
@@ -23,8 +24,9 @@ namespace
 		static LINGO_CONSTEXPR11 std::size_t part_index = Part;
 	};
 
-	using test_pages = std::tuple <
-		page_description<lingo::page::iso_8859_1, 1>
+	using test_pages = std::tuple<
+		page_description<lingo::page::iso_8859_1, 1>,
+		page_description<lingo::page::iso_8859_2, 2>
 		>;
 }
 
@@ -71,7 +73,7 @@ TEMPLATE_LIST_TEST_CASE("iso_8859_x can be mapped to and from unicode", "", test
 	}
 
 	// To unicode
-	for (std::size_t i = 0; i < iso_page_type::size(); ++i)
+	for (std::size_t i = 0; i < iso_page_type::point_range; ++i)
 	{
 		const iso_point_type iso_point = static_cast<iso_point_type>(i);
 		const auto unicode_result = iso_page_type::template map_to<unicode_page_type>(iso_point);
@@ -94,7 +96,7 @@ TEMPLATE_LIST_TEST_CASE("iso_8859_x can be mapped to and from unicode", "", test
 	}
 
 	// From unicode
-	for (std::size_t i = 0; i < unicode_page_type::size(); ++i)
+	for (std::size_t i = 0; i < unicode_page_type::point_range; ++i)
 	{
 		const unicode_point_type unicode_point = static_cast<unicode_point_type>(i);
 		const auto iso_result = iso_page_type::template map_from<unicode_page_type>(unicode_point);

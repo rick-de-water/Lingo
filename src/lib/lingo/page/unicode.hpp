@@ -15,10 +15,7 @@ namespace lingo
 		{
 			using point_type = char32_t;
 
-			static LINGO_CONSTEXPR11 size_t size() noexcept
-			{
-				return 0x110000;
-			}
+			static LINGO_CONSTEXPR11 size_t point_range = 0x110000;
 
 			template <typename SourcePage>
 			static LINGO_CONSTEXPR14 auto map_from(typename SourcePage::point_type point) ->

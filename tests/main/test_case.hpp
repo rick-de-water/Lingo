@@ -42,12 +42,12 @@ namespace lingo
 			for (std::size_t i = 0; i < 10; ++i)
 			{
 				cstring<unit_type> str{};
-				str.buffer = std::make_unique<unit_type[]>(encoding_type::max_point_size * i + 1);
+				str.buffer = std::make_unique<unit_type[]>(encoding_type::max_units * i + 1);
 				str.size = 0;
 
 				for (point_type c = 0; c < point_type(i); ++c)
 				{
-					str.size += encoding_type::encode_point(static_cast<point_type>(U'a') + c, str.buffer.get() + str.size, encoding_type::max_point_size).size;
+					str.size += encoding_type::encode_point(static_cast<point_type>(U'a') + c, str.buffer.get() + str.size, encoding_type::max_units).size;
 				}
 
 				str.buffer[str.size] = 0;

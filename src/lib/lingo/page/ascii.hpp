@@ -15,10 +15,10 @@ namespace lingo
 		{
 			using point_type = char;
 
-			static LINGO_CONSTEXPR11 size_t size() noexcept
-			{
-				return 128;
-			}
+			using size_type = std::size_t;
+			using difference_type = std::ptrdiff_t;
+
+			static LINGO_CONSTEXPR11 size_type point_range = 128;
 
 			template <typename SourcePage>
 			static LINGO_CONSTEXPR14 auto map_from(typename SourcePage::point_type point) noexcept ->

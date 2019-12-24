@@ -43,6 +43,7 @@ lingo_target_sources(lingo PRIVATE "page/unicode.hpp" "page/unicode.cpp" FOLDER 
 
 lingo_target_sources(lingo PRIVATE "page/internal/iso_8859.hpp" FOLDER "page/internal/iso_8859")
 lingo_target_sources(lingo PRIVATE "page/iso_8859_1.hpp" FOLDER "page/iso_8859")
+lingo_target_sources(lingo PRIVATE "page/iso_8859_2.hpp" FOLDER "page/iso_8859")
 
 lingo_target_sources(lingo PRIVATE "page/intermediate.hpp" FOLDER "page/intermediate")
 lingo_target_sources(lingo PRIVATE "page/point_mapper.hpp" FOLDER "page/point_mapper")
