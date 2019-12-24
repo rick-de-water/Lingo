@@ -74,7 +74,7 @@ TEMPLATE_LIST_TEST_CASE("iso_8859_x can be mapped to and from unicode", "", test
 	for (std::size_t i = 0; i < iso_page_type::size(); ++i)
 	{
 		const iso_point_type iso_point = static_cast<iso_point_type>(i);
-		const auto unicode_result = iso_page_type::map_to<unicode_page_type>(iso_point);
+		const auto unicode_result = iso_page_type::template map_to<unicode_page_type>(iso_point);
 		const auto mapped_unicode_result = iso_unicode_point_mapper::map(iso_point);
 
 		const auto it = to_unicode.find(iso_point);
@@ -97,7 +97,7 @@ TEMPLATE_LIST_TEST_CASE("iso_8859_x can be mapped to and from unicode", "", test
 	for (std::size_t i = 0; i < unicode_page_type::size(); ++i)
 	{
 		const unicode_point_type unicode_point = static_cast<unicode_point_type>(i);
-		const auto iso_result = iso_page_type::map_from<unicode_page_type>(unicode_point);
+		const auto iso_result = iso_page_type::template map_from<unicode_page_type>(unicode_point);
 		const auto mapped_iso_result = unicode_iso_point_mapper::map(unicode_point);
 
 		const auto it = from_unicode.find(unicode_point);

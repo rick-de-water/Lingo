@@ -39,8 +39,10 @@ lingo_target_sources(lingo PRIVATE "string_view.hpp" "string_view_storage.hpp" F
 
 # Code pages
 lingo_target_sources(lingo PRIVATE "page/ascii.hpp" FOLDER "page/ascii")
-lingo_target_sources(lingo PRIVATE "page/iso_8859_1.hpp" FOLDER "page/iso_8859")
 lingo_target_sources(lingo PRIVATE "page/unicode.hpp" "page/unicode.cpp" FOLDER "page/unicode")
+
+lingo_target_sources(lingo PRIVATE "page/internal/iso_8859.hpp" FOLDER "page/internal/iso_8859")
+lingo_target_sources(lingo PRIVATE "page/iso_8859_1.hpp" FOLDER "page/iso_8859")
 
 lingo_target_sources(lingo PRIVATE "page/intermediate.hpp" FOLDER "page/intermediate")
 lingo_target_sources(lingo PRIVATE "page/point_mapper.hpp" FOLDER "page/point_mapper")
