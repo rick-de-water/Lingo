@@ -20,6 +20,9 @@ namespace lingo
 				using to_unicode_mapping_type = ToUnicodeMapping;
 				using from_unicode_mapping_type = FromUnicodeMapping;
 
+				using to_unicode_point_type = typename to_unicode_mapping_type::point_type;
+				using from_unicode_point_type = typename from_unicode_mapping_type::point_type;
+
 				public:
 				using point_type = unsigned char;
 
@@ -28,12 +31,13 @@ namespace lingo
 				template <typename DestinationPage>
 				static LINGO_CONSTEXPR14 auto map_to(point_type point) noexcept ->
 					typename std::enable_if<
-						std::is_same<DestinationPage, unicode>::value,
-						map_result<typename DestinationPage::point_type>>::type
+					std::is_same<DestinationPage, unicode>::value,
+					map_result<typename DestinationPage::point_type>>::type
 				{
-					if (point >= 0 && point < 256)
+					const to_unicode_point_type mapped_point = map<to_unicode_mapping_type>(static_cast<to_unicode_point_type>(point));
+					if (mapped_point != 0xFFFF)
 					{
-						return { static_cast<typename DestinationPage::point_type>(point), error::error_code::success };
+						return { static_cast<typename DestinationPage::point_type>(mapped_point), error::error_code::success };
 					}
 					else
 					{
@@ -47,25 +51,39 @@ namespace lingo
 						std::is_same<SourcePage, unicode>::value,
 						map_result<point_type>>::type
 				{
-					const uint_least32_t point_index = static_cast<uint_least32_t>(point);
-
-					LINGO_CONSTEXPR11 uint_least32_t minor_table_size = sizeof(to_unicode_mapping_type::minor_table_empty) / sizeof(to_unicode_mapping_type::minor_table_empty[0]);
-					const uint_least32_t major_table_index = point_index / minor_table_size;
-
-					if (major_table_index < to_unicode_mapping_type::minor_table_start_index || major_table_index >= to_unicode_mapping_type::minor_table_end_index)
+					const from_unicode_point_type mapped_point = map<from_unicode_mapping_type>(static_cast<from_unicode_point_type>(point));
+					if (mapped_point != 0xFFFF)
+					{
+						return { static_cast<point_type>(mapped_point), error::error_code::success };
+					}
+					else
 					{
 						return { {}, error::error_code::no_mapping };
 					}
+				}
 
-					const uint_least32_t minor_table_index = point_index - (major_table_index * minor_table_size);
-					const uint_least32_t mapped_point = to_unicode_mapping_type::major_table[major_table_index][minor_table_index];
+				private:
+				template <typename Mapping, typename Mapping::point_type InvalidPoint = 0xFFFF>
+				static LINGO_CONSTEXPR14 typename Mapping::point_type map(typename Mapping::point_type point)
+				{
+					const std::size_t point_index = static_cast<::size_t>(point);
+					LINGO_CONSTEXPR11 std::size_t minor_table_size = sizeof(Mapping::minor_table_empty) / sizeof(Mapping::minor_table_empty[0]);
+					const std::size_t major_table_index = point_index / minor_table_size;
 
-					if (mapped_point == 0xFFFF)
+					if (major_table_index < Mapping::minor_table_start_index || major_table_index >= Mapping::minor_table_end_index)
 					{
-						return { {}, error::error_code::no_mapping };
+						return InvalidPoint;
 					}
 
-					return { static_cast<point_type>(mapped_point), error::error_code::success };
+					const std::size_t minor_table_index = point_index - (major_table_index * minor_table_size);
+					const typename Mapping::point_type mapped_point = Mapping::major_table[major_table_index][minor_table_index];
+
+					if (mapped_point == InvalidPoint)
+					{
+						return InvalidPoint;
+					}
+
+					return mapped_point;
 				}
 			};
 		}
