@@ -2,6 +2,19 @@
 
 #include <lingo/page/iso_8859_1.hpp>
 #include <lingo/page/iso_8859_2.hpp>
+#include <lingo/page/iso_8859_3.hpp>
+#include <lingo/page/iso_8859_4.hpp>
+#include <lingo/page/iso_8859_5.hpp>
+#include <lingo/page/iso_8859_6.hpp>
+#include <lingo/page/iso_8859_7.hpp>
+#include <lingo/page/iso_8859_8.hpp>
+#include <lingo/page/iso_8859_9.hpp>
+#include <lingo/page/iso_8859_10.hpp>
+#include <lingo/page/iso_8859_11.hpp>
+#include <lingo/page/iso_8859_13.hpp>
+#include <lingo/page/iso_8859_14.hpp>
+#include <lingo/page/iso_8859_15.hpp>
+#include <lingo/page/iso_8859_16.hpp>
 #include <lingo/page/unicode.hpp>
 
 #include <lingo/page/intermediate.hpp>
@@ -26,8 +39,20 @@ namespace
 
 	using test_pages = std::tuple<
 		page_description<lingo::page::iso_8859_1, 1>,
-		page_description<lingo::page::iso_8859_2, 2>
-		>;
+		page_description<lingo::page::iso_8859_2, 2>,
+		page_description<lingo::page::iso_8859_3, 3>,
+		page_description<lingo::page::iso_8859_4, 4>,
+		page_description<lingo::page::iso_8859_5, 5>,
+		page_description<lingo::page::iso_8859_6, 6>,
+		page_description<lingo::page::iso_8859_7, 7>,
+		page_description<lingo::page::iso_8859_8, 8>,
+		page_description<lingo::page::iso_8859_9, 9>,
+		page_description<lingo::page::iso_8859_10, 10>,
+		page_description<lingo::page::iso_8859_11, 11>,
+		page_description<lingo::page::iso_8859_13, 13>,
+		page_description<lingo::page::iso_8859_14, 14>,
+		page_description<lingo::page::iso_8859_15, 15>,
+		page_description<lingo::page::iso_8859_16, 16>>;
 }
 
 TEMPLATE_LIST_TEST_CASE("iso_8859_x can be mapped to and from unicode", "", test_pages)

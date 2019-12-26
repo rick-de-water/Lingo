@@ -43,9 +43,17 @@
 #endif
 
 #ifdef LINGO_HAS_IF_CONSTEXPR
+#ifdef _MSC_VER
+#define LINGO_IF_CONSTEXPR __pragma(warning(suppress: 4127)) if constexpr
+#else
 #define LINGO_IF_CONSTEXPR if constexpr
+#endif
+#else
+#ifdef _MSC_VER
+#define LINGO_IF_CONSTEXPR __pragma(warning(suppress: 4127)) if
 #else
 #define LINGO_IF_CONSTEXPR if
+#endif
 #endif
 
 
