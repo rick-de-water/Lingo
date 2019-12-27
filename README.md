@@ -1,4 +1,7 @@
 # Lingo
+
+![](https://github.com/rick-de-water/lingo/workflows/lingo/badge.svg)
+
 Lingo is an encoding and code page aware string library for C++11 and up. It attempts to be a drop in replacement for the standard library strings by mirroring its interface as much as possible, while also adding a bunch of new functionally made possible by knowing what the data inside of the string actually represents.
 
 # Some of the features
