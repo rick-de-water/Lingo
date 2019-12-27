@@ -17,7 +17,7 @@ The string class from the standard library is defined like this:
 ```c++
 namespace std
 {
-    template<class CharT, class Traits, class Allocator>
+    template <class CharT, class Traits, class Allocator>
     class basic_string;
 }
 ```
@@ -26,17 +26,17 @@ All code point information is stored in a `Traits` type. This could work if it w
  * It assumes that every `CharT` is a code point, making it very difficult to work with multibyte/multiunit code points.
  * It generally has no information about the code page used. `char` could be ascii, utf8, iso 8859-7, or anything really. And while the standard is adding `char8_t`, `char16_t` and `char32_t` for unicode, we can't expect the standard to add a strong typedef for every code page out there.
 
-To solve this problem, the library adds a new string type that is defined as such:
+To solve this problem, the library adds a new string type that is defined as:
 ```c++
 namespace lingo
 {
     template <typename Encoding, typename Page, typename Allocator>
-	class basic_string;
+    class basic_string;
 }
 ```
 
 The library splits the responsibility of managing the code points of a string between an `Encoding` type and a `Page` type.
-`Encoding` defines how a code point can be encoded to and decoded from one or more code units. `Page` on the other hand knows what every decoded code point actually means, and know how to convert it to other `Page`s.
+The `Encoding` type defines how a code point can be encoded to and decoded from one or more code units. The `Page` type defines what every decoded code point actually means, and knows how to convert it to other `Page`s.
 
 Here are some examples of what that actually looks like:
 ```c++
@@ -82,3 +82,32 @@ TODO for 0.1.0
 ## Algorithms
 Will be added in a future version.
 
+## String typedefs
+```c++
+namespace lingo
+{
+    // Fixed code page typedefs
+    template <typename Encoding, typename Allocator = std::allocator<typename Encoding::unit_type>>
+    using basic_ascii_string = basic_string<Encoding, page::ascii, Allocator>;
+    template <typename Encoding, typename Allocator = std::allocator<typename Encoding::unit_type>>
+    using basic_unicode_string = basic_string<Encoding, page::unicode, Allocator>;
+    
+    // Fixed encoding typedefs
+    template <typename Unit, typename Allocator = std::allocator<Unit>>
+    using basic_utf8_string = basic_unicode_string<encoding::utf8<Unit, char32_t>, Allocator>;
+    template <typename Unit, typename Allocator = std::allocator<Unit>>
+    using basic_utf16_string = basic_unicode_string<encoding::utf16<Unit, char32_t>, Allocator>;
+    template <typename Unit, typename Allocator = std::allocator<Unit>>
+    using basic_utf32_string = basic_unicode_string<encoding::none<Unit, char32_t>, Allocator>;
+    
+    // Fully specialized typedefs
+    using ascii_string = basic_ascii_string<encoding::none<char, char>>;
+    using utf8_string = basic_utf8_string<char>; // Pre C++20
+    using utf8_string = basic_utf8_string<char8_t>; // Post C++20
+    using utf16_string = basic_utf16_string<char16_t>;
+    using utf32_string = basic_utf32_string<char32_t>;
+    
+    // Default string typedef
+    using string = utf8_string;
+}
+```
