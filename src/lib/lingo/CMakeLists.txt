@@ -34,7 +34,10 @@ foreach(ISO_8859_PART RANGE 1 16)
 	if (NOT ISO_8859_PART EQUAL 12)
 		unicode_generate_headers("${CMAKE_SOURCE_DIR}/spec/unicode/MAPPINGS/ISO8859/8859-${ISO_8859_PART}.TXT" "iso_8859_${ISO_8859_PART}")
 		configure_file("page/iso_8859_x.hpp.in" "${CMAKE_CURRENT_BINARY_DIR}/page/iso_8859_${ISO_8859_PART}.hpp")
+		
 		lingo_target_sources(lingo INTERFACE "${CMAKE_CURRENT_BINARY_DIR}/page/iso_8859_${ISO_8859_PART}.hpp" FOLDER "page/iso_8859")
+		lingo_target_sources(lingo INTERFACE "${CMAKE_CURRENT_BINARY_DIR}/page/internal/iso_8859_${ISO_8859_PART}_unicode_mapping.hpp" FOLDER "page/internal/iso_8859")
+		lingo_target_sources(lingo INTERFACE "${CMAKE_CURRENT_BINARY_DIR}/page/internal/unicode_iso_8859_${ISO_8859_PART}_mapping.hpp" FOLDER "page/internal/iso_8859")
 	endif()
 endforeach()
 
@@ -67,3 +70,13 @@ lingo_target_sources(lingo INTERFACE "compressed_pair.hpp" FOLDER "utility")
 get_target_property(LINGO_SOURCES lingo INTERFACE_SOURCES)
 add_custom_target(lingo_ide SOURCES ${LINGO_SOURCES})
 lingo_target_folder(lingo_ide Libraries)
+
+# Install
+foreach(LINGO_SOURCE ${LINGO_SOURCES})
+	set(LINGO_INSTALL_DIRECTORY "${LINGO_SOURCE}")
+	string(REPLACE "${CMAKE_CURRENT_BINARY_DIR}/" "" LINGO_INSTALL_DIRECTORY "${LINGO_SOURCE}")
+	string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}/" "" LINGO_INSTALL_DIRECTORY "${LINGO_INSTALL_DIRECTORY}")
+	get_filename_component(LINGO_INSTALL_DIRECTORY "${LINGO_INSTALL_DIRECTORY}" DIRECTORY)
+
+	install(FILES ${LINGO_SOURCE} DESTINATION "include/lingo/${LINGO_INSTALL_DIRECTORY}")
+endforeach()
