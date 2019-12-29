@@ -220,7 +220,7 @@ namespace lingo
 
 			// Calculate the new capacity
 			// TODO: handle requested_capacity > max_size
-			if (!is_long() && new_capacity * 2 >= requested_capacity)
+			if (new_capacity * 2 >= requested_capacity)
 			{
 				new_capacity *= 2;
 			}
@@ -240,7 +240,7 @@ namespace lingo
 			copy_contruct(new_data, original_data, data_size);
 
 			// Clean up the original data
-			free(original_data, data_size);
+			destruct(original_data, data_size);
 			
 			// Free original memory if it was allocated by the allocator
 			if (is_long())
@@ -264,17 +264,6 @@ namespace lingo
 			}
 		}
 
-		static void free(pointer destination, size_type size)
-		{
-			LINGO_IF_CONSTEXPR(!std::is_trivially_destructible<value_type>::value)
-			{
-				for (size_type i = 0; i < size; ++i)
-				{
-					destination[i].~value_type();
-				}
-			}
-		}
-
 		static void copy_contruct(pointer destination, const_pointer source, size_type size) noexcept(std::is_nothrow_copy_constructible<value_type>::value)
 		{
 			// Copy data over to the new data
@@ -287,6 +276,17 @@ namespace lingo
 				for (size_type i = 0; i < size; ++i)
 				{
 					new (destination + i) value_type(source[i]);
+				}
+			}
+		}
+
+		static void destruct(pointer destination, size_type size)
+		{
+			LINGO_IF_CONSTEXPR(!std::is_trivially_destructible<value_type>::value)
+			{
+				for (size_type i = 0; i < size; ++i)
+				{
+					destination[i].~value_type();
 				}
 			}
 		}

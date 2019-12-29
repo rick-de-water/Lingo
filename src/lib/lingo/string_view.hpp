@@ -6,8 +6,10 @@
 #include <lingo/strlen.hpp>
 
 #include <lingo/page/ascii.hpp>
+#include <lingo/page/cstring.hpp>
 #include <lingo/page/unicode.hpp>
 
+#include <lingo/encoding/cstring.hpp>
 #include <lingo/encoding/none.hpp>
 #include <lingo/encoding/utf8.hpp>
 
@@ -56,7 +58,23 @@ namespace lingo
 		LINGO_CONSTEXPR11 basic_string_view(const basic_string_view&) noexcept = default;
 		LINGO_CONSTEXPR11 basic_string_view(basic_string_view&&) noexcept = default;
 
-		LINGO_CONSTEXPR11 basic_string_view(const_pointer cstring) noexcept:
+		template <std::size_t N, typename Foo = int, typename std::enable_if<(
+			std::is_same<Encoding, encoding::cstring_default_encoding_t<value_type>>::value &&
+			std::is_same<Page, page::cstring_default_page_t<value_type>>::value), Foo>::type = N>
+		LINGO_CONSTEXPR11 basic_string_view(const value_type (&cstring)[N]) noexcept:
+			basic_string_view(cstring, N - 1, cstring[N - 1] == value_type{})
+		{
+		}
+
+		template <std::size_t N, typename Foo = int, typename std::enable_if<!(
+			std::is_same<Encoding, encoding::cstring_default_encoding_t<value_type>>::value &&
+			std::is_same<Page, page::cstring_default_page_t<value_type>>::value), Foo>::type = N>
+		explicit LINGO_CONSTEXPR11 basic_string_view(const value_type (&cstring)[N]) noexcept:
+			basic_string_view(cstring, N - 1, cstring[N - 1] == value_type{})
+		{
+		}
+
+		explicit LINGO_CONSTEXPR11 basic_string_view(const_pointer cstring) noexcept:
 			basic_string_view(cstring, strlen(cstring), true)
 		{
 		}
@@ -253,9 +271,12 @@ namespace lingo
 	using basic_utf32_string_view = basic_unicode_string_view<encoding::none<Unit, char32_t>>;
 
 	// Fully specialized typedefs
+	using narrow_string_view = basic_string_view<encoding::cstring_default_encoding_t<char>, page::cstring_default_page_t<char>>;
+	using wide_string_view = basic_string_view<encoding::cstring_default_encoding_t<wchar_t>, page::cstring_default_page_t<wchar_t>>;
+
 	using ascii_string_view = basic_ascii_string_view<encoding::none<char, char>>;
 
-	#if __cpp_char8_t
+	#ifdef __cpp_char8_t
 	using utf8_string_view = basic_utf8_string_view<char8_t>;
 	#else
 	using utf8_string_view = basic_utf8_string_view<char>;

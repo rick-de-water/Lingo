@@ -35,15 +35,26 @@ namespace lingo
 			static constexpr bool point_has_16_bit_maginude = std::numeric_limits<point_type>::digits >= 16;
 			static constexpr bool point_has_21_bit_maginude = std::numeric_limits<point_type>::digits >= 21;
 
-			static LINGO_CONSTEXPR11 unit_type point_size_markers[4] =
+			static LINGO_CONSTEXPR11 unit_type first_unit_prefix_markers[5] =
 			{
+				static_cast<unit_type>(0),
 				static_cast<unit_type>(0),
 				static_cast<unit_type>(unit_has_8_bit_maginude ? 192 : -64),
 				static_cast<unit_type>(unit_has_8_bit_maginude ? 224 : -32),
 				static_cast<unit_type>(unit_has_8_bit_maginude ? 240 : -16)
 			};
 
-			static LINGO_CONSTEXPR11 unit_type continuation_unit_marker = static_cast<unit_type>(unit_has_8_bit_maginude ? 128 : -128);
+			static LINGO_CONSTEXPR11 unit_type first_unit_data_masks[5] =
+			{
+				static_cast<unit_type>(unit_has_8_bit_maginude ? 255 : -1),
+				static_cast<unit_type>(unit_has_8_bit_maginude ? 255 : -1),
+				static_cast<unit_type>(31),
+				static_cast<unit_type>(15),
+				static_cast<unit_type>(7)
+			};
+
+			static LINGO_CONSTEXPR11 unit_type continuation_unit_prefix_marker = static_cast<unit_type>(unit_has_8_bit_maginude ? 128 : -128);
+			static LINGO_CONSTEXPR11 unit_type continuation_unit_prefix_mask = static_cast<unit_type>(unit_has_8_bit_maginude ? 192 : -64);
 			static LINGO_CONSTEXPR11 unit_type continuation_unit_data_mask = static_cast<unit_type>(63);
 
 			public:
@@ -184,12 +195,12 @@ namespace lingo
 
 				// Encode the first unit
 				const size_type last_index = required_size - 1;
-				buffer[0] = static_cast<unit_type>(point_size_markers[last_index] | (point >> (6 * last_index)));
+				buffer[0] = static_cast<unit_type>(first_unit_prefix_markers[required_size] | (point >> (6 * last_index)));
 
 				// Encode the subsequent units
 				for (size_t i = 1; i < required_size; ++i)
 				{
-					buffer[i] = static_cast<unit_type>(continuation_unit_marker | ((point >> (6 * (last_index - i))) & continuation_unit_data_mask));
+					buffer[i] = static_cast<unit_type>(continuation_unit_prefix_marker | ((point >> (6 * (last_index - i))) & continuation_unit_data_mask));
 				}
 
 				// Return the result
@@ -201,33 +212,27 @@ namespace lingo
 				// Check if there is at least one unit
 				if (buffer_size == 0)
 				{
-					return { 0, error::error_code::buffer_too_small };
+					return { {}, 0, error::error_code::buffer_too_small };
 				}
 
 				// Calculate the size of the code point
-				const std::size_t code_point_units = point_size(*buffer);
+				const std::size_t code_point_units = unit_size(*buffer);
 
 				// Check if the first code unit is valid
 				if (code_point_units == 0)
 				{
-					return { 0, error::error_code::invalid_first_unit };
+					return { {}, 0, error::error_code::invalid_first_unit };
 				}
 				assert(code_point_units <= 4);
 
 				// Check if there are enough code units left for the code point
 				if (buffer_size < code_point_units)
 				{
-					return { 0, error::error_code::buffer_too_small };
+					return { {}, code_point_units, error::error_code::buffer_too_small };
 				}
 
-				// Mask constants
-				LINGO_CONSTEXPR11 Unit first_data_masks[] = { Unit(0b1111'1111), Unit(0b1111'1111), Unit(0b0001'1111), Unit(0b0000'1111), Unit(0b0000'0111) };
-				LINGO_CONSTEXPR11 Unit continuation_data_mask = Unit(0b0011'1111);
-				LINGO_CONSTEXPR11 Unit continuation_prefix_mask = Unit(0b1100'0000);
-				LINGO_CONSTEXPR11 Unit continuation_bits = Unit(0b1000'0000);
-
 				// Get the bits from the first unit
-				Point code_point = buffer[0] & first_data_masks[code_point_units];
+				Point code_point = buffer[0] & first_unit_data_masks[code_point_units];
 
 				// Get the bits from all the continuation bytes
 				for (std::size_t i = 1; i < code_point_units; ++i)
@@ -236,22 +241,24 @@ namespace lingo
 					code_point <<= 6;
 
 					// Check if this is a valid continuation byte
-					if ((buffer[i] & continuation_prefix_mask) != continuation_bits)
+					if ((buffer[i] & continuation_unit_prefix_mask) != continuation_unit_prefix_marker)
 					{
-						return { 0, error::error_code::invalid_subsequent_unit };
+						return { {}, code_point_units, error::error_code::invalid_subsequent_unit };
 					}
 
 					// Add the bits to the code point
-					code_point |= buffer[i] & continuation_data_mask;
+					code_point |= buffer[i] & continuation_unit_data_mask;
 				}
 
 				// Return the result
-				return { code_point, error::error_code::success };
+				return { code_point, code_point_units, error::error_code::success };
 			}
 		};
 
 		template <typename Unit, typename Point>
-		LINGO_CONSTEXPR11 Unit utf8<Unit, Point>::point_size_markers[4];
+		LINGO_CONSTEXPR11 Unit utf8<Unit, Point>::first_unit_prefix_markers[5];
+		template <typename Unit, typename Point>
+		LINGO_CONSTEXPR11 Unit utf8<Unit, Point>::first_unit_data_masks[5];
 
 		template <typename Unit, typename Point>
 		using basic_utf8_point_iterator = lingo::encoding::point_iterator<utf8<Unit, Point>>;

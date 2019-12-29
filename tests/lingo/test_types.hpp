@@ -12,9 +12,9 @@ namespace lingo
 	{
 		using unit_types = std::tuple<
 			int_least8_t,
-			int_least16_t,
-			int_least32_t,
-			int_least64_t
+			//int_least16_t,
+			int_least32_t
+			//int_least64_t
 
 			/*#ifndef _DEBUG
 			,
@@ -22,7 +22,7 @@ namespace lingo
 			signed char,
 			unsigned char,
 			wchar_t,
-			#if __cpp_char8_t
+			#ifdef __cpp_char8_t
 			char8_t,
 			#endif
 			char16_t,

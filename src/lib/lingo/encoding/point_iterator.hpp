@@ -8,6 +8,9 @@
 
 namespace lingo
 {
+	template <typename Encoding, typename Page, typename Allocator>
+	class basic_string;
+
 	template <typename Encoding, typename Page>
 	class basic_string_view;
 
@@ -26,7 +29,7 @@ namespace lingo
 			using difference_type = typename encoding_type::difference_type;
 
 			using iterator_catagory = std::input_iterator_tag;
-			using value_type = unit_type;
+			using value_type = point_type;
 			using pointer = value_type*;
 			using const_pointer = const value_type*;
 			using reference = value_type&;
@@ -39,8 +42,16 @@ namespace lingo
 			{
 			}
 
+			template <typename Page, typename Allocator>
+			point_iterator(basic_string<encoding_type, Page, Allocator> string):
+				_current(string.data()),
+				_end(string.data() + string.size()),
+				_code_point(parse())
+			{
+			}
+
 			template <typename Page>
-			LINGO_CONSTEXPR14 point_iterator(basic_string_view<encoding_type, Page> string) noexcept:
+			LINGO_CONSTEXPR14 point_iterator(basic_string_view<encoding_type, Page> string):
 				_current(string.data()),
 				_end(string.data() + string.size()),
 				_code_point(parse())
@@ -50,6 +61,19 @@ namespace lingo
 			LINGO_CONSTEXPR14 const_reference operator * () const noexcept
 			{
 				return _code_point;
+			}
+
+			LINGO_CONSTEXPR14 point_iterator& operator ++()
+			{
+				_code_point = parse();
+				return *this;
+			}
+
+			LINGO_CONSTEXPR14 point_iterator operator ++(int)
+			{
+				point_iterator prev(*this);
+				operator++();
+				return prev;
 			}
 
 			LINGO_CONSTEXPR14 const_pointer operator -> () const noexcept
@@ -75,9 +99,10 @@ namespace lingo
 				{
 					_current = nullptr;
 					_end = nullptr;
-					return 0;
+					return {};
 				}
 
+				// Decode the next point
 				auto result = encoding_type::decode_point(_current, _end - _current);
 				// TODO: configurable error handling
 				if (result.error != error::error_code::success)
@@ -85,17 +110,30 @@ namespace lingo
 					throw error::exception(result.error);
 				}
 
-				// _current should never go beyond _end
-				assert(_current < _end);
+				// Move the current pointer
+				_current += result.size;
+				assert(_current <= _end); // _current should never go beyond _end
 
-				// Parse the code point
-				return utf_code_point(_current, _end - _current);
+				// Return the result
+				return result.point;
 			}
 
 			const unit_type* _current;
 			const unit_type* _end;
 			point_type _code_point;
 		};
+
+		template <typename Encoding>
+		LINGO_CONSTEXPR14 point_iterator<Encoding> begin(const point_iterator<Encoding>& it)
+		{
+			return it;
+		}
+
+		template <typename Encoding>
+		LINGO_CONSTEXPR14 point_iterator<Encoding> end(const point_iterator<Encoding>&)
+		{
+			return {};
+		}
 	}
 }
 

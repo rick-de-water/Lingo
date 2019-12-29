@@ -9,7 +9,7 @@ namespace lingo
 {
 	namespace error
 	{
-		class exception : std::runtime_error
+		class exception : public std::runtime_error
 		{
 			public:
 			explicit exception(error::error_code error_code):

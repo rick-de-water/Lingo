@@ -1,6 +1,10 @@
 #ifndef H_LINGO_ENCODING_NONE
 #define H_LINGO_ENCODING_NONE
 
+#include <lingo/constexpr.hpp>
+
+#include <lingo/encoding/result.hpp>
+
 namespace lingo
 {
 	namespace encoding
@@ -26,26 +30,26 @@ namespace lingo
 				return 1;
 			}
 
-			static LINGO_CONSTEXPR14 size_type encode_point(point_type point, unit_type* buffer, size_type buffer_size) noexcept
+			static LINGO_CONSTEXPR14 encode_result encode_point(point_type point, unit_type* buffer, size_type buffer_size) noexcept
 			{
 				if (buffer_size == 0)
 				{
-					return 0;
+					return { {}, error::error_code::buffer_too_small };
 				}
 
 				buffer[0] = static_cast<unit_type>(point);
 
-				return 1;
+				return { 1, error::error_code::success };
 			}
 
-			static LINGO_CONSTEXPR14 point_type decode_point(const unit_type* buffer, size_type buffer_size) noexcept
+			static LINGO_CONSTEXPR14 decode_result<point_type> decode_point(const unit_type* buffer, size_type buffer_size) noexcept
 			{
 				if (buffer_size == 0)
 				{
-					return 0;
+					return { {}, 0, error::error_code::buffer_too_small };
 				}
 
-				return static_cast<point_type>(buffer[0]);
+				return { static_cast<point_type>(buffer[0]), 1, error::error_code::success };
 			}
 		};
 	}

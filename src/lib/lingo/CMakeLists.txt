@@ -1,7 +1,9 @@
 # Create library
 lingo_add_library(lingo INTERFACE)
-
 target_compile_features(lingo INTERFACE cxx_std_11)
+if (MSVC)
+	target_compile_options(lingo INTERFACE "/utf-8")
+endif()
 
 # Add dependencies
 target_include_directories(lingo INTERFACE  
@@ -18,9 +20,13 @@ if (MSVC)
 	lingo_target_sources(lingo INTERFACE "lingo.natvis" FOLDER "natvis")
 endif()
 
-# Strings
-lingo_target_sources(lingo INTERFACE "string.hpp" "string_storage.hpp" FOLDER "strings/string")
-lingo_target_sources(lingo INTERFACE "string_view.hpp" "string_view_storage.hpp" FOLDER "strings/string_view")
+# Encoding
+lingo_target_sources(lingo INTERFACE "encoding/none.hpp" FOLDER "encoding/none")
+lingo_target_sources(lingo INTERFACE "encoding/utf8.hpp" FOLDER "encoding/utf")
+
+lingo_target_sources(lingo INTERFACE "encoding/cstring.hpp" FOLDER "encoding/cstring")
+lingo_target_sources(lingo INTERFACE "encoding/point_iterator.hpp" FOLDER "encoding/iterators")
+lingo_target_sources(lingo INTERFACE "encoding/result.hpp" FOLDER "encoding/result")
 
 # Code pages
 lingo_target_sources(lingo INTERFACE "page/ascii.hpp" FOLDER "page/ascii")
@@ -41,17 +47,10 @@ foreach(ISO_8859_PART RANGE 1 16)
 	endif()
 endforeach()
 
+lingo_target_sources(lingo INTERFACE "page/cstring.hpp" FOLDER "page/cstring")
 lingo_target_sources(lingo INTERFACE "page/intermediate.hpp" FOLDER "page/intermediate")
 lingo_target_sources(lingo INTERFACE "page/point_mapper.hpp" FOLDER "page/point_mapper")
 lingo_target_sources(lingo INTERFACE "page/result.hpp" FOLDER "page/result")
-
-# Encoding
-lingo_target_sources(lingo INTERFACE "encoding/none.hpp" FOLDER "encoding/none")
-lingo_target_sources(lingo INTERFACE "encoding/utf8.hpp" FOLDER "encoding/utf")
-
-lingo_target_sources(lingo INTERFACE "encoding/char.hpp" FOLDER "encoding/char")
-lingo_target_sources(lingo INTERFACE "encoding/point_iterator.hpp" FOLDER "encoding/iterators")
-lingo_target_sources(lingo INTERFACE "encoding/result.hpp" FOLDER "encoding/result")
 
 # Error handlers
 lingo_target_sources(lingo INTERFACE "error/error_code.hpp" FOLDER "error")
@@ -60,6 +59,10 @@ lingo_target_sources(lingo INTERFACE "error/exception.hpp" FOLDER "error")
 lingo_target_sources(lingo INTERFACE "error/replace.hpp" FOLDER "error")
 lingo_target_sources(lingo INTERFACE "error/skip.hpp" FOLDER "error")
 lingo_target_sources(lingo INTERFACE "error/strict.hpp" FOLDER "error")
+
+# Strings
+lingo_target_sources(lingo INTERFACE "string.hpp" "string_storage.hpp" FOLDER "strings/string")
+lingo_target_sources(lingo INTERFACE "string_view.hpp" "string_view_storage.hpp" FOLDER "strings/string_view")
 
 # Utility
 lingo_target_sources(lingo INTERFACE "compressed_pair.hpp" FOLDER "utility")

@@ -19,6 +19,7 @@ namespace lingo
 		struct decode_result
 		{
 			Point point;
+			std::size_t size;
 			error::error_code error;
 		};
 	}

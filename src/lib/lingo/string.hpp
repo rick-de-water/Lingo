@@ -5,11 +5,15 @@
 #include <lingo/string_storage.hpp>
 #include <lingo/string_view.hpp>
 
-#include <lingo/page/ascii.hpp>
-#include <lingo/page/unicode.hpp>
-
+#include <lingo/encoding/cstring.hpp>
 #include <lingo/encoding/none.hpp>
+#include <lingo/encoding/point_iterator.hpp>
 #include <lingo/encoding/utf8.hpp>
+
+#include <lingo/page/ascii.hpp>
+#include <lingo/page/cstring.hpp>
+#include <lingo/page/point_mapper.hpp>
+#include <lingo/page/unicode.hpp>
 
 #include <cassert>
 #include <iterator>
@@ -68,23 +72,75 @@ namespace lingo
 		{
 		}
 
-		basic_string(const_pointer cstring, const allocator_type& allocator = allocator_type()):
-			basic_string(string_view(cstring), allocator)
+		basic_string(size_type count, point_type point, const allocator_type& allocator = allocator_type()):
+			basic_string(allocator)
 		{
+			// Encode the point into units
+			unit_type encoded_point[encoding_type::max_units];
+			const auto result = encoding_type::encode_point(point, encoded_point, encoding_type::max_units);
+			if (result.error != error::error_code::success)
+			{
+				throw error::exception(result.error);
+			}
+
+			// Allocate memory
+			_storage.grow(result.size * count);
+
+			// Fill memory
+			for (size_type i = 0; i < count; ++i)
+			{
+				_storage.copy_contruct(_storage.data() + i * result.size, encoded_point, result.size);
+			}
+			_storage.data()[result.size * count] = {};
+			_storage.set_size(result.size * count);
 		}
 
-		basic_string(const_pointer cstring, size_type count, const allocator_type& allocator = allocator_type()):
-			basic_string(string_view(cstring, count), allocator)
+		template <std::size_t N, typename Foo = int, typename std::enable_if<(
+			std::is_same<Encoding, encoding::cstring_default_encoding_t<value_type>>::value &&
+			std::is_same<Page, page::cstring_default_page_t<value_type>>::value), Foo>::type = N>
+		basic_string(const value_type (&cstring)[N], const allocator_type& allocator = allocator_type()):
+			basic_string(string_view(cstring, N - 1, cstring[N - 1] == value_type{}), allocator)
 		{
 		}
 
 		basic_string(string_view string_view, const allocator_type& allocator = allocator_type()):
-			_storage(allocator)
+			basic_string(allocator)
 		{
 			const size_type required_size = string_view.size();
 
 			_storage.grow(required_size);
 			_storage.resize_copy_construct(required_size, string_view.data());
+		}
+
+		template <typename Encoding2, typename Page2>
+		explicit basic_string(basic_string_view<Encoding2, Page2> string_view, const allocator_type& allocator = allocator_type()):
+			basic_string(allocator)
+		{
+			_storage.grow(string_view.size() * encoding_type::max_units);
+
+			value_type* write_pointer = _storage.data();
+			for (auto source_point : encoding::point_iterator<Encoding2>(string_view))
+			{
+				const auto map_result = page::point_mapper<Page2, page_type>::map(source_point);
+				if (map_result.error != error::error_code::success)
+				{
+					throw error::exception(map_result.error);
+				}
+
+				value_type destination_units[encoding_type::max_units];
+				const auto encode_result = encoding_type::encode_point(map_result.point, destination_units, encoding_type::max_units);
+				if (encode_result.error != error::error_code::success)
+				{
+					throw error::exception(encode_result.error);
+				}
+
+				_storage.copy_contruct(write_pointer, destination_units, encode_result.size);
+				write_pointer += encode_result.size;
+			}
+
+			assert(write_pointer <= _storage.data() + _storage.capacity());
+			*write_pointer = {};
+			_storage.set_size(write_pointer - _storage.data());
 		}
 
 		/*basic_string(const_pointer cstring):
@@ -210,6 +266,11 @@ namespace lingo
 			return size() == 0;
 		}
 
+		operator string_view() const noexcept
+		{
+			return string_view(data(), size(), true);
+		}
+
 		const_pointer c_str() const noexcept
 		{
 			return data();
@@ -237,10 +298,19 @@ namespace lingo
 	template <typename Unit, typename Allocator = internal::default_allocator<encoding::none<Unit, char32_t>>>
 	using basic_utf32_string = basic_unicode_string<encoding::none<Unit, char32_t>, Allocator>;
 
+	// Fixed encoding & code page typedefs
+	template <typename Allocator = internal::default_allocator<encoding::cstring_default_encoding_t<char>>>
+	using basic_narrow_string = basic_string<encoding::cstring_default_encoding_t<char>, page::cstring_default_page_t<char>, Allocator>;
+	template <typename Allocator = internal::default_allocator<encoding::cstring_default_encoding_t<wchar_t>>>
+	using basic_wide_string = basic_string<encoding::cstring_default_encoding_t<wchar_t>, page::cstring_default_page_t<wchar_t>, Allocator>;
+
 	// Fully specialized typedefs
+	using narrow_string = basic_narrow_string<>;
+	using wide_string = basic_wide_string<>;
+
 	using ascii_string = basic_ascii_string<encoding::none<char, char>>;
 
-	#if __cpp_char8_t
+	#ifdef __cpp_char8_t
 	using utf8_string = basic_utf8_string<char8_t>;
 	#else
 	using utf8_string = basic_utf8_string<char>;

@@ -18,5 +18,38 @@
       <Item Name="null_terminated">(_storage._size &amp; _storage.null_terminated_bit) != 0</Item>
     </Expand>
   </Type>
+
+  <Type Name="lingo::basic_string_storage&lt;*,*&gt;">
+    <Intrinsic Name="is_long" Expression="_data._first._long._last_unit == lingo::internal::basic_string_storage_long_marker&lt;$T1&gt;::value" />
+    <Intrinsic Name="data" Expression="is_long() ? (_data._first._long._data) : (_data._first._short._data)" />
+    <Intrinsic Name="size" Expression="is_long() ? (_data._first._long._size) : (((sizeof(void*) * 4) / sizeof($T1)) - (static_cast&lt;size_t&gt;(_data._first._short._last_unit) + 1))"/>
+    <Intrinsic Name="capacity" Expression="is_long() ? (_data._first._long._capacity) : (sizeof(lingo::internal::basic_string_storage_data&lt;$T1&gt;) / sizeof($T1)) - 1" />
+    <Intrinsic Name="get_allocator" Expression="_data._second"/>
+    <DisplayString>{{ size={size()}, long={is_long()} }}</DisplayString>
+    <Expand>
+      <Item Name="data">data(),[size()]</Item>
+      <Item Name="size">size()</Item>
+      <Item Name="capacity">capacity()</Item>
+      <Item Name="is_long">is_long()</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="lingo::basic_string&lt;*,*,*&gt;">
+    <Intrinsic Name="data" Expression="_storage.data()"/>
+    <Intrinsic Name="size" Expression="_storage.size()"/>
+    <Intrinsic Name="capacity" Expression="_storage.capacity()"/>
+    <Intrinsic Name="get_allocator" Expression="_storage.get_allocator()"/>
+    <DisplayString>{data(),na}</DisplayString>
+    <StringView>data()</StringView>
+    <Expand>
+      <Item Name="[size]" ExcludeView="simple">size()</Item>
+      <Item Name="[capacity]" ExcludeView="simple">capacity()</Item>
+      <Item Name="[allocator]" ExcludeView="simple">get_allocator()</Item>
+      <ArrayItems>
+        <Size>size()</Size>
+        <ValuePointer>data()</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
 	
 </AutoVisualizer>
