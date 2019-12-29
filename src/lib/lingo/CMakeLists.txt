@@ -23,6 +23,7 @@ endif()
 # Encoding
 lingo_target_sources(lingo INTERFACE "encoding/none.hpp" FOLDER "encoding/none")
 lingo_target_sources(lingo INTERFACE "encoding/utf8.hpp" FOLDER "encoding/utf")
+lingo_target_sources(lingo INTERFACE "encoding/utf16.hpp" FOLDER "encoding/utf")
 
 lingo_target_sources(lingo INTERFACE "encoding/cstring.hpp" FOLDER "encoding/cstring")
 lingo_target_sources(lingo INTERFACE "encoding/point_iterator.hpp" FOLDER "encoding/iterators")

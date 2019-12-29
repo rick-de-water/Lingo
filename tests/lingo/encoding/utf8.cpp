@@ -6,9 +6,9 @@
 
 #include <limits>
 
-LINGO_TEST_CASE("utf8 defines the size of all points between 0 and 0x110000")
+LINGO_UNIT_TEST_CASE("utf8 defines the size of all points between 0 and 0x110000")
 {
-	LINGO_TEST_TYPEDEFS;
+	LINGO_UNIT_TEST_TYPEDEFS;
 
 	difference_type range;
 	if (std::numeric_limits<point_type>::max() >= 0x110000)
@@ -23,7 +23,7 @@ LINGO_TEST_CASE("utf8 defines the size of all points between 0 and 0x110000")
 	for (difference_type i = 0; i <= range; ++i)
 	{
 		const point_type point = point_type(i);
-		const size_type point_size = encoding_type::point_size(point);
+		const size_type point_size = lingo::encoding::utf8<unit_type, point_type>::point_size(point);
 
 		size_t actual_point;
 		if (point < 0)
@@ -59,9 +59,9 @@ LINGO_TEST_CASE("utf8 defines the size of all points between 0 and 0x110000")
 	}
 }
 
-LINGO_TEST_CASE("utf8 can get the size of a point from the first unit")
+LINGO_UNIT_TEST_CASE("utf8 can get the size of a point from the first unit")
 {
-	LINGO_TEST_TYPEDEFS;
+	LINGO_UNIT_TEST_TYPEDEFS;
 
 	for (difference_type i = 0; i <= 255; ++i)
 	{
@@ -88,7 +88,7 @@ LINGO_TEST_CASE("utf8 can get the size of a point from the first unit")
 		}
 
 		const unit_type unit = unit_type(i);
-		const size_type size = encoding_type::unit_size(unit);
+		const size_type size = lingo::encoding::utf8<unit_type, point_type>::unit_size(unit);
 
 		REQUIRE(size == expected_size);
 	}

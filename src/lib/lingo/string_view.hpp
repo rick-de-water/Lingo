@@ -12,6 +12,7 @@
 #include <lingo/encoding/cstring.hpp>
 #include <lingo/encoding/none.hpp>
 #include <lingo/encoding/utf8.hpp>
+#include <lingo/encoding/utf16.hpp>
 
 #include <cstddef>
 #include <iterator>
@@ -268,6 +269,8 @@ namespace lingo
 	template <typename Unit>
 	using basic_utf8_string_view = basic_unicode_string_view<encoding::utf8<Unit, char32_t>>;
 	template <typename Unit>
+	using basic_utf16_string_view = basic_unicode_string_view<encoding::utf16<Unit, char32_t>>;
+	template <typename Unit>
 	using basic_utf32_string_view = basic_unicode_string_view<encoding::none<Unit, char32_t>>;
 
 	// Fully specialized typedefs
@@ -281,6 +284,7 @@ namespace lingo
 	#else
 	using utf8_string_view = basic_utf8_string_view<char>;
 	#endif
+	using utf16_string_view = basic_utf16_string_view<char16_t>;
 	using utf32_string_view = basic_utf32_string_view<char32_t>;
 
 	// Default string_view typedef

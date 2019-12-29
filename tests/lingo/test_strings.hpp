@@ -31,45 +31,50 @@ namespace lingo
 {
 	namespace test
 	{
-		template <typename Unit>
+		template <typename Unit, typename = void>
 		struct test_string;
 
-		template <>
-		struct test_string<char>
+		template <typename _>
+		struct test_string<char, _>
 		{
 			static LINGO_CONSTEXPR11 char value[] = LINGO_TEST_STRING();
 		};
-		LINGO_CONSTEXPR11 char test_string<char>::value[];
+		template <typename _>
+		LINGO_CONSTEXPR11 char test_string<char, _>::value[];
 
-		template <>
-		struct test_string<wchar_t>
+		template <typename _>
+		struct test_string<wchar_t, _>
 		{
 			static constexpr wchar_t value[] = LINGO_TEST_STRING(L);
 		};
-		LINGO_CONSTEXPR11 wchar_t test_string<wchar_t>::value[];
+		template <typename _>
+		LINGO_CONSTEXPR11 wchar_t test_string<wchar_t, _>::value[];
 
 		#ifdef __cpp_char8_t
-		template <>
-		struct test_string<char8_t>
+		template <typename _>
+		struct test_string<char8_t, _>
 		{
 			static constexpr char8_t value[] = LINGO_TEST_STRING(u8);
 		};
-		LINGO_CONSTEXPR11 char8_t test_string<char8_t>::value[];
+		template <typename _>
+		LINGO_CONSTEXPR11 char8_t test_string<char8_t, _>::value[];
 		#endif
 
-		template <>
-		struct test_string<char16_t>
+		template <typename _>
+		struct test_string<char16_t, _>
 		{
 			static constexpr char16_t value[] = LINGO_TEST_STRING(u);
 		};
-		LINGO_CONSTEXPR11 char16_t test_string<char16_t>::value[];
+		template <typename _>
+		LINGO_CONSTEXPR11 char16_t test_string<char16_t, _>::value[];
 
-		template <>
-		struct test_string<char32_t>
+		template <typename _>
+		struct test_string<char32_t, _>
 		{
 			static constexpr char32_t value[] = LINGO_TEST_STRING(U);
 		};
-		LINGO_CONSTEXPR11 char32_t test_string<char32_t>::value[];
+		template <typename _>
+		LINGO_CONSTEXPR11 char32_t test_string<char32_t, _>::value[];
 	}
 }
 

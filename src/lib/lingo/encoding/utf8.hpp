@@ -4,7 +4,6 @@
 #include <lingo/constexpr.hpp>
 
 #include <lingo/encoding/result.hpp>
-#include <lingo/encoding/point_iterator.hpp>
 
 #include <cassert>
 #include <climits>
@@ -259,9 +258,6 @@ namespace lingo
 		LINGO_CONSTEXPR11 Unit utf8<Unit, Point>::first_unit_prefix_markers[5];
 		template <typename Unit, typename Point>
 		LINGO_CONSTEXPR11 Unit utf8<Unit, Point>::first_unit_data_masks[5];
-
-		template <typename Unit, typename Point>
-		using basic_utf8_point_iterator = lingo::encoding::point_iterator<utf8<Unit, Point>>;
 	}
 }
 

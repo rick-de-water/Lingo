@@ -9,6 +9,7 @@
 #include <lingo/encoding/none.hpp>
 #include <lingo/encoding/point_iterator.hpp>
 #include <lingo/encoding/utf8.hpp>
+#include <lingo/encoding/utf16.hpp>
 
 #include <lingo/page/ascii.hpp>
 #include <lingo/page/cstring.hpp>
@@ -295,6 +296,8 @@ namespace lingo
 	// Fixed encoding typedefs
 	template <typename Unit, typename Allocator = internal::default_allocator<encoding::utf8<Unit, char32_t>>>
 	using basic_utf8_string = basic_unicode_string<encoding::utf8<Unit, char32_t>, Allocator>;
+	template <typename Unit, typename Allocator = internal::default_allocator<encoding::utf8<Unit, char32_t>>>
+	using basic_utf16_string = basic_unicode_string<encoding::utf16<Unit, char32_t>, Allocator>;
 	template <typename Unit, typename Allocator = internal::default_allocator<encoding::none<Unit, char32_t>>>
 	using basic_utf32_string = basic_unicode_string<encoding::none<Unit, char32_t>, Allocator>;
 
@@ -315,6 +318,7 @@ namespace lingo
 	#else
 	using utf8_string = basic_utf8_string<char>;
 	#endif
+	using utf16_string = basic_utf8_string<char16_t>;
 	using utf32_string = basic_utf32_string<char32_t>;
 
 	// Default string typedef

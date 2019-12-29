@@ -4,26 +4,11 @@
 
 #include <lingo/encoding/point_iterator.hpp>
 
-#include <test_strings.hpp>
-#include <test_types.hpp>
+#include "test_case.hpp"
+#include "test_strings.hpp"
+#include "test_types.hpp"
 
 #include <tuple>
-
-namespace
-{
-	using test_string_types = std::tuple<lingo::ascii_string, lingo::utf8_string, lingo::utf32_string>;
-	using test_unit_types = std::tuple<
-		char,
-		//wchar_t,
-		#ifdef __cpp_char8_t
-		char8_t,
-		#endif
-		//char16_t,
-		char32_t
-		>;
-
-	using test_unit_type_matrix = lingo::test::tuple_matrix_t<test_unit_types, test_unit_types>;
-}
 
 TEST_CASE("string has the correct types")
 {
@@ -41,21 +26,20 @@ TEST_CASE("string has the correct types")
 	REQUIRE(std::is_same<std::ptrdiff_t, typename lingo::ascii_string::difference_type>::value);
 }
 
-TEMPLATE_LIST_TEST_CASE("A default constructed string is an empty null terminated string", "", test_string_types)
+LINGO_UNIT_TEST_CASE("A default constructed string is an empty null terminated string")
 {
-	using string = TestType;
+	LINGO_UNIT_TEST_TYPEDEFS;
 
-	const string str;
+	const string_type str;
 	REQUIRE(str.size() == 0);
-	REQUIRE(str.data()[0] == typename string::value_type{});
+	REQUIRE(str.data()[0] == typename string_type::value_type{});
 }
 
-TEMPLATE_LIST_TEST_CASE("string can be constructed from a character array", "", test_unit_types)
+LINGO_UNIT_TEST_CASE("string can be constructed from a character array")
 {
-	using unit_type = TestType;
-	using string = lingo::basic_unicode_string<lingo::encoding::cstring_default_encoding_t<unit_type>>;
+	LINGO_UNIT_TEST_TYPEDEFS;
 
-	const string test_string = lingo::test::test_string<unit_type>::value;
+	const string_type test_string = lingo::test::test_string<unit_type>::value;
 
 	const size_t size = (sizeof(lingo::test::test_string<unit_type>::value) / sizeof(lingo::test::test_string<unit_type>::value[0])) - 1;
 	REQUIRE(test_string.size() == size);
@@ -67,20 +51,17 @@ TEMPLATE_LIST_TEST_CASE("string can be constructed from a character array", "", 
 	}
 }
 
-TEMPLATE_LIST_TEST_CASE("string can be constructor from a code point and a count", "", test_unit_types)
+LINGO_UNIT_TEST_CASE("string can be constructor from a code point and a count")
 {
-	using unit_type = TestType;
-	using encoding_type = lingo::encoding::cstring_default_encoding_t<unit_type>;
-	using string = lingo::basic_unicode_string<encoding_type>;
-	using point_iterator_type = lingo::encoding::point_iterator<encoding_type>;
+	LINGO_UNIT_TEST_TYPEDEFS;
 
-	const string source_string = lingo::test::test_string<unit_type>::value;
+	const string_type source_string = lingo::test::test_string<unit_type>::value;
 	point_iterator_type source_iterator(source_string);
 	for (char32_t source_point : source_iterator)
 	{
-		for (std::size_t i = 0; i < (sizeof(string) / sizeof(unit_type)) * 2; ++i)
+		for (std::size_t i = 0; i < (sizeof(string_type) / sizeof(unit_type)) * 2; ++i)
 		{
-			const string destination_string(i, source_point);
+			const string_type destination_string(i, source_point);
 			std::size_t point_count = 0;
 			point_iterator_type destination_iterator(destination_string);
 			for (char32_t c : destination_iterator)
@@ -94,14 +75,12 @@ TEMPLATE_LIST_TEST_CASE("string can be constructor from a code point and a count
 	}
 }
 
-TEMPLATE_LIST_TEST_CASE("string can be implicitly constructed from a string_view with the same page and encoding", "", test_unit_types)
+LINGO_UNIT_TEST_CASE("string can be implicitly constructed from a string_view with the same page and encoding")
 {
-	using unit_type = TestType;
-	using string = lingo::basic_unicode_string<lingo::encoding::cstring_default_encoding_t<unit_type>>;
-	using string_view = lingo::basic_unicode_string_view<lingo::encoding::cstring_default_encoding_t<unit_type>>;
+	LINGO_UNIT_TEST_TYPEDEFS;
 
-	const string_view test_string_view = string_view(lingo::test::test_string<unit_type>::value);
-	const string test_string = test_string_view;
+	const string_view_type test_string_view = string_view_type(lingo::test::test_string<unit_type>::value);
+	const string_type test_string = test_string_view;
 
 	REQUIRE(test_string.size() == test_string_view.size());
 
@@ -112,7 +91,7 @@ TEMPLATE_LIST_TEST_CASE("string can be implicitly constructed from a string_view
 	}
 }
 
-TEMPLATE_LIST_TEST_CASE("string can be explicitly constructed from a string_view with a different page or encoding", "", test_unit_type_matrix)
+TEMPLATE_LIST_TEST_CASE("string can be explicitly constructed from a string_view with a different page or encoding", "", lingo::test::unit_type_matrix)
 {
 	using source_unit_type = typename std::decay<decltype(std::get<0>(std::declval<TestType>()))>::type;
 	using destination_unit_type = typename std::decay<decltype(std::get<1>(std::declval<TestType>()))>::type;

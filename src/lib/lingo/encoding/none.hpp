@@ -20,16 +20,6 @@ namespace lingo
 
 			static LINGO_CONSTEXPR11 size_type max_units = 1;
 
-			static LINGO_CONSTEXPR14 size_type point_size(point_type point) noexcept
-			{
-				return 1;
-			}
-
-			static LINGO_CONSTEXPR14 size_type unit_size(unit_type unit) noexcept
-			{
-				return 1;
-			}
-
 			static LINGO_CONSTEXPR14 encode_result encode_point(point_type point, unit_type* buffer, size_type buffer_size) noexcept
 			{
 				if (buffer_size == 0)
