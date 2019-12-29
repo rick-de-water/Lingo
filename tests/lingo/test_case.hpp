@@ -19,14 +19,10 @@
 #include <type_traits>
 #include <vector>
 
-namespace lingo
-{
-	namespace test
-	{
-		
-	}
-}
-
+#define LINGO_UNIT_LEAST_64_TEST_CASE(...) TEMPLATE_LIST_TEST_CASE(__VA_ARGS__, "", lingo::test::unit_least_64_types)
+#define LINGO_UNIT_LEAST_32_TEST_CASE(...) TEMPLATE_LIST_TEST_CASE(__VA_ARGS__, "", lingo::test::unit_least_32_types)
+#define LINGO_UNIT_LEAST_16_TEST_CASE(...) TEMPLATE_LIST_TEST_CASE(__VA_ARGS__, "", lingo::test::unit_least_16_types)
+#define LINGO_UNIT_LEAST_8_TEST_CASE(...) TEMPLATE_LIST_TEST_CASE(__VA_ARGS__, "", lingo::test::unit_least_8_types)
 #define LINGO_UNIT_TEST_CASE(...) TEMPLATE_LIST_TEST_CASE(__VA_ARGS__, "", lingo::test::unit_types)
 
 #define LINGO_UNIT_TEST_TYPEDEFS \

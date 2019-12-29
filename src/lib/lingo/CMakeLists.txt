@@ -20,6 +20,9 @@ if (MSVC)
 	lingo_target_sources(lingo INTERFACE "lingo.natvis" FOLDER "natvis")
 endif()
 
+# Platform
+lingo_target_sources(lingo INTERFACE "platform/wchar.hpp" FOLDER "platform")
+
 # Encoding
 lingo_target_sources(lingo INTERFACE "encoding/none.hpp" FOLDER "encoding/none")
 lingo_target_sources(lingo INTERFACE "encoding/utf8.hpp" FOLDER "encoding/utf")

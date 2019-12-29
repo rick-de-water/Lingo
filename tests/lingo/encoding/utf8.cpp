@@ -2,7 +2,8 @@
 
 #include <lingo/encoding/utf8.hpp>
 
-#include <test_case.hpp>
+#include "test_case.hpp"
+#include "test_types.hpp"
 
 #include <limits>
 
