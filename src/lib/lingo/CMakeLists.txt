@@ -37,7 +37,6 @@ lingo_target_sources(lingo INTERFACE "page/ascii.hpp" FOLDER "page/ascii")
 lingo_target_sources(lingo INTERFACE "page/unicode.hpp" FOLDER "page/unicode")
 
 lingo_target_sources(lingo INTERFACE "page/internal/iso_8859.hpp" FOLDER "page/internal/iso_8859")
-lingo_target_sources(lingo INTERFACE "page/iso_8859_1.hpp" "page/iso_8859_2.hpp" FOLDER "page/iso_8859")
 
 include(unicode)
 foreach(ISO_8859_PART RANGE 1 16)
