@@ -43,7 +43,7 @@ namespace lingo
 			}
 
 			template <typename Page, typename Allocator>
-			point_iterator(basic_string<encoding_type, Page, Allocator> string):
+			point_iterator(const basic_string<encoding_type, Page, Allocator>& string):
 				_current(string.data()),
 				_end(string.data() + string.size()),
 				_code_point(parse())

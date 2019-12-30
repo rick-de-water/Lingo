@@ -3,6 +3,7 @@
 
 #include <lingo/encoding/none.hpp>
 #include <lingo/encoding/utf8.hpp>
+#include <lingo/encoding/utf16.hpp>
 
 #include <type_traits>
 
@@ -22,11 +23,11 @@ namespace lingo
 			using type = utf8<Unit, char32_t>;
 		};
 
-		/*template <typename Unit>
+		template <typename Unit>
 		struct cstring_default_encoding<Unit, typename std::enable_if<sizeof(Unit) == 2>::type>
 		{
 			using type = utf16<Unit, char32_t>;
-		};*/
+		};
 
 		template <typename Unit>
 		using cstring_default_encoding_t = typename cstring_default_encoding<Unit>::type;

@@ -222,7 +222,7 @@ namespace lingo
 				{
 					return { {}, 0, error::error_code::invalid_first_unit };
 				}
-				assert(code_point_units <= 4);
+				assert(code_point_units <= max_units);
 
 				// Check if there are enough code units left for the code point
 				if (buffer_size < code_point_units)
