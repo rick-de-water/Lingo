@@ -39,15 +39,14 @@ list(APPEND LINGO_MANUAL_HEADERS "encoding/result.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "page/ascii.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "page/unicode.hpp")
 
+list(APPEND LINGO_MANUAL_HEADERS "page/iso_8859.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "page/internal/iso_8859.hpp")
 
 include(unicode)
 foreach(ISO_8859_PART RANGE 1 16)
 	if (NOT ISO_8859_PART EQUAL 12)
 		unicode_generate_headers("${CMAKE_SOURCE_DIR}/spec/unicode/MAPPINGS/ISO8859/8859-${ISO_8859_PART}.TXT" "iso_8859_${ISO_8859_PART}")
-		configure_file("page/iso_8859_x.hpp.in" "${CMAKE_CURRENT_BINARY_DIR}/page/iso_8859_${ISO_8859_PART}.hpp")
 		
-		list(APPEND LINGO_GENERATED_HEADERS "${CMAKE_CURRENT_BINARY_DIR}/page/iso_8859_${ISO_8859_PART}.hpp")
 		list(APPEND LINGO_GENERATED_HEADERS "${CMAKE_CURRENT_BINARY_DIR}/page/internal/iso_8859_${ISO_8859_PART}_unicode_mapping.hpp")
 		list(APPEND LINGO_GENERATED_HEADERS "${CMAKE_CURRENT_BINARY_DIR}/page/internal/unicode_iso_8859_${ISO_8859_PART}_mapping.hpp")
 	endif()

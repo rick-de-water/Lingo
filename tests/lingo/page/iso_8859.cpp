@@ -1,20 +1,6 @@
 #include <catch/catch.hpp>
 
-#include <lingo/page/iso_8859_1.hpp>
-#include <lingo/page/iso_8859_2.hpp>
-#include <lingo/page/iso_8859_3.hpp>
-#include <lingo/page/iso_8859_4.hpp>
-#include <lingo/page/iso_8859_5.hpp>
-#include <lingo/page/iso_8859_6.hpp>
-#include <lingo/page/iso_8859_7.hpp>
-#include <lingo/page/iso_8859_8.hpp>
-#include <lingo/page/iso_8859_9.hpp>
-#include <lingo/page/iso_8859_10.hpp>
-#include <lingo/page/iso_8859_11.hpp>
-#include <lingo/page/iso_8859_13.hpp>
-#include <lingo/page/iso_8859_14.hpp>
-#include <lingo/page/iso_8859_15.hpp>
-#include <lingo/page/iso_8859_16.hpp>
+#include <lingo/page/iso_8859.hpp>
 #include <lingo/page/unicode.hpp>
 
 #include <lingo/page/intermediate.hpp>
@@ -38,26 +24,61 @@ namespace
 	};
 
 	using test_pages = std::tuple<
-		page_description<lingo::page::iso_8859_1, 1>,
-		page_description<lingo::page::iso_8859_2, 2>,
-		page_description<lingo::page::iso_8859_3, 3>,
-		page_description<lingo::page::iso_8859_4, 4>,
-		page_description<lingo::page::iso_8859_5, 5>,
-		page_description<lingo::page::iso_8859_6, 6>,
-		page_description<lingo::page::iso_8859_7, 7>,
-		page_description<lingo::page::iso_8859_8, 8>,
-		page_description<lingo::page::iso_8859_9, 9>,
-		page_description<lingo::page::iso_8859_10, 10>,
-		page_description<lingo::page::iso_8859_11, 11>,
-		page_description<lingo::page::iso_8859_13, 13>,
-		page_description<lingo::page::iso_8859_14, 14>,
-		page_description<lingo::page::iso_8859_15, 15>,
-		page_description<lingo::page::iso_8859_16, 16>>;
+		lingo::page::iso_8859<1>,
+		lingo::page::iso_8859<2>,
+		lingo::page::iso_8859<3>,
+		lingo::page::iso_8859<4>,
+		lingo::page::iso_8859<5>,
+		lingo::page::iso_8859<6>,
+		lingo::page::iso_8859<7>,
+		lingo::page::iso_8859<8>,
+		lingo::page::iso_8859<9>,
+		lingo::page::iso_8859<10>,
+		lingo::page::iso_8859<11>,
+		lingo::page::iso_8859<13>,
+		lingo::page::iso_8859<14>,
+		lingo::page::iso_8859<15>,
+		lingo::page::iso_8859<16>>;
 }
 
-TEMPLATE_LIST_TEST_CASE("iso_8859_x can be mapped to and from unicode", "", test_pages)
+TEMPLATE_LIST_TEST_CASE("iso_8859 types are correctly defined", "", test_pages)
 {
-	using iso_page_type = typename TestType::page_type;
+	REQUIRE(lingo::page::iso_8859<1>::part_index == 1);
+	REQUIRE(lingo::page::iso_8859<2>::part_index == 2);
+	REQUIRE(lingo::page::iso_8859<3>::part_index == 3);
+	REQUIRE(lingo::page::iso_8859<4>::part_index == 4);
+	REQUIRE(lingo::page::iso_8859<5>::part_index == 5);
+	REQUIRE(lingo::page::iso_8859<6>::part_index == 6);
+	REQUIRE(lingo::page::iso_8859<7>::part_index == 7);
+	REQUIRE(lingo::page::iso_8859<8>::part_index == 8);
+	REQUIRE(lingo::page::iso_8859<9>::part_index == 9);
+	REQUIRE(lingo::page::iso_8859<10>::part_index == 10);
+	REQUIRE(lingo::page::iso_8859<11>::part_index == 11);
+	REQUIRE(lingo::page::iso_8859<13>::part_index == 13);
+	REQUIRE(lingo::page::iso_8859<14>::part_index == 14);
+	REQUIRE(lingo::page::iso_8859<15>::part_index == 15);
+	REQUIRE(lingo::page::iso_8859<16>::part_index == 16);
+
+	REQUIRE(lingo::page::iso_8859_1::part_index == 1);
+	REQUIRE(lingo::page::iso_8859_2::part_index == 2);
+	REQUIRE(lingo::page::iso_8859_3::part_index == 3);
+	REQUIRE(lingo::page::iso_8859_4::part_index == 4);
+	REQUIRE(lingo::page::iso_8859_5::part_index == 5);
+	REQUIRE(lingo::page::iso_8859_6::part_index == 6);
+	REQUIRE(lingo::page::iso_8859_7::part_index == 7);
+	REQUIRE(lingo::page::iso_8859_8::part_index == 8);
+	REQUIRE(lingo::page::iso_8859_9::part_index == 9);
+	REQUIRE(lingo::page::iso_8859_10::part_index == 10);
+	REQUIRE(lingo::page::iso_8859_11::part_index == 11);
+	REQUIRE(lingo::page::iso_8859_13::part_index == 13);
+	REQUIRE(lingo::page::iso_8859_14::part_index == 14);
+	REQUIRE(lingo::page::iso_8859_15::part_index == 15);
+	REQUIRE(lingo::page::iso_8859_16::part_index == 16);
+}
+
+TEMPLATE_LIST_TEST_CASE("iso_8859 can be mapped to and from unicode", "", test_pages)
+{
+	using iso_page_type = TestType;
 	using unicode_page_type = lingo::page::unicode;
 
 	using iso_point_type = typename iso_page_type::point_type;
@@ -66,7 +87,7 @@ TEMPLATE_LIST_TEST_CASE("iso_8859_x can be mapped to and from unicode", "", test
 	using iso_unicode_point_mapper = lingo::page::point_mapper<iso_page_type, unicode_page_type>;
 	using unicode_iso_point_mapper = lingo::page::point_mapper<unicode_page_type, iso_page_type>;
 
-	LINGO_CONSTEXPR11 std::size_t part_index = TestType::part_index;
+	LINGO_CONSTEXPR11 std::size_t part_index = iso_page_type::part_index;
 
 	std::stringstream file_name;
 	file_name << LINGO_SPEC_DIRECTORY;

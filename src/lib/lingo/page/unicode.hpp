@@ -6,6 +6,7 @@
 #include <lingo/page/result.hpp>
 
 #include <cstddef>
+#include <type_traits>
 
 namespace lingo
 {
