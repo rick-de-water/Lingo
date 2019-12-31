@@ -144,17 +144,6 @@ namespace lingo
 			_storage.set_size(write_pointer - _storage.data());
 		}
 
-		/*basic_string(const_pointer cstring):
-			basic_string(allocator)
-		{
-		}
-
-		/*template <typename T, typename std::enable_if<std::is_convertible<const T&, string_view>::value, int>::type = 0>
-		basic_string(const T& value, const allocator_type& allocator = allocator_type()):
-			basic_string(allocator)
-		{
-		}*/
-
 		iterator begin() noexcept
 		{
 			return iterator(data());

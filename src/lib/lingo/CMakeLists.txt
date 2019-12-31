@@ -35,6 +35,8 @@ list(APPEND LINGO_MANUAL_HEADERS "encoding/cstring.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "encoding/point_iterator.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "encoding/result.hpp")
 
+list(APPEND LINGO_MANUAL_HEADERS "encoding/internal/bit_converter.hpp")
+
 # Code pages
 list(APPEND LINGO_MANUAL_HEADERS "page/ascii.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "page/unicode.hpp")

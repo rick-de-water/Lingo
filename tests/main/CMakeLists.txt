@@ -4,6 +4,8 @@ set_target_properties(test_main PROPERTIES FOLDER Tests)
 
 if (MSVC)
 	target_compile_options(test_main PUBLIC "/W4" "/MP" "/bigobj")
+else()
+	target_compile_options(test_main PUBLIC -Wall -Wextra -pedantic -Wno-unused-local-typedefs)
 endif()
 
 # Add dependencies
