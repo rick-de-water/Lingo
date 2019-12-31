@@ -25,6 +25,7 @@ list(APPEND TEST_LINGO_SOURCES "encoding/utf16.cpp")
 # Strings
 list(APPEND TEST_LINGO_SOURCES "string.cpp")
 list(APPEND TEST_LINGO_SOURCES "string_view.cpp")
+list(APPEND TEST_LINGO_SOURCES "string_converter.cpp")
 
 target_sources(test_lingo PRIVATE ${TEST_LINGO_SOURCES})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${TEST_LINGO_SOURCES})

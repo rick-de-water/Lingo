@@ -106,6 +106,53 @@ namespace lingo
 		{
 		}
 
+
+		basic_string_storage(const basic_string_storage& storage, const allocator_type& allocator):
+			basic_string_storage(allocator)
+		{
+			grow(storage.size());
+			resize_copy_construct(storage.size(), storage.data());
+		}
+
+		basic_string_storage(basic_string_storage&& storage, const allocator_type& allocator):
+			basic_string_storage(allocator)
+		{
+			// Move memory if it can be shared between allocators
+			if (allocator == storage.get_allocator())
+			{
+				// Move memory if it was allocated dynamically
+				if (storage.is_long())
+				{
+					_data.first()._long._data = storage.data();
+					_data.first()._long._size = storage.size();
+					_data.first()._long._capacity = storage.capacity();
+					_data.first()._long._last_unit = internal::basic_string_storage_long_marker<value_type>::value;
+
+					storage._data.first()._short = {};
+				}
+				// Small string optimized memory cannot be moved, so we still need to copy it
+				else
+				{
+					resize_copy_construct(storage.size(), storage.data());
+				}
+			}
+			// Allocators cannot share memory, so we have to copy
+			else
+			{
+				grow(storage.size());
+				resize_copy_construct(storage.size(), storage.data());
+			}
+		}
+
+		~basic_string_storage() noexcept
+		{
+			if (is_long())
+			{
+				destruct(data(), size());
+				get_allocator().deallocate(data(), size());
+			}
+		}
+
 		allocator_type get_allocator() const noexcept(std::is_nothrow_copy_constructible<allocator_type>::value)
 		{
 			return _data.second();
@@ -152,6 +199,7 @@ namespace lingo
 			}
 			else if (new_size < original_size)
 			{
+				destruct(buffer + new_size, original_size - new_size);
 				buffer[new_size] = value_type{};
 			}
 			set_size(new_size);
@@ -169,6 +217,7 @@ namespace lingo
 			}
 			else if (new_size < original_size)
 			{
+				destruct(buffer + new_size, original_size - new_size);
 				buffer[new_size] = value_type{};
 			}
 			set_size(new_size);

@@ -69,6 +69,7 @@ list(APPEND LINGO_MANUAL_HEADERS "error/strict.hpp")
 # Strings
 list(APPEND LINGO_MANUAL_HEADERS "string.hpp" "string_storage.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "string_view.hpp" "string_view_storage.hpp")
+list(APPEND LINGO_MANUAL_HEADERS "string_converter.hpp" "conversion_result.hpp")
 
 # Utility
 list(APPEND LINGO_MANUAL_HEADERS "compressed_pair.hpp")

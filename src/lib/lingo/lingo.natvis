@@ -20,7 +20,7 @@
   </Type>
 
   <Type Name="lingo::basic_string_storage&lt;*,*&gt;">
-    <Intrinsic Name="is_long" Expression="_data._first._long._last_unit == lingo::internal::basic_string_storage_long_marker&lt;$T1&gt;::value" />
+    <Intrinsic Name="is_long" Expression="_data._first._long._last_unit == ($T1)(~(($T1)0))" />
     <Intrinsic Name="data" Expression="is_long() ? (_data._first._long._data) : (_data._first._short._data)" />
     <Intrinsic Name="size" Expression="is_long() ? (_data._first._long._size) : (((sizeof(void*) * 4) / sizeof($T1)) - (static_cast&lt;size_t&gt;(_data._first._short._last_unit) + 1))"/>
     <Intrinsic Name="capacity" Expression="is_long() ? (_data._first._long._capacity) : (sizeof(lingo::internal::basic_string_storage_data&lt;$T1&gt;) / sizeof($T1)) - 1" />

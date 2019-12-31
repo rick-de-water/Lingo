@@ -2,6 +2,7 @@
 #define H_LINGO_STRING
 
 #include <lingo/constexpr.hpp>
+#include <lingo/string_converter.hpp>
 #include <lingo/string_storage.hpp>
 #include <lingo/string_view.hpp>
 
@@ -113,35 +114,35 @@ namespace lingo
 			_storage.resize_copy_construct(required_size, string_view.data());
 		}
 
-		template <typename Encoding2, typename Page2>
-		explicit basic_string(basic_string_view<Encoding2, Page2> string_view, const allocator_type& allocator = allocator_type()):
-			basic_string(allocator)
+		template <typename SourceEncoding, typename SourcePage>
+		explicit basic_string(basic_string_view<SourceEncoding, SourcePage> string_view, const allocator_type& allocator = allocator_type()):
+			basic_string(string_converter<SourceEncoding, SourcePage, encoding_type, page_type>().template convert<allocator_type>(string_view, allocator))
 		{
-			_storage.grow(string_view.size() * encoding_type::max_units);
+		}
 
-			value_type* write_pointer = _storage.data();
-			for (auto source_point : encoding::point_iterator<Encoding2>(string_view))
-			{
-				const auto map_result = page::point_mapper<Page2, page_type>::map(source_point);
-				if (map_result.error != error::error_code::success)
-				{
-					throw error::exception(map_result.error);
-				}
+		basic_string(const basic_string& string):
+			basic_string(string, allocator_type())
+		{
+		}
 
-				value_type destination_units[encoding_type::max_units];
-				const auto encode_result = encoding_type::encode_point(map_result.point, destination_units, encoding_type::max_units);
-				if (encode_result.error != error::error_code::success)
-				{
-					throw error::exception(encode_result.error);
-				}
+		basic_string(const basic_string& string, const allocator_type& allocator):
+			_storage(string._storage, allocator)
+		{
+		}
 
-				_storage.copy_contruct(write_pointer, destination_units, encode_result.size);
-				write_pointer += encode_result.size;
-			}
+		basic_string(basic_string&& string):
+			basic_string(std::move(string), allocator_type())
+		{
+		}
 
-			assert(write_pointer <= _storage.data() + _storage.capacity());
-			*write_pointer = {};
-			_storage.set_size(write_pointer - _storage.data());
+		basic_string(basic_string&& string, const allocator_type& allocator):
+			_storage(std::move(string._storage), allocator)
+		{
+		}
+
+		allocator_type get_allocator() const noexcept(std::is_nothrow_copy_constructible<allocator_type>::value)
+		{
+			return _storage.get_allocator();
 		}
 
 		iterator begin() noexcept
@@ -254,6 +255,26 @@ namespace lingo
 		bool empty() const noexcept
 		{
 			return size() == 0;
+		}
+
+		void resize(size_type size) noexcept
+		{
+			if (size == _storage.size())
+			{
+				return;
+			}
+
+			if (size > _storage.capacity())
+			{
+				_storage.grow(size);
+			}
+
+			_storage.resize_default_construct(size);
+		}
+
+		void reserve(size_type size) noexcept
+		{
+			_storage.grow(size);
 		}
 
 		operator string_view() const noexcept
