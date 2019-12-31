@@ -42,7 +42,6 @@ list(APPEND LINGO_MANUAL_HEADERS "page/ascii.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "page/unicode.hpp")
 
 list(APPEND LINGO_MANUAL_HEADERS "page/iso_8859.hpp")
-list(APPEND LINGO_MANUAL_HEADERS "page/internal/iso_8859.hpp")
 
 include(unicode)
 foreach(ISO_8859_PART RANGE 1 16)
