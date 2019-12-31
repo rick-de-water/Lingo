@@ -13,7 +13,7 @@ namespace lingo
 		template <std::size_t... Is>
 		constexpr auto zero_index_sequence_generator(const std::index_sequence<Is...>&)
 		{
-			return std::index_sequence<(Is, 0)...>();
+			return std::index_sequence<(Is * 0u)...>();
 		}
 
 		template <std::size_t N>

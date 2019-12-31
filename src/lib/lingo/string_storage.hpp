@@ -249,7 +249,9 @@ namespace lingo
 			}
 
 			// Replace the old data pointers with the new ones
-			_data.first()._long = { new_data, data_size, new_capacity };
+			_data.first()._long._data = new_data;
+			_data.first()._long._size = data_size;
+			_data.first()._long._capacity = new_capacity;
 			_data.first()._long._last_unit = internal::basic_string_storage_long_marker<value_type>::value;
 		}
 

@@ -164,7 +164,7 @@ LINGO_UNIT_TEST_CASE("string_view can be iterated over")
 	LINGO_UNIT_TEST_TYPEDEFS;
 
 	const unit_type* data = lingo::test::test_string<unit_type>::value;
-	const size_type size = sizeof(lingo::test::test_string<unit_type>::value) / sizeof(lingo::test::test_string<unit_type>::value[0]) - 1;
+	const difference_type size = sizeof(lingo::test::test_string<unit_type>::value) / sizeof(lingo::test::test_string<unit_type>::value[0]) - 1;
 
 	const string_view_type test_string_view(data);
 	difference_type index;
