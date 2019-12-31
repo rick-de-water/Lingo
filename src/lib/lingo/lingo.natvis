@@ -2,25 +2,34 @@
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
 
   <Type Name="lingo::basic_string_view_storage&lt;*&gt;">
-    <DisplayString>{_data,[_size &amp; (~null_terminated_bit)]}</DisplayString>
+    <Intrinsic Name="data" Expression="_data" />
+    <Intrinsic Name="size" Expression="_size  &amp; (~null_terminated_bit)" />
+    <Intrinsic Name="null_terminated" Expression="(_size &amp; null_terminated_bit) != 0" />
+    <DisplayString>{{ size={size()}, null_terminated={null_terminated()} }}</DisplayString>
     <Expand>
-      <Item Name="data">_data</Item>
-      <Item Name="size">_size &amp; (~null_terminated_bit)</Item>
-      <Item Name="null_terminated">(_size &amp; null_terminated_bit) != 0</Item>
+      <Item Name="data">data()</Item>
+      <Item Name="size">size()</Item>
+      <Item Name="null_terminated">null_terminated()</Item>
     </Expand>
   </Type>
 
-  <Type Name="lingo::basic_string_view&lt;*,*,*&gt;">
-    <DisplayString>{_storage}</DisplayString>
+  <Type Name="lingo::basic_string_view&lt;*,*&gt;">
+    <Intrinsic Name="data" Expression="_storage.data()" />
+    <Intrinsic Name="size" Expression="_storage.size()" />
+    <Intrinsic Name="null_terminated" Expression="_storage.null_terminated()" />
+    <DisplayString>{_storage.data(),[_storage.size()]na}</DisplayString>
     <Expand>
-      <Item Name="data">_storage._data</Item>
-      <Item Name="size">_storage._size &amp; (~_storage.null_terminated_bit)</Item>
-      <Item Name="null_terminated">(_storage._size &amp; _storage.null_terminated_bit) != 0</Item>
+      <Item Name="[size]" ExcludeView="simple">size()</Item>
+      <Item Name="[null_terminated]" ExcludeView="simple">null_terminated()</Item>
+      <ArrayItems>
+        <Size>size()</Size>
+        <ValuePointer>data()</ValuePointer>
+      </ArrayItems>
     </Expand>
   </Type>
 
   <Type Name="lingo::basic_string_storage&lt;*,*&gt;">
-    <Intrinsic Name="is_long" Expression="_data._first._long._last_unit == ($T1)(~(($T1)0))" />
+    <Intrinsic Name="is_long" Expression="_data._first._long._last_unit > (sizeof(void*) * 4)" />
     <Intrinsic Name="data" Expression="is_long() ? (_data._first._long._data) : (_data._first._short._data)" />
     <Intrinsic Name="size" Expression="is_long() ? (_data._first._long._size) : (((sizeof(void*) * 4) / sizeof($T1)) - (static_cast&lt;size_t&gt;(_data._first._short._last_unit) + 1))"/>
     <Intrinsic Name="capacity" Expression="is_long() ? (_data._first._long._capacity) : (sizeof(lingo::internal::basic_string_storage_data&lt;$T1&gt;) / sizeof($T1)) - 1" />
