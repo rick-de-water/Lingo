@@ -7,6 +7,7 @@
 #include <lingo/string_view.hpp>
 
 #include <lingo/encoding/cstring.hpp>
+#include <lingo/encoding/endian.hpp>
 #include <lingo/encoding/none.hpp>
 #include <lingo/encoding/point_iterator.hpp>
 #include <lingo/encoding/utf8.hpp>
@@ -16,6 +17,8 @@
 #include <lingo/page/cstring.hpp>
 #include <lingo/page/point_mapper.hpp>
 #include <lingo/page/unicode.hpp>
+
+#include <lingo/platform/endian.hpp>
 
 #include <cassert>
 #include <iterator>
@@ -122,6 +125,12 @@ namespace lingo
 
 		basic_string(const basic_string& string):
 			basic_string(string, allocator_type())
+		{
+		}
+
+		template <typename SourceEncoding, typename SourcePage, typename SourceAllocator>
+		explicit basic_string(basic_string<SourceEncoding, SourcePage, SourceAllocator> string, const allocator_type& allocator = allocator_type()):
+			basic_string(string_converter<SourceEncoding, SourcePage, encoding_type, page_type>().template convert<allocator_type>(string, allocator))
 		{
 		}
 
@@ -297,7 +306,34 @@ namespace lingo
 		storage_type _storage;
 	};
 
-	// Fixed code page typedefs
+	template <typename Encoding, typename Page, typename LeftAllocator, typename RightAllocator>
+	bool operator == (basic_string<Encoding, Page, LeftAllocator> left, basic_string<Encoding, Page, RightAllocator> right)
+	{
+		using size_type = typename basic_string<Encoding, Page, LeftAllocator>::size_type;
+
+		if (left.size() != right.size())
+		{
+			return false;
+		}
+
+		for (size_type i = 0; i < left.size(); ++i)
+		{
+			if (left[i] != right[i])
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	template <typename Encoding, typename Page, typename LeftAllocator, typename RightAllocator>
+	bool operator != (basic_string<Encoding, Page, LeftAllocator> left, basic_string<Encoding, Page, RightAllocator> right)
+	{
+		return !(left == right);
+	}
+
+	// Fixed page typedefs
 	template <typename Encoding, typename Allocator = internal::default_allocator<Encoding>>
 	using basic_ascii_string = basic_string<Encoding, page::ascii, Allocator>;
 	template <typename Encoding, typename Allocator = internal::default_allocator<Encoding>>
@@ -306,12 +342,22 @@ namespace lingo
 	// Fixed encoding typedefs
 	template <typename Unit, typename Allocator = internal::default_allocator<encoding::utf8<Unit, char32_t>>>
 	using basic_utf8_string = basic_unicode_string<encoding::utf8<Unit, char32_t>, Allocator>;
+
 	template <typename Unit, typename Allocator = internal::default_allocator<encoding::utf8<Unit, char32_t>>>
 	using basic_utf16_string = basic_unicode_string<encoding::utf16<Unit, char32_t>, Allocator>;
+	template <typename Unit, typename Allocator = internal::default_allocator<encoding::utf8<Unit, char32_t>>>
+	using basic_utf16_le_string = basic_unicode_string<encoding::utf16_le<Unit, char32_t>, Allocator>;
+	template <typename Unit, typename Allocator = internal::default_allocator<encoding::utf8<Unit, char32_t>>>
+	using basic_utf16_be_string = basic_unicode_string<encoding::utf16_be<Unit, char32_t>, Allocator>;
+
 	template <typename Unit, typename Allocator = internal::default_allocator<encoding::none<Unit, char32_t>>>
 	using basic_utf32_string = basic_unicode_string<encoding::none<Unit, char32_t>, Allocator>;
+	template <typename Unit, typename Allocator = internal::default_allocator<encoding::none<Unit, char32_t>>>
+	using basic_utf32_le_string = basic_unicode_string<encoding::none_le<Unit, char32_t>, Allocator>;
+	template <typename Unit, typename Allocator = internal::default_allocator<encoding::none<Unit, char32_t>>>
+	using basic_utf32_be_string = basic_unicode_string<encoding::none_be<Unit, char32_t>, Allocator>;
 
-	// Fixed encoding & code page typedefs
+	// Fixed encoding & page typedefs
 	template <typename Allocator = internal::default_allocator<encoding::cstring_default_encoding_t<char>>>
 	using basic_narrow_string = basic_string<encoding::cstring_default_encoding_t<char>, page::cstring_default_page_t<char>, Allocator>;
 	template <typename Allocator = internal::default_allocator<encoding::cstring_default_encoding_t<wchar_t>>>
@@ -328,8 +374,14 @@ namespace lingo
 	#else
 	using utf8_string = basic_utf8_string<char>;
 	#endif
-	using utf16_string = basic_utf8_string<char16_t>;
+
+	using utf16_string = basic_utf16_string<char16_t>;
+	using utf16_le_string = basic_utf16_le_string<char16_t>;
+	using utf16_be_string = basic_utf16_be_string<char16_t>;
+
 	using utf32_string = basic_utf32_string<char32_t>;
+	using utf32_le_string = basic_utf32_le_string<char32_t>;
+	using utf32_be_string = basic_utf32_be_string<char32_t>;
 
 	// Default string typedef
 	using string = utf8_string;

@@ -24,6 +24,8 @@ if (MSVC)
 endif()
 
 # Platform
+list(APPEND LINGO_MANUAL_HEADERS "platform/architecture.hpp")
+list(APPEND LINGO_MANUAL_HEADERS "platform/endian.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "platform/wchar.hpp")
 
 # Encoding
@@ -32,6 +34,7 @@ list(APPEND LINGO_MANUAL_HEADERS "encoding/utf8.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "encoding/utf16.hpp")
 
 list(APPEND LINGO_MANUAL_HEADERS "encoding/cstring.hpp")
+list(APPEND LINGO_MANUAL_HEADERS "encoding/endian.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "encoding/point_iterator.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "encoding/result.hpp")
 

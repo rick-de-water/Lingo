@@ -3,6 +3,7 @@
 
 #include <lingo/constexpr.hpp>
 
+#include <lingo/encoding/endian.hpp>
 #include <lingo/encoding/result.hpp>
 
 namespace lingo
@@ -42,6 +43,18 @@ namespace lingo
 				return { static_cast<point_type>(buffer[0]), 1, error::error_code::success };
 			}
 		};
+
+		#if LINGO_ARCHITECTURE_ENDIANNESS == LINGO_ARCHITECTURE_LITTLE_ENDIAN
+		template <typename Unit, typename Point>
+		using none_le = none<Unit, Point>;
+		template <typename Unit, typename Point>
+		using none_be = swap_endian<none<Unit, Point>>;
+		#else
+		template <typename Unit, typename Point>
+		using none_le = swap_endian<none<Unit, Point>>;
+		template <typename Unit, typename Point>
+		using none_be = none<Unit, Point>;
+		#endif
 	}
 }
 

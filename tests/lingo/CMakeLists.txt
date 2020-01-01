@@ -13,14 +13,18 @@ target_include_directories(test_lingo PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
 set(TEST_LINGO_SOURCES)
 list(APPEND TEST_LINGO_SOURCES "test_types.hpp" "test_case.hpp" "test_strings.hpp" "tuple_matrix.hpp")
 
-# Code pages
+# Platform
+list(APPEND TEST_LINGO_SOURCES "platform/endian.cpp")
+
+# Encoding
+list(APPEND TEST_LINGO_SOURCES "encoding/endian.cpp")
+list(APPEND TEST_LINGO_SOURCES "encoding/utf8.cpp")
+list(APPEND TEST_LINGO_SOURCES "encoding/utf16.cpp")
+
+# Pages
 list(APPEND TEST_LINGO_SOURCES "page/ascii.cpp")
 list(APPEND TEST_LINGO_SOURCES "page/iso_8859.cpp")
 list(APPEND TEST_LINGO_SOURCES "page/unicode.cpp")
-
-# Encoding
-list(APPEND TEST_LINGO_SOURCES "encoding/utf8.cpp")
-list(APPEND TEST_LINGO_SOURCES "encoding/utf16.cpp")
 
 # Strings
 list(APPEND TEST_LINGO_SOURCES "string.cpp")
