@@ -7,6 +7,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows-latest, macos-latest ,ubuntu-latest]
+        cxx-version: [11, 14, 17]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
@@ -15,7 +16,7 @@ jobs:
       - run: mkdir build
       - name: Configure
         working-directory: ./build
-        run: cmake ../source
+        run: cmake -D LINGO_TEST_CXX_VERSION=${{ matrix.cxx-version }} ../source
       - name: Build
         working-directory: ./build
         run: cmake --build .

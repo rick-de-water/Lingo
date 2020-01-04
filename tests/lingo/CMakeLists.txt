@@ -3,7 +3,7 @@ add_executable(test_lingo)
 set_target_properties(test_lingo PROPERTIES FOLDER Tests)
 
 # Add settings
-target_compile_definitions(test_lingo PRIVATE "LINGO_SPEC_DIRECTORY=\"${CMAKE_SOURCE_DIR}/spec\"")
+target_compile_definitions(test_lingo PRIVATE "LINGO_SPEC_DIRECTORY=\"${LINGO_SPEC_DIRECTORY}\"")
 
 # Add dependencies
 target_link_libraries(test_lingo test_main lingo)
