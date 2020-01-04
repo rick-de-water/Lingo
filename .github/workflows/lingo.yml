@@ -16,10 +16,10 @@ jobs:
       - run: mkdir build
       - name: Configure
         working-directory: ./build
-        run: cmake -D LINGO_TEST_CXX_VERSION=${{ matrix.cxx-version }} ../source
+        run: cmake -DCMAKE_BUILD_TYPE=Release -DLINGO_TEST_CXX_VERSION=${{ matrix.cxx-version }} ../source
       - name: Build
         working-directory: ./build
-        run: cmake --build .
+        run: cmake --build . --config Release
       - name: Test
         working-directory: ./build
         run: ctest
