@@ -225,8 +225,8 @@ namespace lingo
 			_storage.swap(other._storage);
 		}
 
-		LINGO_CONSTEXPR11 basic_string_view& operator = (const basic_string_view&) noexcept = default;
-		LINGO_CONSTEXPR11 basic_string_view& operator = (basic_string_view&&) noexcept = default;
+		LINGO_CONSTEXPR14 basic_string_view& operator = (const basic_string_view&) noexcept = default;
+		LINGO_CONSTEXPR14 basic_string_view& operator = (basic_string_view&&) noexcept = default;
 		
 		private:
 		storage_type _storage;

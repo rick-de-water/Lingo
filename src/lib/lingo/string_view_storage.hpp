@@ -64,8 +64,8 @@ namespace lingo
 			other._size = tmp_size;
 		}
 
-		LINGO_CONSTEXPR11 basic_string_view_storage& operator = (const basic_string_view_storage&) noexcept = default;
-		LINGO_CONSTEXPR11 basic_string_view_storage& operator = (basic_string_view_storage&&) noexcept = default;
+		LINGO_CONSTEXPR14 basic_string_view_storage& operator = (const basic_string_view_storage&) noexcept = default;
+		LINGO_CONSTEXPR14 basic_string_view_storage& operator = (basic_string_view_storage&&) noexcept = default;
 
 		private:
 		const_pointer _data = &null_terminator;
