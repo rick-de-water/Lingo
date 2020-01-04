@@ -10,15 +10,26 @@ namespace lingo
 	namespace test
 	{
 		// Zero sequence generator
-		template <std::size_t... Is>
+		/*template <std::size_t... Is>
 		constexpr auto zero_index_sequence_generator(const std::index_sequence<Is...>&)
 		{
 			return std::index_sequence<(Is * 0u)...>();
 		}
 
 		template <std::size_t N>
-		using zero_index_sequence = decltype(zero_index_sequence_generator(std::declval<std::make_index_sequence<N>>()));
+		using zero_index_sequence = decltype(zero_index_sequence_generator(std::declval<std::make_index_sequence<N>>()));*/
 
+		template <size_t N, std::size_t... Is>
+		struct zero_index_sequence : public zero_index_sequence<N - 1, 0, Is...> {};
+
+		template <std::size_t... Is>
+		struct zero_index_sequence<0, Is...>
+		{
+			using type = std::index_sequence<Is...>;
+		};
+
+		template <std::size_t N>
+		using zero_index_sequence_t = typename zero_index_sequence<N>::type;
 
 		// Concat index sequence
 		template <typename IndexSequence1, typename IndexSequence2>
@@ -119,7 +130,7 @@ namespace lingo
 		template <typename FirstTuple, typename... Tuples>
 		struct end_index_sequence
 		{
-			using type = typename end_index_sequence_generator<std::tuple_size<FirstTuple>::value, zero_index_sequence<sizeof...(Tuples)>>::type;
+			using type = typename end_index_sequence_generator<std::tuple_size<FirstTuple>::value, zero_index_sequence_t<sizeof...(Tuples)>>::type;
 		};
 
 		template <typename FirstTuple, typename... Tuples>
@@ -149,7 +160,7 @@ namespace lingo
 		};
 
 		template <typename... Tuples>
-		using tuple_matrix = tuple_matrix_impl<zero_index_sequence<sizeof...(Tuples)>, next_index_sequence<zero_index_sequence<sizeof...(Tuples)>, Tuples...>::carry, Tuples...>;
+		using tuple_matrix = tuple_matrix_impl<zero_index_sequence_t<sizeof...(Tuples)>, next_index_sequence<zero_index_sequence_t<sizeof...(Tuples)>, Tuples...>::carry, Tuples...>;
 
 		template <typename... Tuples>
 		using tuple_matrix_t = typename tuple_matrix<Tuples...>::type;

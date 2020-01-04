@@ -21,7 +21,7 @@ namespace lingo
 				typename DestinationEncoding::unit_type*, std::size_t,
 				error_code err)
 			{
-				throw exception(err);
+				return false ? conversion_result{} : throw exception(err);
 			}
 		};
 	}
