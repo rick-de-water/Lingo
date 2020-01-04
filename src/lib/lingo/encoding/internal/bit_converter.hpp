@@ -1,7 +1,7 @@
 #ifndef H_LINGO_ENCODING_INTERNAL_BIT_CONVERTER
 #define H_LINGO_ENCODING_INTERNAL_BIT_CONVERTER
 
-#include <lingo/constexpr.hpp>
+#include <lingo/platform/constexpr.hpp>
 
 #include <cassert>
 #include <climits>

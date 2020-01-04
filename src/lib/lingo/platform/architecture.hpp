@@ -1,5 +1,5 @@
-#ifndef H_LINGO_ARCHITECTURE
-#define H_LINGO_ARCHITECTURE
+#ifndef H_LINGO_PLATFORM_ARCHITECTURE
+#define H_LINGO_PLATFORM_ARCHITECTURE
 
 // This header detects the processor architecture
 // Generates a compile error when the architecture is not detected

@@ -1,7 +1,7 @@
 #ifndef H_LINGO_PAGE_UNICODE
 #define H_LINGO_PAGE_UNICODE
 
-#include <lingo/constexpr.hpp>
+#include <lingo/platform/constexpr.hpp>
 
 #include <lingo/page/result.hpp>
 

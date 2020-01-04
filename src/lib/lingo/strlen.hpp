@@ -1,7 +1,7 @@
 #ifndef H_LINGO_STRLEN
 #define H_LINGO_STRLEN
 
-#include <lingo/constexpr.hpp>
+#include <lingo/platform/constexpr.hpp>
 
 #include <cstddef>
 

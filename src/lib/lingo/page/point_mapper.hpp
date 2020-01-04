@@ -1,7 +1,7 @@
 #ifndef H_LINGO_PAGE_POINT_MAPPER
 #define H_LINGO_PAGE_POINT_MAPPER
 
-#include <lingo/constexpr.hpp>
+#include <lingo/platform/constexpr.hpp>
 
 #include <lingo/page/result.hpp>
 #include <lingo/page/intermediate.hpp>

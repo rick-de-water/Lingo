@@ -1,7 +1,7 @@
 #ifndef H_LINGO_STRING_VIEW_STORAGE
 #define H_LINGO_STRING_VIEW_STORAGE
 
-#include <lingo/constexpr.hpp>
+#include <lingo/platform/constexpr.hpp>
 
 #include <cstddef>
 

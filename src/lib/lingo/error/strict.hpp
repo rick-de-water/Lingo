@@ -1,7 +1,7 @@
 #ifndef H_LINGO_ERROR_STRICT
 #define H_LINGO_ERROR_STRICT
 
-#include <lingo/constexpr.hpp>
+#include <lingo/platform/constexpr.hpp>
 #include <lingo/conversion_result.hpp>
 
 #include <lingo/error/error_code.hpp>

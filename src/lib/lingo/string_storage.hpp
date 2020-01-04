@@ -1,7 +1,7 @@
 #ifndef H_LINGO_STRING_STORAGE
 #define H_LINGO_STRING_STORAGE
 
-#include <lingo/constexpr.hpp>
+#include <lingo/platform/constexpr.hpp>
 #include <lingo/compressed_pair.hpp>
 
 #include <cassert>

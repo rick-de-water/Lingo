@@ -16,7 +16,7 @@ target_include_directories(lingo INTERFACE
 set(LINGO_MANUAL_HEADERS)
 set(LINGO_GENERATED_HEADERS)
 
-list(APPEND LINGO_MANUAL_HEADERS "constexpr.hpp" "strlen.hpp")
+list(APPEND LINGO_MANUAL_HEADERS "strlen.hpp")
 
 # Natvis
 if (MSVC)
@@ -26,7 +26,11 @@ endif()
 # Platform
 list(APPEND LINGO_MANUAL_HEADERS "platform/architecture.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "platform/attributes.hpp")
+list(APPEND LINGO_MANUAL_HEADERS "platform/compiler.hpp")
+list(APPEND LINGO_MANUAL_HEADERS "platform/constexpr.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "platform/endian.hpp")
+list(APPEND LINGO_MANUAL_HEADERS "platform/preprocessor.hpp")
+list(APPEND LINGO_MANUAL_HEADERS "platform/warnings.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "platform/wchar.hpp")
 
 # Encoding

@@ -1,7 +1,9 @@
-#ifndef H_LINGO_CONSTEXPR
-#define H_LINGO_CONSTEXPR
+#ifndef H_LINGO_PLATFORM_CONSTEXPR
+#define H_LINGO_PLATFORM_CONSTEXPR
 
 #include <lingo/platform/attributes.hpp>
+#include <lingo/platform/compiler.hpp>
+#include <lingo/platform/warnings.hpp>
 
 #ifdef __cpp_constexpr
 #define LINGO_HAS_CONSTEXPR11
@@ -45,17 +47,15 @@
 #endif
 
 #ifdef LINGO_HAS_IF_CONSTEXPR
-#ifdef _MSC_VER
-#define LINGO_IF_CONSTEXPR __pragma(warning(suppress: 4127)) if constexpr
+#define LINGO_IF_CONSTEXPR \
+	LINGO_WARNINGS_PUSH_AND_DISABLE_MSVC(4127) \
+	if constexpr \
+	LINGO_WARNINGS_POP_MSVC
 #else
-#define LINGO_IF_CONSTEXPR if constexpr
-#endif
-#else
-#ifdef _MSC_VER
-#define LINGO_IF_CONSTEXPR __pragma(warning(suppress: 4127)) if
-#else
-#define LINGO_IF_CONSTEXPR if
-#endif
+#define LINGO_IF_CONSTEXPR \
+	LINGO_WARNINGS_PUSH_AND_DISABLE_MSVC(4127) \
+	if \
+	LINGO_WARNINGS_POP_MSVC
 #endif
 
 #ifdef LINGO_HAS_IF_CONSTEXPR

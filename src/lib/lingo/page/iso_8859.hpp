@@ -1,7 +1,7 @@
 #ifndef H_LINGO_PAGE_ISO_8859
 #define H_LINGO_PAGE_ISO_8859
 
-#include <lingo/constexpr.hpp>
+#include <lingo/platform/constexpr.hpp>
 #include <lingo/page/unicode.hpp>
 
 #include <lingo/page/internal/iso_8859_1_unicode_mapping.hpp>

@@ -1,7 +1,7 @@
 #ifndef H_LINGO_ENCODING_UTF8
 #define H_LINGO_ENCODING_UTF8
 
-#include <lingo/constexpr.hpp>
+#include <lingo/platform/constexpr.hpp>
 
 #include <lingo/encoding/result.hpp>
 #include <lingo/encoding/internal/bit_converter.hpp>

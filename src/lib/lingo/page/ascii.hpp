@@ -1,7 +1,7 @@
 #ifndef H_LINGO_PAGE_ASCII
 #define H_LINGO_PAGE_ASCII
 
-#include <lingo/constexpr.hpp>
+#include <lingo/platform/constexpr.hpp>
 
 #include <lingo/page/unicode.hpp>
 
@@ -26,7 +26,9 @@ namespace lingo
 					std::is_same<SourcePage, unicode>::value,
 					map_result<point_type>>::type
 			{
+				LINGO_WARNINGS_PUSH_AND_DISABLE_CLANG("-Wtautological-constant-out-of-range-compare")
 				if (point >= 0 && point < 128)
+				LINGO_WARNINGS_POP_CLANG
 				{
 					return { static_cast<point_type>(point), error::error_code::success };
 				}
@@ -42,7 +44,9 @@ namespace lingo
 					std::is_same<DestinationPage, unicode>::value,
 					map_result<typename DestinationPage::point_type>>::type
 			{
+				LINGO_WARNINGS_PUSH_AND_DISABLE_CLANG("-Wtautological-constant-out-of-range-compare")
 				if (point >= 0 && point < 128)
+				LINGO_WARNINGS_POP_CLANG
 				{
 					return { static_cast<typename DestinationPage::point_type>(point), error::error_code::success };
 				}

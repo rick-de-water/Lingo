@@ -1,7 +1,7 @@
 #ifndef H_LINGO_STRING
 #define H_LINGO_STRING
 
-#include <lingo/constexpr.hpp>
+#include <lingo/platform/constexpr.hpp>
 #include <lingo/string_converter.hpp>
 #include <lingo/string_storage.hpp>
 #include <lingo/string_view.hpp>

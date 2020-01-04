@@ -1,7 +1,7 @@
 #ifndef H_LINGO_STRING_VIEW
 #define H_LINGO_STRING_VIEW
 
-#include <lingo/constexpr.hpp>
+#include <lingo/platform/constexpr.hpp>
 #include <lingo/string_view_storage.hpp>
 #include <lingo/strlen.hpp>
 

@@ -1,7 +1,7 @@
 ﻿#ifndef H_LINGO_TEST_TESTSTRINGS
 #define H_LINGO_TEST_TESTSTRINGS
 
-#include <lingo/constexpr.hpp>
+#include <lingo/platform/constexpr.hpp>
 
 #include <test_types.hpp>
 
