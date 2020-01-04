@@ -9,23 +9,21 @@ namespace lingo
 {
 	namespace test
 	{
-		// Zero sequence generator
-		/*template <std::size_t... Is>
-		constexpr auto zero_index_sequence_generator(const std::index_sequence<Is...>&)
-		{
-			return std::index_sequence<(Is * 0u)...>();
-		}
+		// integer_sequence is a C++14 feature, so we make our own
+		template <typename T, T... Is>
+		struct integer_sequence;
 
-		template <std::size_t N>
-		using zero_index_sequence = decltype(zero_index_sequence_generator(std::declval<std::make_index_sequence<N>>()));*/
+		template <std::size_t... Is>
+		using index_sequence = integer_sequence<std::size_t, Is...>;
 
+		// Zero index sequence
 		template <size_t N, std::size_t... Is>
 		struct zero_index_sequence : public zero_index_sequence<N - 1, 0, Is...> {};
 
 		template <std::size_t... Is>
 		struct zero_index_sequence<0, Is...>
 		{
-			using type = std::index_sequence<Is...>;
+			using type = index_sequence<Is...>;
 		};
 
 		template <std::size_t N>
@@ -36,9 +34,9 @@ namespace lingo
 		struct index_sequence_concat;
 
 		template <std::size_t... Indices1, std::size_t... Indices2>
-		struct index_sequence_concat<std::index_sequence<Indices1...>, std::index_sequence<Indices2...>>
+		struct index_sequence_concat<index_sequence<Indices1...>, index_sequence<Indices2...>>
 		{
-			using type = std::index_sequence<Indices1..., Indices2...>;
+			using type = index_sequence<Indices1..., Indices2...>;
 		};
 
 		template <typename IndexSequence1, typename IndexSequence2>
@@ -64,12 +62,12 @@ namespace lingo
 		struct tuple_combine;
 
 		template <typename FirstTuple, std::size_t FirstIndex, typename... Tuples, std::size_t... Indices>
-		struct tuple_combine<std::index_sequence<FirstIndex, Indices...>, FirstTuple, Tuples...>
+		struct tuple_combine<index_sequence<FirstIndex, Indices...>, FirstTuple, Tuples...>
 		{
 			private:
 			using current_type = typename std::remove_reference<decltype(std::get<FirstIndex>(std::declval<FirstTuple>()))>::type;
 			using current_tuple = std::tuple<current_type>;
-			using next_tuple = typename tuple_combine<std::index_sequence<Indices...>, Tuples...>::type;
+			using next_tuple = typename tuple_combine<index_sequence<Indices...>, Tuples...>::type;
 			using combined_tuple = typename tuple_concat<current_tuple, next_tuple>::type;
 
 			public:
@@ -77,7 +75,7 @@ namespace lingo
 		};
 
 		template <typename FirstTuple, std::size_t FirstIndex>
-		struct tuple_combine<std::index_sequence<FirstIndex>, FirstTuple>
+		struct tuple_combine<index_sequence<FirstIndex>, FirstTuple>
 		{
 			private:
 			using current_type = typename std::remove_reference<decltype(std::get<FirstIndex>(std::declval<FirstTuple>()))>::type;
@@ -96,21 +94,21 @@ namespace lingo
 		struct next_index_sequence;
 
 		template <typename FirstTuple, std::size_t FirstIndex, typename... Tuples, std::size_t... Is>
-		struct next_index_sequence<std::index_sequence<FirstIndex, Is...>, FirstTuple, Tuples...>
+		struct next_index_sequence<index_sequence<FirstIndex, Is...>, FirstTuple, Tuples...>
 		{
-			using child = next_index_sequence<std::index_sequence<Is...>, Tuples...>;
+			using child = next_index_sequence<index_sequence<Is...>, Tuples...>;
 
 			static constexpr bool carry = child::carry && ((FirstIndex + 1) == std::tuple_size<FirstTuple>::value);
 			static constexpr std::size_t value = child::carry ? (carry ? 0 : FirstIndex + 1) : FirstIndex;
-			using type = index_sequence_concat_t<std::index_sequence<value>, typename child::type>;
+			using type = index_sequence_concat_t<index_sequence<value>, typename child::type>;
 		};
 
 		template <typename FirstTuple, std::size_t FirstIndex>
-		struct next_index_sequence<std::index_sequence<FirstIndex>, FirstTuple>
+		struct next_index_sequence<index_sequence<FirstIndex>, FirstTuple>
 		{
 			static constexpr bool carry = (FirstIndex + 1) == std::tuple_size<FirstTuple>::value;
 			static constexpr std::size_t value = carry ? 0 : FirstIndex + 1;
-			using type = std::index_sequence<value>;
+			using type = index_sequence<value>;
 		};
 
 		template <typename IndexSequence, typename... Tuples>
@@ -122,9 +120,9 @@ namespace lingo
 		struct end_index_sequence_generator;
 
 		template <std::size_t FirstIndex, std::size_t... Is>
-		struct end_index_sequence_generator<FirstIndex, std::index_sequence<Is...>>
+		struct end_index_sequence_generator<FirstIndex, index_sequence<Is...>>
 		{
-			using type = std::index_sequence<FirstIndex, Is...>;
+			using type = index_sequence<FirstIndex, Is...>;
 		};
 
 		template <typename FirstTuple, typename... Tuples>
