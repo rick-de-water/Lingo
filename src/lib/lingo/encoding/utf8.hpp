@@ -34,25 +34,25 @@ namespace lingo
 
 			static LINGO_CONSTEXPR11 unit_bits_type first_unit_prefix_markers[5] =
 			{
-				0b0000'0000,
-				0b0000'0000,
-				0b1100'0000,
-				0b1110'0000,
-				0b1111'0000,
+				0x00,
+				0x00,
+				0xC0,
+				0xE0,
+				0xF0,
 			};
 
 			static LINGO_CONSTEXPR11 unit_bits_type first_unit_data_masks[5] =
 			{
-				0b0111'1111,
-				0b0111'1111,
-				0b0001'1111,
-				0b0000'1111,
-				0b0000'0111,
+				0x7F,
+				0x7F,
+				0x1F,
+				0x0F,
+				0x07,
 			};
 
-			static LINGO_CONSTEXPR11 unit_bits_type continuation_unit_prefix_marker = 0b1000'0000;
-			static LINGO_CONSTEXPR11 unit_bits_type continuation_unit_prefix_mask = 0b1100'0000;
-			static LINGO_CONSTEXPR11 unit_bits_type continuation_unit_data_mask = 0b0011'1111;
+			static LINGO_CONSTEXPR11 unit_bits_type continuation_unit_prefix_marker = 0x80;
+			static LINGO_CONSTEXPR11 unit_bits_type continuation_unit_prefix_mask = 0xC0;
+			static LINGO_CONSTEXPR11 unit_bits_type continuation_unit_data_mask = 0x3F;
 
 			static LINGO_CONSTEXPR14 size_type point_size(point_type point) noexcept
 			{

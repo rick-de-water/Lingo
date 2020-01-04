@@ -1,6 +1,7 @@
 # Create library
 add_library(test_main STATIC)
 set_target_properties(test_main PROPERTIES FOLDER Tests)
+target_compile_features(test_main PUBLIC cxx_std_11)
 
 if (MSVC)
 	target_compile_options(test_main PUBLIC "/W4" "/MP" "/bigobj")
