@@ -8,6 +8,7 @@ jobs:
       matrix:
         os: [windows-latest, macos-latest ,ubuntu-latest]
         cxx-version: [11, 14, 17]
+        config: [Debug, Release]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
@@ -16,7 +17,7 @@ jobs:
       - run: mkdir build
       - name: Configure
         working-directory: ./build
-        run: cmake -DCMAKE_BUILD_TYPE=Release -DLINGO_TEST_CXX_VERSION=${{ matrix.cxx-version }} ../source
+        run: cmake -DCMAKE_BUILD_TYPE=${{ matrix.config }} -DLINGO_TEST_CXX_VERSION=${{ matrix.cxx-version }} ../source
       - name: Build
         working-directory: ./build
         run: cmake --build . --config Release
