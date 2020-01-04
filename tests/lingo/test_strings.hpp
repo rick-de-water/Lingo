@@ -38,43 +38,58 @@ namespace lingo
 		struct test_string<char, _>
 		{
 			static LINGO_CONSTEXPR11 char value[] = LINGO_TEST_STRING();
+			static LINGO_CONSTEXPR11 std::size_t size = (sizeof(value) / sizeof(value[0])) - 1;
 		};
 		template <typename _>
 		LINGO_CONSTEXPR11 char test_string<char, _>::value[];
+		template <typename _>
+		LINGO_CONSTEXPR11 std::size_t test_string<char, _>::size;
 
 		template <typename _>
 		struct test_string<wchar_t, _>
 		{
-			static constexpr wchar_t value[] = LINGO_TEST_STRING(L);
+			static LINGO_CONSTEXPR11 wchar_t value[] = LINGO_TEST_STRING(L);
+			static LINGO_CONSTEXPR11 std::size_t size = (sizeof(value) / sizeof(value[0])) - 1;
 		};
 		template <typename _>
 		LINGO_CONSTEXPR11 wchar_t test_string<wchar_t, _>::value[];
+		template <typename _>
+		LINGO_CONSTEXPR11 std::size_t test_string<wchar_t, _>::size;
 
 		#ifdef __cpp_char8_t
 		template <typename _>
 		struct test_string<char8_t, _>
 		{
-			static constexpr char8_t value[] = LINGO_TEST_STRING(u8);
+			static LINGO_CONSTEXPR11 char8_t value[] = LINGO_TEST_STRING(u8);
+			static LINGO_CONSTEXPR11 std::size_t size = (sizeof(value) / sizeof(value[0])) - 1;
 		};
 		template <typename _>
 		LINGO_CONSTEXPR11 char8_t test_string<char8_t, _>::value[];
+		template <typename _>
+		LINGO_CONSTEXPR11 std::size_t test_string<char8_t, _>::size;
 		#endif
 
 		template <typename _>
 		struct test_string<char16_t, _>
 		{
-			static constexpr char16_t value[] = LINGO_TEST_STRING(u);
+			static LINGO_CONSTEXPR11 char16_t value[] = LINGO_TEST_STRING(u);
+			static LINGO_CONSTEXPR11 std::size_t size = (sizeof(value) / sizeof(value[0])) - 1;
 		};
 		template <typename _>
 		LINGO_CONSTEXPR11 char16_t test_string<char16_t, _>::value[];
+		template <typename _>
+		LINGO_CONSTEXPR11 std::size_t test_string<char16_t, _>::size;
 
 		template <typename _>
 		struct test_string<char32_t, _>
 		{
-			static constexpr char32_t value[] = LINGO_TEST_STRING(U);
+			static LINGO_CONSTEXPR11 char32_t value[] = LINGO_TEST_STRING(U);
+			static LINGO_CONSTEXPR11 std::size_t size = (sizeof(value) / sizeof(value[0])) - 1;
 		};
 		template <typename _>
 		LINGO_CONSTEXPR11 char32_t test_string<char32_t, _>::value[];
+		template <typename _>
+		LINGO_CONSTEXPR11 std::size_t test_string<char32_t, _>::size;
 	}
 }
 

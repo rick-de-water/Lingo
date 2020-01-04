@@ -32,8 +32,9 @@
 	using point_type = typename page_type::point_type; \
 	using size_type = std::size_t; \
 	using difference_type = std::ptrdiff_t; \
+	using allocator_type = lingo::internal::default_allocator<encoding_type>; \
 	using string_type = lingo::basic_string<encoding_type, page_type>; \
 	using string_view_type = lingo::basic_string_view<encoding_type, page_type>; \
-	using point_iterator_type = lingo::encoding::point_iterator<encoding_type>;
+	using point_iterator_type = lingo::encoding::point_iterator<encoding_type>
 
 #endif

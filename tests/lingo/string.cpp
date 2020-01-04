@@ -30,9 +30,98 @@ LINGO_UNIT_TEST_CASE("A default constructed string is an empty null terminated s
 {
 	LINGO_UNIT_TEST_TYPEDEFS;
 
-	const string_type str;
-	REQUIRE(str.size() == 0);
-	REQUIRE(str.data()[0] == typename string_type::value_type{});
+	const string_type str1;
+	REQUIRE(str1.size() == 0);
+	REQUIRE(str1.data()[0] == typename string_type::value_type{});
+
+	const string_type str2(allocator_type{});
+	REQUIRE(str2.size() == 0);
+	REQUIRE(str2.data()[0] == typename string_type::value_type{});
+}
+
+LINGO_UNIT_TEST_CASE("A string can be copy constructed")
+{
+	LINGO_UNIT_TEST_TYPEDEFS;
+
+	const string_type test_string(lingo::test::test_string<unit_type>::value);
+
+	const string_type test_string_copy1(test_string);
+	const string_type test_string_copy2(test_string, allocator_type{});
+
+	for (size_t i = 0; i < lingo::test::test_string<unit_type>::size; ++i)
+	{
+		REQUIRE(test_string.data()[i] == lingo::test::test_string<unit_type>::value[i]);
+		REQUIRE(test_string_copy1.data()[i] == lingo::test::test_string<unit_type>::value[i]);
+		REQUIRE(test_string_copy2.data()[i] == lingo::test::test_string<unit_type>::value[i]);
+	}
+}
+
+LINGO_UNIT_TEST_CASE("A string can move constructed")
+{
+	LINGO_UNIT_TEST_TYPEDEFS;
+
+	string_type test_string1(lingo::test::test_string<unit_type>::value);
+	string_type test_string2(lingo::test::test_string<unit_type>::value);
+
+	const string_type test_string_moved1(std::move(test_string1));
+	const string_type test_string_moved2(std::move(test_string2), allocator_type{});
+
+	REQUIRE(test_string1.capacity() < sizeof(string_type) / sizeof(unit_type));
+	REQUIRE(test_string2.capacity() < sizeof(string_type) / sizeof(unit_type));
+
+	for (size_t i = 0; i < lingo::test::test_string<unit_type>::size; ++i)
+	{
+		REQUIRE(test_string_moved1.data()[i] == lingo::test::test_string<unit_type>::value[i]);
+		REQUIRE(test_string_moved2.data()[i] == lingo::test::test_string<unit_type>::value[i]);
+	}
+}
+
+LINGO_UNIT_TEST_CASE("A string can be copy assigned")
+{
+	LINGO_UNIT_TEST_TYPEDEFS;
+
+	const size_t point_count = GENERATE(range(0, 100));
+	string_type test_string(point_count, lingo::test::test_string<unit_type>::value[0]);
+	const string_type other_test_string(lingo::test::test_string<unit_type>::value);
+	test_string = other_test_string;
+
+	for (size_t i = 0; i < lingo::test::test_string<unit_type>::size; ++i)
+	{
+		REQUIRE(test_string.data()[i] == lingo::test::test_string<unit_type>::value[i]);
+	}
+
+	// Make sure copying self also works
+	test_string = test_string;
+
+	for (size_t i = 0; i < lingo::test::test_string<unit_type>::size; ++i)
+	{
+		REQUIRE(test_string.data()[i] == lingo::test::test_string<unit_type>::value[i]);
+	}
+}
+
+LINGO_UNIT_TEST_CASE("A string can be move assigned")
+{
+	LINGO_UNIT_TEST_TYPEDEFS;
+
+	const size_t point_count = GENERATE(range(0, 100));
+	string_type test_string(point_count, lingo::test::test_string<unit_type>::value[0]);
+	string_type other_test_string(lingo::test::test_string<unit_type>::value);
+	test_string = std::move(other_test_string);
+
+	REQUIRE(other_test_string.capacity() < sizeof(string_type) / sizeof(unit_type));
+
+	for (size_t i = 0; i < lingo::test::test_string<unit_type>::size; ++i)
+	{
+		REQUIRE(test_string.data()[i] == lingo::test::test_string<unit_type>::value[i]);
+	}
+
+	// Make sure moving self also works
+	test_string = std::move(test_string);
+
+	for (size_t i = 0; i < lingo::test::test_string<unit_type>::size; ++i)
+	{
+		REQUIRE(test_string.data()[i] == lingo::test::test_string<unit_type>::value[i]);
+	}
 }
 
 LINGO_UNIT_TEST_CASE("string can be constructed from a character array")
@@ -41,10 +130,9 @@ LINGO_UNIT_TEST_CASE("string can be constructed from a character array")
 
 	const string_type test_string = lingo::test::test_string<unit_type>::value;
 
-	const size_t size = (sizeof(lingo::test::test_string<unit_type>::value) / sizeof(lingo::test::test_string<unit_type>::value[0])) - 1;
-	REQUIRE(test_string.size() == size);
+	REQUIRE(test_string.size() == lingo::test::test_string<unit_type>::size);
 
-	for (size_t i = 0; i < size; ++i)
+	for (size_t i = 0; i < lingo::test::test_string<unit_type>::size; ++i)
 	{
 		CAPTURE(i);
 		REQUIRE(test_string[i] == lingo::test::test_string<unit_type>::value[i]);
@@ -124,4 +212,67 @@ TEMPLATE_LIST_TEST_CASE("string can be explicitly constructed from a string_view
 
 	REQUIRE(source_iterator == source_point_iterator_type());
 	REQUIRE(destination_iterator == destination_point_iterator_type());
+}
+
+LINGO_UNIT_TEST_CASE("A string can be copy constructed with a position offset")
+{
+	LINGO_UNIT_TEST_TYPEDEFS;
+
+	const size_type pos = GENERATE(range<size_type>(0, lingo::test::test_string<unit_type>::size));
+
+	const string_type test_string(lingo::test::test_string<unit_type>::value);
+	string_type test_string_copy;
+
+	SECTION("Without alloctator")
+	{
+		string_type copy(test_string, pos);
+		test_string_copy = std::move(copy);
+	}
+	SECTION("With allocator")
+	{
+		string_type copy(test_string, pos, allocator_type());
+		test_string_copy = std::move(copy);
+	}
+
+	REQUIRE(test_string_copy.size() == test_string.size() - pos);
+
+	for (size_t i = pos; i < test_string.size(); ++i)
+	{
+		REQUIRE(test_string_copy[i - pos] == test_string[i]);
+	}
+}
+
+LINGO_UNIT_TEST_CASE("A string can be copy constructed with a position offset and a count")
+{
+	LINGO_UNIT_TEST_TYPEDEFS;
+
+	const size_type pos = GENERATE(range<size_type>(0, lingo::test::test_string<unit_type>::size));
+	size_type count = std::min<size_type>(lingo::test::test_string<unit_type>::size - pos, GENERATE(0, 1, 2, 10, 100, lingo::test::test_string<unit_type>::size));
+
+	const string_type test_string(lingo::test::test_string<unit_type>::value);
+	string_type test_string_copy;
+
+	SECTION("Without alloctator")
+	{
+		string_type copy(test_string, pos, count);
+		test_string_copy = std::move(copy);
+	}
+	SECTION("With allocator")
+	{
+		string_type copy(test_string, pos, count, allocator_type());
+		test_string_copy = std::move(copy);
+	}
+	SECTION("With npos")
+	{
+		string_type copy(test_string, pos, string_type::npos);
+		test_string_copy = std::move(copy);
+		count = test_string.size() - pos;
+	}
+
+	REQUIRE(test_string_copy.size() == count);
+
+	for (size_t i = pos; i < count; ++i)
+	{
+		REQUIRE(test_string_copy[i - pos] == test_string[i]);
+	}
 }

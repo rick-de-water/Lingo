@@ -59,6 +59,8 @@ namespace lingo
 		using reverse_iterator = std::reverse_iterator<iterator>;
 		using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
+		static constexpr size_type npos = static_cast<size_type>(-1);
+
 		private:
 		static_assert(std::is_same<typename page_type::point_type, typename encoding_type::point_type>::value, "page_type::point_type must be the same type as encoding_type::point_type");
 		static_assert(std::is_same<typename allocator_type::value_type, typename encoding_type::unit_type>::value, "allocator_type::value_type must be the same type as encoding_type::unit_type");
@@ -94,7 +96,7 @@ namespace lingo
 			// Fill memory
 			for (size_type i = 0; i < count; ++i)
 			{
-				_storage.copy_contruct(_storage.data() + i * result.size, encoded_point, result.size);
+				_storage.copy_construct(_storage.data() + i * result.size, encoded_point, result.size);
 			}
 			_storage.data()[result.size * count] = {};
 			_storage.set_size(result.size * count);
@@ -123,19 +125,39 @@ namespace lingo
 		{
 		}
 
-		basic_string(const basic_string& string):
-			basic_string(string, allocator_type())
-		{
-		}
-
 		template <typename SourceEncoding, typename SourcePage, typename SourceAllocator>
 		explicit basic_string(basic_string<SourceEncoding, SourcePage, SourceAllocator> string, const allocator_type& allocator = allocator_type()):
 			basic_string(string_converter<SourceEncoding, SourcePage, encoding_type, page_type>().template convert<allocator_type>(string, allocator))
 		{
 		}
 
+		basic_string(const basic_string& string):
+			basic_string(string, allocator_type())
+		{
+		}
+
 		basic_string(const basic_string& string, const allocator_type& allocator):
 			_storage(string._storage, allocator)
+		{
+		}
+
+		basic_string(const basic_string& string, size_type pos):
+			basic_string(string, pos, allocator_type())
+		{
+		}
+
+		basic_string(const basic_string& string, size_type pos, const allocator_type& allocator):
+			basic_string(string, pos, npos, allocator)
+		{
+		}
+
+		basic_string(const basic_string& string, size_type pos, size_type count):
+			basic_string(string, pos, count, allocator_type())
+		{
+		}
+
+		basic_string(const basic_string& string, size_type pos, size_type count, const allocator_type& allocator):
+			basic_string(string_view(string.data() + pos, count == npos ? string.size() - pos : count), allocator)
 		{
 		}
 
@@ -261,6 +283,11 @@ namespace lingo
 			return _storage.max_size();
 		}
 
+		size_type capacity() const noexcept
+		{
+			return _storage.capacity();
+		}
+
 		bool empty() const noexcept
 		{
 			return size() == 0;
@@ -289,6 +316,18 @@ namespace lingo
 		operator string_view() const noexcept
 		{
 			return string_view(data(), size(), true);
+		}
+
+		basic_string& operator = (const basic_string& string)
+		{
+			_storage = string._storage;
+			return *this;
+		}
+
+		basic_string& operator = (basic_string&& string)
+		{
+			_storage = std::move(string._storage);
+			return *this;
 		}
 
 		const_pointer c_str() const noexcept

@@ -59,9 +59,9 @@ namespace lingo
 		template <typename Unit>
 		union basic_string_storage_data
 		{
-			basic_string_storage_data() noexcept:
-				_short{}
+			basic_string_storage_data() noexcept
 			{
+				_short._data[0] = {};
 				_short._last_unit = Unit(((sizeof(void*) * 4) / sizeof(Unit)) - 1);
 			}
 
@@ -212,7 +212,7 @@ namespace lingo
 			pointer buffer = data();
 			if (new_size > original_size)
 			{
-				copy_contruct(buffer, source, new_size - original_size);
+				copy_construct(buffer, source, new_size - original_size);
 				buffer[new_size] = value_type{};
 			}
 			else if (new_size < original_size)
@@ -286,7 +286,7 @@ namespace lingo
 
 			// Copy the old data to the new buffer
 			// TODO: rollback on exceptions when the copy constructor can throw
-			copy_contruct(new_data, original_data, data_size);
+			copy_construct(new_data, original_data, data_size);
 
 			// Clean up the original data
 			destruct(original_data, data_size);
@@ -304,6 +304,66 @@ namespace lingo
 			_data.first()._long._last_unit = internal::basic_string_storage_long_marker<value_type>::value;
 		}
 
+		basic_string_storage& operator = (const basic_string_storage& storage)
+		{
+			if (&storage != this)
+			{
+				const const_pointer source_data = storage.data();
+				const size_type source_size = storage.size();
+
+				grow(source_size);
+
+				const pointer destination_data = data();
+				const size_t destination_size = size();
+
+				destruct(destination_data, destination_size);
+				copy_construct(destination_data, source_data, source_size);
+				set_size(source_size);
+			}
+			return *this;
+		}
+
+		basic_string_storage& operator = (basic_string_storage&& storage)
+		{
+			if (&storage != this)
+			{
+				// Move memory if it can be shared between allocators
+				if (get_allocator() == storage.get_allocator())
+				{
+					// Move memory if it was allocated dynamically
+					if (storage.is_long())
+					{
+						// Destruct existing data if it exists
+						if (is_long())
+						{
+							destruct(data(), size());
+							get_allocator().deallocate(data(), size());
+						}
+
+						// Copy memory pointers
+						_data.first()._long._data = storage.data();
+						_data.first()._long._size = storage.size();
+						_data.first()._long._capacity = storage.capacity();
+						_data.first()._long._last_unit = internal::basic_string_storage_long_marker<value_type>::value;
+
+						// Mark source as empty
+						storage._data.first()._short = {};
+					}
+					// Small string optimized memory cannot be moved, so we still need to copy it
+					else
+					{
+						(*this) = static_cast<const basic_string_storage&>(storage);
+					}
+				}
+				// Allocators cannot share memory, so we have to copy
+				else
+				{
+					(*this) = static_cast<const basic_string_storage&>(storage);
+				}
+			}
+			return *this;
+		}
+
 		static void default_construct(pointer destination, size_type size)
 		{
 			LINGO_IF_CONSTEXPR(!std::is_trivially_constructible<value_type>::value)
@@ -315,7 +375,7 @@ namespace lingo
 			}
 		}
 
-		static void copy_contruct(pointer destination, const_pointer source, size_type size) noexcept(std::is_nothrow_copy_constructible<value_type>::value)
+		static void copy_construct(pointer destination, const_pointer source, size_type size) noexcept(std::is_nothrow_copy_constructible<value_type>::value)
 		{
 			// Copy data over to the new data
 			LINGO_IF_CONSTEXPR(std::is_trivially_copyable<value_type>::value)

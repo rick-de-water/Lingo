@@ -28,6 +28,4 @@ TEST_CASE("Endianness encoding swaps around the bytes of each unit")
 
 	REQUIRE(platform_utf16 == platform_again_utf16);
 	REQUIRE(platform_utf32 == platform_again_utf32);
-
-	bool boop = true;
 }
