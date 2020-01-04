@@ -1,3 +1,5 @@
+include(hex)
+
 function(unicode_parse_mapping SPEC POINTS_VARIABLE UNICODE_POINTS_VARIABLE UNICODE_NAMES_VARIABLE)
 	set(MAPPING_REGEX "(0x[0-9A-F]+)\t(0x[0-9A-F]+)\t#\t([^\n]+)")
 
@@ -38,8 +40,20 @@ function(unicode_generate_mapping_header FROM TO FROM_NAME TO_NAME OUTPUT_VARIAB
 	endforeach()
 
 	# Dereference FROM and TO
-	set(FROM "${${FROM}}")
-	set(TO "${${TO}}")
+	set(HEX_FROM "${${FROM}}")
+	set(HEX_TO "${${TO}}")
+
+	# Convert from hex to decimal
+	unset(FROM)
+	unset(TO)
+	foreach (HEX ${HEX_FROM})
+		from_hex("${HEX}" DEC)
+		list(APPEND FROM "${DEC}")
+	endforeach()
+	foreach (HEX ${HEX_TO})
+		from_hex("${HEX}" DEC)
+		list(APPEND TO "${DEC}")
+	endforeach()
 
 	# Find the smallest and the largest index
 	set(POINT_INDEX_START 99999999)
