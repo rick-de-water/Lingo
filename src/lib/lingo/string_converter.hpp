@@ -1,12 +1,12 @@
 #ifndef H_LINGO_STRING_CONVERTER
 #define H_LINGO_STRING_CONVERTER
 
-#include <lingo/encoding/utf8.hpp>
-#include <lingo/page/unicode.hpp>
-
 #include <lingo/conversion_result.hpp>
+#include <lingo/encoding/utf8.hpp>
 #include <lingo/error/strict.hpp>
 #include <lingo/page/point_mapper.hpp>
+#include <lingo/page/unicode.hpp>
+#include <lingo/platform/warnings.hpp>
 
 #include <cassert>
 #include <cstddef>
@@ -138,6 +138,7 @@ namespace lingo
 		}
 
 		private:
+		LINGO_WARNINGS_PUSH_AND_DISABLE_MSVC(4702)
 		bool handle_error(
 			const source_unit_type*& read_ptr, size_type& read_size,
 			destination_unit_type*& write_ptr, size_type& write_size,
@@ -163,6 +164,7 @@ namespace lingo
 
 			return true;
 		}
+		LINGO_WARNINGS_POP_MSVC
 	};
 }
 

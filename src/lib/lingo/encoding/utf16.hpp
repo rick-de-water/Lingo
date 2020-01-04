@@ -1,7 +1,7 @@
 #ifndef H_LINGO_ENCODING_UTF16
 #define H_LINGO_ENCODING_UTF16
 
-#include <lingo/constexpr.hpp>
+#include <lingo/platform/constexpr.hpp>
 
 #include <lingo/encoding/endian.hpp>
 #include <lingo/encoding/result.hpp>

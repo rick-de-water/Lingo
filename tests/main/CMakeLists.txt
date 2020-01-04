@@ -2,10 +2,27 @@
 add_library(test_main STATIC)
 set_target_properties(test_main PROPERTIES FOLDER Tests)
 
-if (MSVC)
-	target_compile_options(test_main PUBLIC "/W4" "/MP" "/bigobj")
-else()
-	target_compile_options(test_main PUBLIC -Wall -Wextra -pedantic -Wno-unused-local-typedefs)
+target_compile_features(test_main PUBLIC "cxx_std_${LINGO_TEST_CXX_VERSION}")
+
+if (CMAKE_CXX_COMPILER_ID MATCHES MSVC)
+	target_compile_options(test_main PUBLIC /W4 /MP /bigobj)
+	if (LINGO_WARNINGS_AS_ERRORS)
+		target_compile_options(test_main PUBLIC /WX)
+	endif()
+elseif(CMAKE_CXX_COMPILER_ID MATCHES GCC)
+	target_compile_options(test_main PUBLIC -Wall -Wextra -pedantic
+		-Wno-unused-local-typedefs)
+	if (LINGO_WARNINGS_AS_ERRORS)
+		target_compile_options(test_main PUBLIC -Werror)
+	endif()
+elseif(CMAKE_CXX_COMPILER_ID MATCHES Clang)
+	target_compile_options(test_main PUBLIC -Wall -Wextra -pedantic
+		-Wno-unknown-warning-option
+		-Wno-unused-local-typedefs
+		-Wno-self-assign-overloaded)
+	if (LINGO_WARNINGS_AS_ERRORS)
+		target_compile_options(test_main PUBLIC -Werror)
+	endif()
 endif()
 
 # Add dependencies

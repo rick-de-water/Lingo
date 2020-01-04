@@ -1,7 +1,7 @@
 #ifndef H_LINGO_ENCODING_ENDIAN
 #define H_LINGO_ENCODING_ENDIAN
 
-#include <lingo/constexpr.hpp>
+#include <lingo/platform/constexpr.hpp>
 
 #include <lingo/platform/endian.hpp>
 

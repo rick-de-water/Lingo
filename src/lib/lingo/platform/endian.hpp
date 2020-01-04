@@ -1,7 +1,7 @@
 #ifndef H_LINGO_PLATFORM_ENDIAN
 #define H_LINGO_PLATFORM_ENDIAN
 
-#include <lingo/constexpr.hpp>
+#include <lingo/platform/constexpr.hpp>
 
 #include <lingo/platform/architecture.hpp>
 

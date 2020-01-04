@@ -1,7 +1,7 @@
 #ifndef H_LINGO_ERROR_STRICT
 #define H_LINGO_ERROR_STRICT
 
-#include <lingo/constexpr.hpp>
+#include <lingo/platform/constexpr.hpp>
 #include <lingo/conversion_result.hpp>
 
 #include <lingo/error/error_code.hpp>
@@ -21,7 +21,7 @@ namespace lingo
 				typename DestinationEncoding::unit_type*, std::size_t,
 				error_code err)
 			{
-				throw exception(err);
+				return false ? conversion_result{} : throw exception(err);
 			}
 		};
 	}

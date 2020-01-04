@@ -1,7 +1,7 @@
 #ifndef H_LINGO_STRING_VIEW
 #define H_LINGO_STRING_VIEW
 
-#include <lingo/constexpr.hpp>
+#include <lingo/platform/constexpr.hpp>
 #include <lingo/string_view_storage.hpp>
 #include <lingo/strlen.hpp>
 
@@ -225,8 +225,8 @@ namespace lingo
 			_storage.swap(other._storage);
 		}
 
-		LINGO_CONSTEXPR11 basic_string_view& operator = (const basic_string_view&) noexcept = default;
-		LINGO_CONSTEXPR11 basic_string_view& operator = (basic_string_view&&) noexcept = default;
+		LINGO_CONSTEXPR14 basic_string_view& operator = (const basic_string_view&) noexcept = default;
+		LINGO_CONSTEXPR14 basic_string_view& operator = (basic_string_view&&) noexcept = default;
 		
 		private:
 		storage_type _storage;

@@ -1,7 +1,7 @@
 #ifndef H_LINGO_STRING_STORAGE
 #define H_LINGO_STRING_STORAGE
 
-#include <lingo/constexpr.hpp>
+#include <lingo/platform/constexpr.hpp>
 #include <lingo/compressed_pair.hpp>
 
 #include <cassert>
@@ -364,7 +364,9 @@ namespace lingo
 			return *this;
 		}
 
-		static void default_construct(pointer destination, size_type size)
+		static void default_construct(
+			LINGO_UNUSED_IF_CONSTEXPR(pointer destination),
+			LINGO_UNUSED_IF_CONSTEXPR(size_type size))
 		{
 			LINGO_IF_CONSTEXPR(!std::is_trivially_constructible<value_type>::value)
 			{
@@ -391,7 +393,9 @@ namespace lingo
 			}
 		}
 
-		static void destruct(pointer destination, size_type size)
+		static void destruct(
+			LINGO_UNUSED_IF_CONSTEXPR(pointer destination),
+			LINGO_UNUSED_IF_CONSTEXPR(size_type size))
 		{
 			LINGO_IF_CONSTEXPR(!std::is_trivially_destructible<value_type>::value)
 			{

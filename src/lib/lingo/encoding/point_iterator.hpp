@@ -1,7 +1,7 @@
 #ifndef H_LINGO_ENCODING_POINT_ITERATOR
 #define H_LINGO_ENCODING_POINT_ITERATOR
 
-#include <lingo/constexpr.hpp>
+#include <lingo/platform/constexpr.hpp>
 #include <lingo/error/exception.hpp>
 
 #include <iterator>
