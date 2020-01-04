@@ -25,6 +25,7 @@ endif()
 
 # Platform
 list(APPEND LINGO_MANUAL_HEADERS "platform/architecture.hpp")
+list(APPEND LINGO_MANUAL_HEADERS "platform/attributes.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "platform/endian.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "platform/wchar.hpp")
 

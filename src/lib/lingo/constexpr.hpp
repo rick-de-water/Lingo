@@ -1,6 +1,8 @@
 #ifndef H_LINGO_CONSTEXPR
 #define H_LINGO_CONSTEXPR
 
+#include <lingo/platform/attributes.hpp>
+
 #ifdef __cpp_constexpr
 #define LINGO_HAS_CONSTEXPR11
 #if __cpp_constexpr >= 201304
@@ -56,5 +58,10 @@
 #endif
 #endif
 
+#ifdef LINGO_HAS_IF_CONSTEXPR
+#define LINGO_UNUSED_IF_CONSTEXPR(x) LINGO_ATTRIBUTE_MAYBE_UNUSED x
+#else
+#define LINGO_UNUSED_IF_CONSTEXPR(x) x
+#endif
 
 #endif
