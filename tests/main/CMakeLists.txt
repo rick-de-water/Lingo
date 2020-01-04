@@ -7,7 +7,7 @@ target_compile_features(test_main PUBLIC "cxx_std_${LINGO_TEST_CXX_VERSION}")
 if (MSVC)
 	target_compile_options(test_main PUBLIC "/W4" "/MP" "/bigobj")
 else()
-	target_compile_options(test_main PUBLIC -Wall -Wextra -pedantic -Wno-unused-local-typedefs)
+	target_compile_options(test_main PUBLIC -Wall -Wextra -pedantic -Wno-unknown-warning-option -Wno-unused-local-typedefs -Wno-self-assign-overloaded)
 endif()
 
 # Add dependencies
