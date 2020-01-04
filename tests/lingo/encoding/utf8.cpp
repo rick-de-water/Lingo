@@ -67,19 +67,19 @@ LINGO_UNIT_TEST_CASE("utf8 can get the size of a point from the first unit")
 	for (difference_type i = 0; i <= 255; ++i)
 	{
 		size_type expected_size;
-		if ((i & 0b1000'0000) == 0)
+		if ((i & 0x80) == 0)
 		{
 			expected_size = 1;
 		}
-		else if ((i & 0b1110'0000) == 0b1100'0000)
+		else if ((i & 0xE0) == 0xC0)
 		{
 			expected_size = 2;
 		}
-		else if ((i & 0b1111'0000) == 0b1110'0000)
+		else if ((i & 0xF0) == 0xE0)
 		{
 			expected_size = 3;
 		}
-		else if ((i & 0b1111'1000) == 0b1111'0000)
+		else if ((i & 0xF8) == 0xF0)
 		{
 			expected_size = 4;
 		}
