@@ -4,6 +4,7 @@
 #include <lingo/encoding/none.hpp>
 #include <lingo/encoding/utf8.hpp>
 #include <lingo/encoding/utf16.hpp>
+#include <lingo/encoding/utf32.hpp>
 
 #include <type_traits>
 
@@ -27,6 +28,12 @@ namespace lingo
 		struct cstring_default_encoding<Unit, typename std::enable_if<sizeof(Unit) == 2>::type>
 		{
 			using type = utf16<Unit, char32_t>;
+		};
+
+		template <typename Unit>
+		struct cstring_default_encoding<Unit, typename std::enable_if<sizeof(Unit) == 4>::type>
+		{
+			using type = utf32<Unit, char32_t>;
 		};
 
 		template <typename Unit>

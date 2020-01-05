@@ -38,6 +38,7 @@ list(APPEND LINGO_MANUAL_HEADERS "platform/wchar.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "encoding/none.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "encoding/utf8.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "encoding/utf16.hpp")
+list(APPEND LINGO_MANUAL_HEADERS "encoding/utf32.hpp")
 
 list(APPEND LINGO_MANUAL_HEADERS "encoding/cstring.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "encoding/endian.hpp")

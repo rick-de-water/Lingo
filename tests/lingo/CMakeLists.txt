@@ -20,6 +20,7 @@ list(APPEND TEST_LINGO_SOURCES "platform/endian.cpp")
 list(APPEND TEST_LINGO_SOURCES "encoding/endian.cpp")
 list(APPEND TEST_LINGO_SOURCES "encoding/utf8.cpp")
 list(APPEND TEST_LINGO_SOURCES "encoding/utf16.cpp")
+list(APPEND TEST_LINGO_SOURCES "encoding/utf32.cpp")
 
 # Pages
 list(APPEND TEST_LINGO_SOURCES "page/ascii.cpp")

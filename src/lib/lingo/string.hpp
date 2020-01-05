@@ -12,6 +12,7 @@
 #include <lingo/encoding/point_iterator.hpp>
 #include <lingo/encoding/utf8.hpp>
 #include <lingo/encoding/utf16.hpp>
+#include <lingo/encoding/utf32.hpp>
 
 #include <lingo/page/ascii.hpp>
 #include <lingo/page/cstring.hpp>
@@ -390,11 +391,11 @@ namespace lingo
 	using basic_utf16_be_string = basic_unicode_string<encoding::utf16_be<Unit, char32_t>, Allocator>;
 
 	template <typename Unit, typename Allocator = internal::default_allocator<encoding::none<Unit, char32_t>>>
-	using basic_utf32_string = basic_unicode_string<encoding::none<Unit, char32_t>, Allocator>;
+	using basic_utf32_string = basic_unicode_string<encoding::utf32<Unit, char32_t>, Allocator>;
 	template <typename Unit, typename Allocator = internal::default_allocator<encoding::none<Unit, char32_t>>>
-	using basic_utf32_le_string = basic_unicode_string<encoding::none_le<Unit, char32_t>, Allocator>;
+	using basic_utf32_le_string = basic_unicode_string<encoding::utf32_le<Unit, char32_t>, Allocator>;
 	template <typename Unit, typename Allocator = internal::default_allocator<encoding::none<Unit, char32_t>>>
-	using basic_utf32_be_string = basic_unicode_string<encoding::none_be<Unit, char32_t>, Allocator>;
+	using basic_utf32_be_string = basic_unicode_string<encoding::utf32_be<Unit, char32_t>, Allocator>;
 
 	// Fixed encoding & page typedefs
 	template <typename Allocator = internal::default_allocator<encoding::cstring_default_encoding_t<char>>>

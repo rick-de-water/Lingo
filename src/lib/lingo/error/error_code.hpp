@@ -11,8 +11,7 @@ namespace lingo
 
 			buffer_too_small,
 			invalid_point,
-			invalid_first_unit,
-			invalid_subsequent_unit,
+			invalid_unit,
 
 			no_mapping,
 		};

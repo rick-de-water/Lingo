@@ -174,7 +174,7 @@ namespace lingo
 				// Check if the first code unit is valid
 				if (required_size == 0)
 				{
-					return { {}, 0, error::error_code::invalid_first_unit };
+					return { {}, 0, error::error_code::invalid_unit };
 				}
 				assert(required_size <= max_units);
 
@@ -200,7 +200,7 @@ namespace lingo
 					// Validate low surrogate
 					if ((low_unit_bits & 0xFC00) != 0xDC00)
 					{
-						return { {}, 2, error::error_code::invalid_subsequent_unit };
+						return { {}, 2, error::error_code::invalid_unit };
 					}
 
 					point_bits_type point_bits = static_cast<point_bits_type>(high_unit_bits - 0xD800);

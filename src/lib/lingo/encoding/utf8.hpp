@@ -203,7 +203,7 @@ namespace lingo
 				// Check if the first code unit is valid
 				if (required_size == 0)
 				{
-					return { {}, 0, error::error_code::invalid_first_unit };
+					return { {}, 0, error::error_code::invalid_unit };
 				}
 				assert(required_size <= max_units);
 
@@ -227,7 +227,7 @@ namespace lingo
 					const unit_bits_type continuation_unit_bits = bit_converter::to_unit_bits(buffer[i]);
 					if ((continuation_unit_bits & continuation_unit_prefix_mask) != continuation_unit_prefix_marker)
 					{
-						return { {}, required_size, error::error_code::invalid_subsequent_unit };
+						return { {}, required_size, error::error_code::invalid_unit };
 					}
 
 					// Add the bits to the code point

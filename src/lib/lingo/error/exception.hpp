@@ -33,9 +33,8 @@ namespace lingo
 					case error_code::success:                 return "success";
 					case error_code::buffer_too_small:        return "buffer too small";
 					case error_code::invalid_point:           return "invalid point";
-					case error_code::invalid_first_unit:      return "invalid first unit";
-					case error_code::invalid_subsequent_unit: return "invalid subsequent unit";
-					default:                                  return "invalid error code";
+					case error_code::invalid_unit:            return "invalid unit";
+					default:                                  return "unknown error code";
 				}
 			}
 		};
