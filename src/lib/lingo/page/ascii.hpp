@@ -26,7 +26,7 @@ namespace lingo
 					std::is_same<SourcePage, unicode>::value,
 					map_result<point_type>>::type
 			{
-				LINGO_WARNINGS_PUSH_AND_DISABLE_CLANG("-Wtautological-constant-out-of-range-compare")
+				LINGO_WARNINGS_PUSH_AND_DISABLE_CLANG(tautological-constant-out-of-range-compare)
 				if (point >= 0 && point < 128)
 				LINGO_WARNINGS_POP_CLANG
 				{
@@ -44,7 +44,7 @@ namespace lingo
 					std::is_same<DestinationPage, unicode>::value,
 					map_result<typename DestinationPage::point_type>>::type
 			{
-				LINGO_WARNINGS_PUSH_AND_DISABLE_CLANG("-Wtautological-constant-out-of-range-compare")
+				LINGO_WARNINGS_PUSH_AND_DISABLE_CLANG(tautological-constant-out-of-range-compare)
 				if (point >= 0 && point < 128)
 				LINGO_WARNINGS_POP_CLANG
 				{

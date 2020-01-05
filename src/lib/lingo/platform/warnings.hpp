@@ -2,6 +2,7 @@
 #define H_LINGO_PLATFORM_WARNINGS
 
 #include <lingo/platform/compiler.hpp>
+#include <lingo/platform/pragma.hpp>
 #include <lingo/platform/preprocessor.hpp>
 
 #if LINGO_COMPILER == LINGO_COMPILER_MSVC
@@ -16,7 +17,7 @@
 
 #if LINGO_COMPILER == LINGO_COMPILER_CLANG
 #define LINGO_WARNINGS_PUSH_CLANG LINGO_PRAGMA(clang diagnostic push)
-#define LINGO_WARNINGS_DISABLE_CLANG(x) LINGO_PRAGMA(clang diagnostic ignored x)
+#define LINGO_WARNINGS_DISABLE_CLANG(x) LINGO_PRAGMA(clang diagnostic ignored "-W" LINGO_STRINGIFY(x))
 #define LINGO_WARNINGS_POP_CLANG LINGO_PRAGMA(clang diagnostic pop)
 #else
 #define LINGO_WARNINGS_PUSH_CLANG
