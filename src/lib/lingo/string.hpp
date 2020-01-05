@@ -60,7 +60,8 @@ namespace lingo
 		using reverse_iterator = std::reverse_iterator<iterator>;
 		using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-		static constexpr size_type npos = static_cast<size_type>(-1);
+		static LINGO_CONSTEXPR11 size_type npos = static_cast<size_type>(-1);
+		static LINGO_CONSTEXPR11 unit_type null_terminator = unit_type{};
 
 		private:
 		static_assert(std::is_same<typename page_type::point_type, typename encoding_type::point_type>::value, "page_type::point_type must be the same type as encoding_type::point_type");
@@ -92,15 +93,20 @@ namespace lingo
 			}
 
 			// Allocate memory
-			_storage.grow(result.size * count);
+			const size_type new_size = result.size * count;
+			_storage.grow(new_size);
 
 			// Fill memory
 			for (size_type i = 0; i < count; ++i)
 			{
 				_storage.copy_construct(_storage.data() + i * result.size, encoded_point, result.size);
 			}
-			_storage.data()[result.size * count] = {};
-			_storage.set_size(result.size * count);
+
+			// Construct null terminator
+			_storage.copy_construct(_storage.data() + new_size, &null_terminator, 1);
+
+			// Set size
+			_storage.set_size(new_size);
 		}
 
 		template <std::size_t N, typename Foo = int, typename std::enable_if<(
@@ -279,6 +285,11 @@ namespace lingo
 			return _storage.size();
 		}
 
+		size_type length() const noexcept
+		{
+			return size();
+		}
+
 		size_type max_size() const noexcept
 		{
 			return _storage.max_size();
@@ -294,7 +305,7 @@ namespace lingo
 			return size() == 0;
 		}
 
-		void resize(size_type size) noexcept
+		void resize(size_type size)
 		{
 			if (size == _storage.size())
 			{
@@ -309,9 +320,42 @@ namespace lingo
 			_storage.resize_default_construct(size);
 		}
 
-		void reserve(size_type size) noexcept
+		void reserve(size_type size)
 		{
 			_storage.grow(size);
+		}
+
+		void clear() noexcept
+		{
+			resize(0);
+		}
+
+		void push_back(point_type point)
+		{
+			// Encode the point into units
+			unit_type encoded_point[encoding_type::max_units];
+			const auto result = encoding_type::encode_point(point, encoded_point, encoding_type::max_units);
+			if (result.error != error::error_code::success)
+			{
+				throw error::exception(result.error);
+			}
+
+			// Allocate memory
+			const size_type current_size = size();
+			const size_type new_size = current_size + result.size;
+			_storage.grow(new_size);
+
+			// Destruct old null terminator
+			_storage.destruct(_storage.data() + current_size, 1);
+
+			// Fill memory
+			_storage.copy_construct(_storage.data() + current_size, encoded_point, result.size);
+			
+			// Construct new null terminator
+			_storage.copy_construct(_storage.data() + new_size, &null_terminator, 1);
+
+			// Update size
+			_storage.set_size(new_size);
 		}
 
 		operator string_view() const noexcept
@@ -349,28 +393,37 @@ namespace lingo
 	template <typename Encoding, typename Page, typename LeftAllocator, typename RightAllocator>
 	bool operator == (basic_string<Encoding, Page, LeftAllocator> left, basic_string<Encoding, Page, RightAllocator> right)
 	{
-		using size_type = typename basic_string<Encoding, Page, LeftAllocator>::size_type;
-
-		if (left.size() != right.size())
-		{
-			return false;
-		}
-
-		for (size_type i = 0; i < left.size(); ++i)
-		{
-			if (left[i] != right[i])
-			{
-				return false;
-			}
-		}
-
-		return true;
+		return left.operator lingo::basic_string_view<Encoding, Page>() == right.operator lingo::basic_string_view<Encoding, Page>();
 	}
 
 	template <typename Encoding, typename Page, typename LeftAllocator, typename RightAllocator>
 	bool operator != (basic_string<Encoding, Page, LeftAllocator> left, basic_string<Encoding, Page, RightAllocator> right)
 	{
-		return !(left == right);
+		return left.operator lingo::basic_string_view<Encoding, Page>() != right.operator lingo::basic_string_view<Encoding, Page>();
+	}
+
+	template <typename Encoding, typename Page, typename LeftAllocator>
+	bool operator == (basic_string<Encoding, Page, LeftAllocator> left, basic_string_view<Encoding, Page> right)
+	{
+		return left.operator lingo::basic_string_view<Encoding, Page>() == right;
+	}
+
+	template <typename Encoding, typename Page, typename RightAllocator>
+	bool operator == (basic_string_view<Encoding, Page> left, basic_string<Encoding, Page, RightAllocator> right)
+	{
+		return left == right.operator lingo::basic_string_view<Encoding, Page>();
+	}
+
+	template <typename Encoding, typename Page, typename LeftAllocator>
+	bool operator != (basic_string<Encoding, Page, LeftAllocator> left, basic_string_view<Encoding, Page> right)
+	{
+		return left.operator lingo::basic_string_view<Encoding, Page>() != right;
+	}
+
+	template <typename Encoding, typename Page, typename RightAllocator>
+	bool operator != (basic_string_view<Encoding, Page> left, basic_string<Encoding, Page, RightAllocator> right)
+	{
+		return left != right.operator lingo::basic_string_view<Encoding, Page>();
 	}
 
 	// Fixed page typedefs

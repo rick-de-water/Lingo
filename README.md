@@ -11,6 +11,7 @@ Lingo is an encoding aware string library for C++11 and up. It tries to be a dro
 * `lingo::encoding::*` for low level encoding and decoding of code points.
 * `lingo::page::*` for additional code point information and conversion between different code pages.
 * `lingo::error::*` for different error handling behaviours.
+* Capable of handling endianness.
 
 # How it works
 The string class from the standard library is defined like this:
@@ -108,7 +109,7 @@ So for example, if you want to use ISO/IEC 8859-1 for `char`s, you will have to 
 * `-DLINGO_CHAR_ENCODING=none`
 * `-DLINGO_CHAR_PAGE=iso_8859_1`
 
-This method is not recommended. Setting the execution character set is much more reliable and portable way to solve this issue.
+This method is not recommended. Setting the execution character set is a much more reliable and portable way to solve this issue.
 
 ## Testing
 If you want to develop and/or run the test suite, you will have to build the CMake project. All you need is CMake 3.12 or higher and a C++11 compatible compiler. The tests are written using [Catch](https://github.com/catchorg/Catch2) and can be run with `ctest`.

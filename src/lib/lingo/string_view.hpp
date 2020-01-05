@@ -168,6 +168,11 @@ namespace lingo
 			return _storage.size();
 		}
 
+		LINGO_CONSTEXPR11 size_type length() const noexcept
+		{
+			return size();
+		}
+
 		LINGO_CONSTEXPR11 size_type max_size() const noexcept
 		{
 			return _storage.max_size();

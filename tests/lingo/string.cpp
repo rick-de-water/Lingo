@@ -10,7 +10,6 @@
 
 #include <tuple>
 
-
 TEST_CASE("string has the correct types")
 {
 	// Typedefs
@@ -276,4 +275,21 @@ LINGO_UNIT_TEST_CASE("A string can be copy constructed with a position offset an
 	{
 		REQUIRE(test_string_copy[i - pos] == test_string[i]);
 	}
+}
+
+LINGO_UNIT_TEST_CASE("push_back can add code points to a string")
+{
+	LINGO_UNIT_TEST_TYPEDEFS;
+
+	string_type test_string;
+	string_view_type source_string(lingo::test::test_string<unit_type>::value);
+
+	for (point_type point : point_iterator_type(source_string))
+	{
+		test_string.push_back(point);
+
+		REQUIRE(string_view_type(test_string) == string_view_type(lingo::test::test_string<unit_type>::value, test_string.size()));
+	}
+
+	REQUIRE(test_string == source_string);
 }
