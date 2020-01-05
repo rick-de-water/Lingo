@@ -293,3 +293,241 @@ LINGO_UNIT_TEST_CASE("push_back can add code points to a string")
 
 	REQUIRE(test_string == source_string);
 }
+
+LINGO_UNIT_TEST_CASE("strings can be compared")
+{
+	LINGO_UNIT_TEST_TYPEDEFS;
+
+	const point_type point = encoding_type::decode_point(lingo::test::test_string<unit_type>::value, lingo::test::test_string<unit_type>::size).point;
+
+	const string_type string1(1, point);
+	const string_type string2(1, point + 1);
+	const string_type string3(1, point - 1);
+	const string_type string4(2, point);
+
+	const string_view_type string_view1(string1);
+	const string_view_type string_view2(string2);
+	const string_view_type string_view3(string3);
+	const string_view_type string_view4(string4);
+
+	REQUIRE(string1 == string1);
+	REQUIRE_FALSE(string1 == string2);
+	REQUIRE_FALSE(string1 == string3);
+	REQUIRE_FALSE(string1 == string4);
+	REQUIRE(string1 == string_view1);
+	REQUIRE_FALSE(string1 == string_view2);
+	REQUIRE_FALSE(string1 == string_view3);
+	REQUIRE_FALSE(string1 == string_view4);
+
+	REQUIRE_FALSE(string2 == string1);
+	REQUIRE(string2 == string2);
+	REQUIRE_FALSE(string2 == string3);
+	REQUIRE_FALSE(string2 == string4);
+	REQUIRE_FALSE(string2 == string_view1);
+	REQUIRE(string2 == string_view2);
+	REQUIRE_FALSE(string2 == string_view3);
+	REQUIRE_FALSE(string2 == string_view4);
+
+	REQUIRE_FALSE(string3 == string1);
+	REQUIRE_FALSE(string3 == string2);
+	REQUIRE(string3 == string3);
+	REQUIRE_FALSE(string3 == string4);
+	REQUIRE_FALSE(string3 == string_view1);
+	REQUIRE_FALSE(string3 == string_view2);
+	REQUIRE(string3 == string_view3);
+	REQUIRE_FALSE(string3 == string_view4);
+
+	REQUIRE_FALSE(string4 == string1);
+	REQUIRE_FALSE(string4 == string2);
+	REQUIRE_FALSE(string4 == string3);
+	REQUIRE(string4 == string4);
+	REQUIRE_FALSE(string4 == string_view1);
+	REQUIRE_FALSE(string4 == string_view2);
+	REQUIRE_FALSE(string4 == string_view3);
+	REQUIRE(string4 == string_view4);
+
+
+	REQUIRE_FALSE(string1 != string1);
+	REQUIRE(string1 != string2);
+	REQUIRE(string1 != string3);
+	REQUIRE(string1 != string4);
+	REQUIRE_FALSE(string1 != string_view1);
+	REQUIRE(string1 != string_view2);
+	REQUIRE(string1 != string_view3);
+	REQUIRE(string1 != string_view4);
+
+	REQUIRE(string2 != string1);
+	REQUIRE_FALSE(string2 != string2);
+	REQUIRE(string2 != string3);
+	REQUIRE(string2 != string4);
+	REQUIRE(string2 != string_view1);
+	REQUIRE_FALSE(string2 != string_view2);
+	REQUIRE(string2 != string_view3);
+	REQUIRE(string2 != string_view4);
+
+	REQUIRE(string3 != string1);
+	REQUIRE(string3 != string2);
+	REQUIRE_FALSE(string3 != string3);
+	REQUIRE(string3 != string4);
+	REQUIRE(string3 != string_view1);
+	REQUIRE(string3 != string_view2);
+	REQUIRE_FALSE(string3 != string_view3);
+	REQUIRE(string3 != string_view4);
+
+	REQUIRE(string4 != string1);
+	REQUIRE(string4 != string2);
+	REQUIRE(string4 != string3);
+	REQUIRE_FALSE(string4 != string4);
+	REQUIRE(string4 != string_view1);
+	REQUIRE(string4 != string_view2);
+	REQUIRE(string4 != string_view3);
+	REQUIRE_FALSE(string4 != string_view4);
+
+
+	REQUIRE_FALSE(string1 < string1);
+	REQUIRE(string1 < string2);
+	REQUIRE_FALSE(string1 < string3);
+	REQUIRE(string1 < string4);
+	REQUIRE_FALSE(string1 < string_view1);
+	REQUIRE(string1 < string_view2);
+	REQUIRE_FALSE(string1 < string_view3);
+	REQUIRE(string1 < string_view4);
+
+	REQUIRE_FALSE(string2 < string1);
+	REQUIRE_FALSE(string2 < string2);
+	REQUIRE_FALSE(string2 < string3);
+	REQUIRE_FALSE(string2 < string4);
+	REQUIRE_FALSE(string2 < string_view1);
+	REQUIRE_FALSE(string2 < string_view2);
+	REQUIRE_FALSE(string2 < string_view3);
+	REQUIRE_FALSE(string2 < string_view4);
+
+	REQUIRE(string3 < string1);
+	REQUIRE(string3 < string2);
+	REQUIRE_FALSE(string3 < string3);
+	REQUIRE(string3 < string4);
+	REQUIRE(string3 < string_view1);
+	REQUIRE(string3 < string_view2);
+	REQUIRE_FALSE(string3 < string_view3);
+	REQUIRE(string3 < string_view4);
+
+	REQUIRE_FALSE(string4 < string1);
+	REQUIRE(string4 < string2);
+	REQUIRE_FALSE(string4 < string3);
+	REQUIRE_FALSE(string4 < string4);
+	REQUIRE_FALSE(string4 < string_view1);
+	REQUIRE(string4 < string_view2);
+	REQUIRE_FALSE(string4 < string_view3);
+	REQUIRE_FALSE(string4 < string_view4);
+
+
+	REQUIRE_FALSE(string1 > string1);
+	REQUIRE_FALSE(string1 > string2);
+	REQUIRE(string1 > string3);
+	REQUIRE_FALSE(string1 > string4);
+	REQUIRE_FALSE(string1 > string_view1);
+	REQUIRE_FALSE(string1 > string_view2);
+	REQUIRE(string1 > string_view3);
+	REQUIRE_FALSE(string1 > string_view4);
+
+	REQUIRE(string2 > string1);
+	REQUIRE_FALSE(string2 > string2);
+	REQUIRE(string2 > string3);
+	REQUIRE(string2 > string4);
+	REQUIRE(string2 > string_view1);
+	REQUIRE_FALSE(string2 > string_view2);
+	REQUIRE(string2 > string_view3);
+	REQUIRE(string2 > string_view4);
+
+	REQUIRE_FALSE(string3 > string1);
+	REQUIRE_FALSE(string3 > string2);
+	REQUIRE_FALSE(string3 > string3);
+	REQUIRE_FALSE(string3 > string4);
+	REQUIRE_FALSE(string3 > string_view1);
+	REQUIRE_FALSE(string3 > string_view2);
+	REQUIRE_FALSE(string3 > string_view3);
+	REQUIRE_FALSE(string3 > string_view4);
+
+	REQUIRE(string4 > string1);
+	REQUIRE_FALSE(string4 > string2);
+	REQUIRE(string4 > string3);
+	REQUIRE_FALSE(string4 > string4);
+	REQUIRE(string4 > string_view1);
+	REQUIRE_FALSE(string4 > string_view2);
+	REQUIRE(string4 > string_view3);
+	REQUIRE_FALSE(string4 > string_view4);
+
+
+	REQUIRE(string1 <= string1);
+	REQUIRE(string1 <= string2);
+	REQUIRE_FALSE(string1 <= string3);
+	REQUIRE(string1 <= string4);
+	REQUIRE(string1 <= string_view1);
+	REQUIRE(string1 <= string_view2);
+	REQUIRE_FALSE(string1 <= string_view3);
+	REQUIRE(string1 <= string_view4);
+
+	REQUIRE_FALSE(string2 <= string1);
+	REQUIRE(string2 <= string2);
+	REQUIRE_FALSE(string2 <= string3);
+	REQUIRE_FALSE(string2 <= string4);
+	REQUIRE_FALSE(string2 <= string_view1);
+	REQUIRE(string2 <= string_view2);
+	REQUIRE_FALSE(string2 <= string_view3);
+	REQUIRE_FALSE(string2 <= string_view4);
+
+	REQUIRE(string3 <= string1);
+	REQUIRE(string3 <= string2);
+	REQUIRE(string3 <= string3);
+	REQUIRE(string3 <= string4);
+	REQUIRE(string3 <= string_view1);
+	REQUIRE(string3 <= string_view2);
+	REQUIRE(string3 <= string_view3);
+	REQUIRE(string3 <= string_view4);
+
+	REQUIRE_FALSE(string4 <= string1);
+	REQUIRE(string4 <= string2);
+	REQUIRE_FALSE(string4 <= string3);
+	REQUIRE(string4 <= string4);
+	REQUIRE_FALSE(string4 <= string_view1);
+	REQUIRE(string4 <= string_view2);
+	REQUIRE_FALSE(string4 <= string_view3);
+	REQUIRE(string4 <= string_view4);
+
+
+	REQUIRE(string1 >= string1);
+	REQUIRE_FALSE(string1 >= string2);
+	REQUIRE(string1 >= string3);
+	REQUIRE_FALSE(string1 >= string4);
+	REQUIRE(string1 >= string_view1);
+	REQUIRE_FALSE(string1 >= string_view2);
+	REQUIRE(string1 >= string_view3);
+	REQUIRE_FALSE(string1 >= string_view4);
+
+	REQUIRE(string2 >= string1);
+	REQUIRE(string2 >= string2);
+	REQUIRE(string2 >= string3);
+	REQUIRE(string2 >= string4);
+	REQUIRE(string2 >= string_view1);
+	REQUIRE(string2 >= string_view2);
+	REQUIRE(string2 >= string_view3);
+	REQUIRE(string2 >= string_view4);
+
+	REQUIRE_FALSE(string3 >= string1);
+	REQUIRE_FALSE(string3 >= string2);
+	REQUIRE(string3 >= string3);
+	REQUIRE_FALSE(string3 >= string4);
+	REQUIRE_FALSE(string3 >= string_view1);
+	REQUIRE_FALSE(string3 >= string_view2);
+	REQUIRE(string3 >= string_view3);
+	REQUIRE_FALSE(string3 >= string_view4);
+
+	REQUIRE(string4 >= string1);
+	REQUIRE_FALSE(string4 >= string2);
+	REQUIRE(string4 >= string3);
+	REQUIRE(string4 >= string4);
+	REQUIRE(string4 >= string_view1);
+	REQUIRE_FALSE(string4 >= string_view2);
+	REQUIRE(string4 >= string_view3);
+	REQUIRE(string4 >= string_view4);
+}

@@ -386,44 +386,130 @@ namespace lingo
 			return std::basic_string<value_type, Traits, StdAllocator>(data(), size());
 		}
 
+		template <typename RightAllocator>
+		LINGO_CONSTEXPR14 int compare(const basic_string<Encoding, Page, RightAllocator>& other) const noexcept
+		{
+			return compare(other.operator lingo::basic_string_view<Encoding, Page>());
+		}
+
+		LINGO_CONSTEXPR14 int compare(basic_string_view<Encoding, Page> other) const noexcept
+		{
+			return operator lingo::basic_string_view<Encoding, Page>().compare(other);
+		}
+
 		private:
 		storage_type _storage;
 	};
 
+
 	template <typename Encoding, typename Page, typename LeftAllocator, typename RightAllocator>
 	bool operator == (basic_string<Encoding, Page, LeftAllocator> left, basic_string<Encoding, Page, RightAllocator> right)
 	{
-		return left.operator lingo::basic_string_view<Encoding, Page>() == right.operator lingo::basic_string_view<Encoding, Page>();
+		return left.compare(right) == 0;
 	}
 
 	template <typename Encoding, typename Page, typename LeftAllocator, typename RightAllocator>
 	bool operator != (basic_string<Encoding, Page, LeftAllocator> left, basic_string<Encoding, Page, RightAllocator> right)
 	{
-		return left.operator lingo::basic_string_view<Encoding, Page>() != right.operator lingo::basic_string_view<Encoding, Page>();
+		return left.compare(right) != 0;
 	}
+
+	template <typename Encoding, typename Page, typename LeftAllocator, typename RightAllocator>
+	bool operator < (basic_string<Encoding, Page, LeftAllocator> left, basic_string<Encoding, Page, RightAllocator> right)
+	{
+		return left.compare(right) < 0;
+	}
+
+	template <typename Encoding, typename Page, typename LeftAllocator, typename RightAllocator>
+	bool operator > (basic_string<Encoding, Page, LeftAllocator> left, basic_string<Encoding, Page, RightAllocator> right)
+	{
+		return left.compare(right) > 0;
+	}
+
+	template <typename Encoding, typename Page, typename LeftAllocator, typename RightAllocator>
+	bool operator <= (basic_string<Encoding, Page, LeftAllocator> left, basic_string<Encoding, Page, RightAllocator> right)
+	{
+		return left.compare(right) <= 0;
+	}
+
+	template <typename Encoding, typename Page, typename LeftAllocator, typename RightAllocator>
+	bool operator >= (basic_string<Encoding, Page, LeftAllocator> left, basic_string<Encoding, Page, RightAllocator> right)
+	{
+		return left.compare(right) >= 0;
+	}
+
 
 	template <typename Encoding, typename Page, typename LeftAllocator>
 	bool operator == (basic_string<Encoding, Page, LeftAllocator> left, basic_string_view<Encoding, Page> right)
 	{
-		return left.operator lingo::basic_string_view<Encoding, Page>() == right;
-	}
-
-	template <typename Encoding, typename Page, typename RightAllocator>
-	bool operator == (basic_string_view<Encoding, Page> left, basic_string<Encoding, Page, RightAllocator> right)
-	{
-		return left == right.operator lingo::basic_string_view<Encoding, Page>();
+		return left.compare(right) == 0;
 	}
 
 	template <typename Encoding, typename Page, typename LeftAllocator>
 	bool operator != (basic_string<Encoding, Page, LeftAllocator> left, basic_string_view<Encoding, Page> right)
 	{
-		return left.operator lingo::basic_string_view<Encoding, Page>() != right;
+		return left.compare(right) != 0;
+	}
+
+	template <typename Encoding, typename Page, typename LeftAllocator>
+	bool operator < (basic_string<Encoding, Page, LeftAllocator> left, basic_string_view<Encoding, Page> right)
+	{
+		return left.compare(right) < 0;
+	}
+
+	template <typename Encoding, typename Page, typename LeftAllocator>
+	bool operator > (basic_string<Encoding, Page, LeftAllocator> left, basic_string_view<Encoding, Page> right)
+	{
+		return left.compare(right) > 0;
+	}
+
+	template <typename Encoding, typename Page, typename LeftAllocator>
+	bool operator <= (basic_string<Encoding, Page, LeftAllocator> left, basic_string_view<Encoding, Page> right)
+	{
+		return left.compare(right) <= 0;
+	}
+
+	template <typename Encoding, typename Page, typename LeftAllocator>
+	bool operator >= (basic_string<Encoding, Page, LeftAllocator> left, basic_string_view<Encoding, Page> right)
+	{
+		return left.compare(right) >= 0;
+	}
+
+
+	template <typename Encoding, typename Page, typename RightAllocator>
+	bool operator == (basic_string_view<Encoding, Page> left, basic_string<Encoding, Page, RightAllocator> right)
+	{
+		return left.compare(right) == 0;
 	}
 
 	template <typename Encoding, typename Page, typename RightAllocator>
 	bool operator != (basic_string_view<Encoding, Page> left, basic_string<Encoding, Page, RightAllocator> right)
 	{
-		return left != right.operator lingo::basic_string_view<Encoding, Page>();
+		return left.compare(right) != 0;
+	}
+
+	template <typename Encoding, typename Page, typename RightAllocator>
+	bool operator < (basic_string_view<Encoding, Page> left, basic_string<Encoding, Page, RightAllocator> right)
+	{
+		return left.compare(right) < 0;
+	}
+
+	template <typename Encoding, typename Page, typename RightAllocator>
+	bool operator > (basic_string_view<Encoding, Page> left, basic_string<Encoding, Page, RightAllocator> right)
+	{
+		return left.compare(right) > 0;
+	}
+
+	template <typename Encoding, typename Page, typename RightAllocator>
+	bool operator <= (basic_string_view<Encoding, Page> left, basic_string<Encoding, Page, RightAllocator> right)
+	{
+		return left.compare(right) <= 0;
+	}
+
+	template <typename Encoding, typename Page, typename RightAllocator>
+	bool operator >= (basic_string_view<Encoding, Page> left, basic_string<Encoding, Page, RightAllocator> right)
+	{
+		return left.compare(right) >= 0;
 	}
 
 	// Fixed page typedefs

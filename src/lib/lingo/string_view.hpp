@@ -15,6 +15,7 @@
 #include <lingo/encoding/utf16.hpp>
 #include <lingo/encoding/utf32.hpp>
 
+#include <algorithm>
 #include <cstddef>
 #include <iterator>
 #include <memory>
@@ -231,6 +232,47 @@ namespace lingo
 			_storage.swap(other._storage);
 		}
 
+		LINGO_CONSTEXPR14 int compare(basic_string_view other) const noexcept
+		{
+			const size_type left_size = size();
+			const size_type right_size = other.size();
+			const size_type min_size = std::min(left_size, right_size);
+
+			for (size_type i = 0; i < min_size; ++i)
+			{
+				const auto left_unit = operator[](i);
+				const auto right_unit = other[i];
+
+				if (left_unit != right_unit)
+				{
+					if (left_unit < right_unit)
+					{
+						return -1;
+					}
+					else
+					{
+						return 1;
+					}
+				}
+			}
+
+			if (left_size != right_size)
+			{
+				if (left_size < right_size)
+				{
+					return -1;
+				}
+				else
+				{
+					return 1;
+				}
+			}
+			else
+			{
+				return 0;
+			}
+		}
+
 		LINGO_CONSTEXPR14 basic_string_view& operator = (const basic_string_view&) noexcept = default;
 		LINGO_CONSTEXPR14 basic_string_view& operator = (basic_string_view&&) noexcept = default;
 		
@@ -241,28 +283,37 @@ namespace lingo
 	template <typename Encoding, typename Page>
 	LINGO_CONSTEXPR14 bool operator == (basic_string_view<Encoding, Page> left, basic_string_view<Encoding, Page> right)
 	{
-		using size_type = typename basic_string_view<Encoding, Page>::size_type;
-
-		if (left.size() != right.size())
-		{
-			return false;
-		}
-
-		for (size_type i = 0; i < left.size(); ++i)
-		{
-			if (left[i] != right[i])
-			{
-				return false;
-			}
-		}
-
-		return true;
+		return left.compare(right) == 0;
 	}
 
 	template <typename Encoding, typename Page>
 	LINGO_CONSTEXPR14 bool operator != (basic_string_view<Encoding, Page> left, basic_string_view<Encoding, Page> right)
 	{
-		return !(left == right);
+		return left.compare(right) != 0;
+	}
+
+	template <typename Encoding, typename Page>
+	LINGO_CONSTEXPR14 bool operator < (basic_string_view<Encoding, Page> left, basic_string_view<Encoding, Page> right)
+	{
+		return left.compare(right) < 0;
+	}
+
+	template <typename Encoding, typename Page>
+	LINGO_CONSTEXPR14 bool operator > (basic_string_view<Encoding, Page> left, basic_string_view<Encoding, Page> right)
+	{
+		return left.compare(right) > 0;
+	}
+
+	template <typename Encoding, typename Page>
+	LINGO_CONSTEXPR14 bool operator <= (basic_string_view<Encoding, Page> left, basic_string_view<Encoding, Page> right)
+	{
+		return left.compare(right) <= 0;
+	}
+
+	template <typename Encoding, typename Page>
+	LINGO_CONSTEXPR14 bool operator >= (basic_string_view<Encoding, Page> left, basic_string_view<Encoding, Page> right)
+	{
+		return left.compare(right) >= 0;
 	}
 
 	// Fixed code page typedefs
