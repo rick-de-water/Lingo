@@ -1,6 +1,6 @@
 # TODO
 
-* Convert multiple points at once if available.
+* Allow shortcuts to encode/decode multiple points at once.
 * Don't go through unicode if a direct conversion is available.
-* Unicode algorithms
+* Unicode algorithms (normalization, captitalization, etc)
 * Add more of the MANY code pages and encodings that exist.

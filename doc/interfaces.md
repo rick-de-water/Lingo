@@ -19,14 +19,14 @@ struct <my_encoding>
 	// Examples:
 	// - utf8::max_units = 4;
 	// - utf16::max_units = 2;
+	// - utf32::max_units = 1;
 	// - none::max_units = 1;
 	static constexpr size_type max_units;
 
-	// Stuff below here is probably going to change, so no detailed explainations yet.
-	static constexpr size_type point_size(point_type point) noexcept;
-	static constexpr size_type unit_size(unit_type unit) noexcept;
-
+	// Encode a point and store the resulting units in the provided buffer
 	static constexpr encode_result encode_point(point_type point, unit_type buffer. size_type buffer_size) noexcept;
+
+	// Decode a single point from the units in the provided buffer
 	static constexpr decode_result<point_type> decode_point(const unit_type* buffer, buffer_size) noexcept;
 }
 ```

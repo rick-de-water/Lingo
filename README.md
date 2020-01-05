@@ -2,12 +2,12 @@
 
 ![](https://github.com/rick-de-water/lingo/workflows/lingo/badge.svg)
 
-Lingo is an encoding and code page aware string library for C++11 and up. It attempts to be a drop in replacement for the standard library strings by mirroring its interface as much as possible, while also adding a bunch of new functionally made possible by knowing what the data inside of the string actually represents.
+Lingo is an encoding aware string library for C++11 and up. It tries to be a drop in replacement for the standard library strings by mirroring its interface as much as possible, while also adding new functionally by utilizing the encoding definitions.
 
 # Some of the features
 * Encoding and code page aware `lingo::string` and `lingo::string_view`, almost fully compatible with `std::string` and `std::string_view`.
 * Null terminator aware `lingo::string_view`.
-* Automatic conversion between `lingo::string`s of different encodings and/or character sets.
+* Automatic conversion between `lingo::string`s of different encodings and code pages.
 * `lingo::encoding::*` for low level encoding and decoding of code points.
 * `lingo::page::*` for additional code point information and conversion between different code pages.
 * `lingo::error::*` for complete control over error handling behaviour.
@@ -22,11 +22,11 @@ namespace std
 }
 ```
 
-All code point information is stored in a `Traits` type. This could work if it was implemented well, but it has several problems:
+All code unit information is stored in a `Traits` type. This works well for ascii strings, but starts to run into issues when dealing with encodings that go beyond ascii.
  * It assumes that every `CharT` is a code point, making it very difficult to work with multibyte/multiunit code points.
- * It generally has no information about the code page used. `char` could be ascii, utf8, iso 8859-7, or anything really. And while the standard is adding `char8_t`, `char16_t` and `char32_t` for unicode, we can't expect the standard to add a strong typedef for every code page out there.
+ * It generally has no information about the code page used. `char` could be ascii, utf8, iso 8859-7, or anything really. And while the standard is adding `char8_t`, `char16_t` and `char32_t` for unicode, it really only knows that it is a form of UTF, but has no idea how actually encode, decode or transform the data.
 
-To solve this problem, the library adds a new string type that is defined as:
+To solve this problem, the library adds a new string type:
 ```c++
 namespace lingo
 {
@@ -53,7 +53,7 @@ using utf16_string = lingo::basic_string<
     lingo::page::unicode>;
 
 using utf32_string = lingo::basic_string<
-    lingo::encoding::none<char32_t, char32_t>,
+    lingo::encoding::utf32<char32_t, char32_t>,
     lingo::page::unicode>;
 
 using iso_8895_1_string = lingo::basic_string<
@@ -61,7 +61,9 @@ using iso_8895_1_string = lingo::basic_string<
     lingo::page::iso_8895_1>;
 ```
 
-You may have noticed that there is no `lingo::encoding::utf32`. This is because of that split of responsibility. There is no difference between UTF-32 and decoded Unicode, so we can simply use `lingo::encoding::none`. It is only necessary to define the code page as `lingo::page::unicode`.
+You might wonder why there is a `lingo::encoding::utf32` encoding, since there is no difference between UTF-32 and decoded Unicode.
+
+It is indeed possible to use `lingo::encoding::none` instead, and still have a fully functional UTF-32 string. However, `lingo::encoding::utf32` does add some extra validation, such as detecting surrogate code units, making it better at dealing with invalid inputs.
 
 
 # Currently implemented
@@ -70,6 +72,7 @@ You may have noticed that there is no `lingo::encoding::utf32`. This is because 
 * `lingo::encoding::none`
 * `lingo::encoding::utf8`
 * `lingo::encoding::utf16`
+* `lingo::encoding::utf32`
 
 ## Code pages
 * `lingo::page::ascii`
@@ -80,34 +83,27 @@ You may have noticed that there is no `lingo::encoding::utf32`. This is because 
 TODO for 0.1.0
 
 ## Algorithms
-Will be added in a future version.
+#### Will be added in a future version.
 
-## String typedefs
-```c++
-namespace lingo
-{
-    // Fixed code page typedefs
-    template <typename Encoding, typename Allocator = std::allocator<typename Encoding::unit_type>>
-    using basic_ascii_string = basic_string<Encoding, page::ascii, Allocator>;
-    template <typename Encoding, typename Allocator = std::allocator<typename Encoding::unit_type>>
-    using basic_unicode_string = basic_string<Encoding, page::unicode, Allocator>;
-    
-    // Fixed encoding typedefs
-    template <typename Unit, typename Allocator = std::allocator<Unit>>
-    using basic_utf8_string = basic_unicode_string<encoding::utf8<Unit, char32_t>, Allocator>;
-    template <typename Unit, typename Allocator = std::allocator<Unit>>
-    using basic_utf16_string = basic_unicode_string<encoding::utf16<Unit, char32_t>, Allocator>;
-    template <typename Unit, typename Allocator = std::allocator<Unit>>
-    using basic_utf32_string = basic_unicode_string<encoding::none<Unit, char32_t>, Allocator>;
-    
-    // Fully specialized typedefs
-    using ascii_string = basic_ascii_string<encoding::none<char, char>>;
-    using utf8_string = basic_utf8_string<char>; // Pre C++20
-    using utf8_string = basic_utf8_string<char8_t>; // Post C++20
-    using utf16_string = basic_utf16_string<char16_t>;
-    using utf32_string = basic_utf32_string<char32_t>;
-    
-    // Default string typedef
-    using string = utf8_string;
-}
-```
+## How to build
+
+Lingo is a header only library, so you don't have to build anything to use it in your project. There is however one thing that you need to look out for, which is the execution character set. This library assumes by default that `char` is UTF-8, and that `wchar_t` is UTF-16 or UTF-32, depending on the size of `wchar_t`.
+
+This matches the default settings of GCC and Clang, but not of Visual Studio. If your compiler's execution set does not match the defaults, you have two options:
+
+### Configure your compiler
+ * [Visual Studio](https://docs.microsoft.com/en-us/cpp/build/reference/utf-8-set-source-and-executable-character-sets-to-utf-8?view=vs-2019)
+ * [GCC](https://gcc.gnu.org/onlinedocs/gcc/Preprocessor-Options.html#index-fexec-charset)
+ * [Clang](https://clang.llvm.org/docs/ClangCommandLineReference.html#cmdoption-clang-fexec-charset)
+
+### Configure the library
+
+TODO: add configuration macros
+
+## Testing
+If you want to develop and/or run the test suite, you will have to build the CMake project. All you need is CMake 3.12 or higher and a C++11 compatible compiler. The tests are written using [Catch](https://github.com/catchorg/Catch2) and can be run by calling `ctest`.
+
+## More reading material
+ * [Glossary](doc/glossary.md)
+ * [Interfaces](doc/interfaces.md)
+ * [TODO](doc/TODO.md) (A very poorly written list of features to come)
