@@ -2,7 +2,7 @@
 #define H_LINGO_STRING_STORAGE
 
 #include <lingo/platform/constexpr.hpp>
-#include <lingo/compressed_pair.hpp>
+#include <lingo/utility/compressed_pair.hpp>
 
 #include <cassert>
 #include <cstddef>
@@ -407,7 +407,7 @@ namespace lingo
 		}
 
 		private:
-		compressed_pair<internal::basic_string_storage_data<unit_type>, allocator_type> _data;
+		utility::compressed_pair<internal::basic_string_storage_data<unit_type>, allocator_type> _data;
 	};
 
 	static_assert(sizeof(basic_string_storage<uint_least8_t>) == sizeof(void*) * 4, "string storage is the correct size");

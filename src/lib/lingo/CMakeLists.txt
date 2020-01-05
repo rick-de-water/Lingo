@@ -75,13 +75,14 @@ list(APPEND LINGO_MANUAL_HEADERS "error/replace.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "error/skip.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "error/strict.hpp")
 
+# Utility
+list(APPEND LINGO_MANUAL_HEADERS "utility/compressed_pair.hpp")
+list(APPEND LINGO_MANUAL_HEADERS "utility/integer_sequence.hpp")
+
 # Strings
 list(APPEND LINGO_MANUAL_HEADERS "string.hpp" "string_storage.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "string_view.hpp" "string_view_storage.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "string_converter.hpp" "conversion_result.hpp")
-
-# Utility
-list(APPEND LINGO_MANUAL_HEADERS "compressed_pair.hpp")
 
 
 set(LINGO_HEADERS ${LINGO_MANUAL_HEADERS} ${LINGO_GENERATED_HEADERS})
