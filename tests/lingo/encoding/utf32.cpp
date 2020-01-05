@@ -14,7 +14,7 @@ LINGO_UNIT_LEAST_32_TEST_CASE("utf32 can encode points")
 	const difference_type from = std::is_signed<point_type>::value ? -10 : 0;
 	const difference_type to = std::numeric_limits<point_type>::digits > 21 ? 0x10FFFF + 10 : 0x10FFFF;
 
-	for (difference_type i = 0xD800; i <= to; ++i)
+	for (difference_type i = from; i <= to; ++i)
 	{
 		const point_type point = point_type(i);
 		unit_type buffer[1];
@@ -41,7 +41,7 @@ LINGO_UNIT_LEAST_32_TEST_CASE("utf32 can decode points")
 	const difference_type from = std::is_signed<point_type>::value ? -10 : 0;
 	const difference_type to = std::numeric_limits<point_type>::digits > 21 ? 0x10FFFF + 10 : 0x10FFFF;
 
-	for (difference_type i = 0xD800; i <= to; ++i)
+	for (difference_type i = from; i <= to; ++i)
 	{
 		const unit_type buffer[1] = { static_cast<unit_type>(i) };
 
