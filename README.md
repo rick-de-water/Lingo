@@ -10,7 +10,7 @@ Lingo is an encoding aware string library for C++11 and up. It tries to be a dro
 * Automatic conversion between `lingo::string`s of different encodings and code pages.
 * `lingo::encoding::*` for low level encoding and decoding of code points.
 * `lingo::page::*` for additional code point information and conversion between different code pages.
-* `lingo::error::*` for complete control over error handling behaviour.
+* `lingo::error::*` for different error handling behaviours.
 
 # How it works
 The string class from the standard library is defined like this:
@@ -98,10 +98,20 @@ This matches the default settings of GCC and Clang, but not of Visual Studio. If
 
 ### Configure the library
 
-TODO: add configuration macros
+The following macros can be defined to overwrite the default encodings for `char` and `wchar_t`:
+ * `LINGO_CHAR_ENCODING`
+ * `LINGO_WCHAR_ENCODING`
+ * `LINGO_CHAR_PAGE`
+ * `LINGO_WCHAR_PAGE`
+
+So for example, if you want to use ISO/IEC 8859-1 for `char`s, you will have to define the follow macros:
+* `-DLINGO_CHAR_ENCODING=none`
+* `-DLINGO_CHAR_PAGE=iso_8859_1`
+
+This method is not recommended. Setting the execution character set is much more reliable and portable way to solve this issue.
 
 ## Testing
-If you want to develop and/or run the test suite, you will have to build the CMake project. All you need is CMake 3.12 or higher and a C++11 compatible compiler. The tests are written using [Catch](https://github.com/catchorg/Catch2) and can be run by calling `ctest`.
+If you want to develop and/or run the test suite, you will have to build the CMake project. All you need is CMake 3.12 or higher and a C++11 compatible compiler. The tests are written using [Catch](https://github.com/catchorg/Catch2) and can be run with `ctest`.
 
 ## More reading material
  * [Glossary](doc/glossary.md)
