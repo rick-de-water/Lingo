@@ -402,6 +402,12 @@ namespace lingo
 	};
 
 
+	template <typename Encoding, typename Page, typename Allocator>
+	LINGO_CONSTEXPR11 typename basic_string<Encoding, Page, Allocator>::size_type basic_string<Encoding, Page, Allocator>::npos;
+	template <typename Encoding, typename Page, typename Allocator>
+	LINGO_CONSTEXPR11 typename basic_string<Encoding, Page, Allocator>::unit_type basic_string<Encoding, Page, Allocator>::null_terminator;
+
+
 	template <typename Encoding, typename Page, typename LeftAllocator, typename RightAllocator>
 	bool operator == (basic_string<Encoding, Page, LeftAllocator> left, basic_string<Encoding, Page, RightAllocator> right)
 	{

@@ -325,10 +325,20 @@ namespace lingo
 	// Fixed encoding typedefs
 	template <typename Unit>
 	using basic_utf8_string_view = basic_unicode_string_view<encoding::utf8<Unit, char32_t>>;
+
 	template <typename Unit>
 	using basic_utf16_string_view = basic_unicode_string_view<encoding::utf16<Unit, char32_t>>;
 	template <typename Unit>
+	using basic_utf16_le_string_view = basic_unicode_string_view<encoding::utf16_le<Unit, char32_t>>;
+	template <typename Unit>
+	using basic_utf16_be_string_view = basic_unicode_string_view<encoding::utf16_be<Unit, char32_t>>;
+
+	template <typename Unit>
 	using basic_utf32_string_view = basic_unicode_string_view<encoding::utf32<Unit, char32_t>>;
+	template <typename Unit>
+	using basic_utf32_le_string_view = basic_unicode_string_view<encoding::utf32_le<Unit, char32_t>>;
+	template <typename Unit>
+	using basic_utf32_be_string_view = basic_unicode_string_view<encoding::utf32_be<Unit, char32_t>>;
 
 	// Fully specialized typedefs
 	using narrow_string_view = basic_string_view<encoding::cstring_default_encoding_t<char>, page::cstring_default_page_t<char>>;
@@ -341,8 +351,14 @@ namespace lingo
 	#else
 	using utf8_string_view = basic_utf8_string_view<char>;
 	#endif
+
 	using utf16_string_view = basic_utf16_string_view<char16_t>;
+	using utf16_le_string_view = basic_utf16_le_string_view<char16_t>;
+	using utf16_be_string_view = basic_utf16_be_string_view<char16_t>;
+
 	using utf32_string_view = basic_utf32_string_view<char32_t>;
+	using utf32_le_string_view = basic_utf32_le_string_view<char32_t>;
+	using utf32_be_string_view = basic_utf32_be_string_view<char32_t>;
 
 	// Default string_view typedef
 	using string_view = utf8_string_view;
