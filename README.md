@@ -29,7 +29,7 @@ All code unit information is stored in a `Traits` type. This works well for asci
  * It assumes that every `CharT` is a code point, making it very difficult to work with multibyte/multiunit code points.
  * It generally has no information about the code page used. `char` could be ascii, utf8, iso 8859-7, or anything really. And while the standard is adding `char8_t`, `char16_t` and `char32_t` for unicode, it really only knows that it is a form of UTF, but has no idea how actually encode, decode or transform the data.
 
-To solve this problem, the library adds a new string type:
+To solve this problem, Lingo adds a new string type:
 ```c++
 namespace lingo
 {
@@ -38,7 +38,7 @@ namespace lingo
 }
 ```
 
-The library splits the responsibility of managing the code points of a string between an `Encoding` type and a `Page` type.
+Lingo splits the responsibility of managing the code points of a string between an `Encoding` type and a `Page` type.
 The `Encoding` type defines how a code point can be encoded to and decoded from one or more code units. The `Page` type defines what every decoded code point actually means, and knows how to convert it to other `Page`s.
 
 Here are some examples of what that actually looks like:
@@ -90,7 +90,11 @@ It is indeed possible to use `lingo::encoding::none` instead, and still have a f
 
 ## How to build
 
-Lingo is a header only library, so you don't have to build anything to use it in your project. There is however one thing that you need to look out for, which is the execution character set. This library assumes by default that `char` is UTF-8, and that `wchar_t` is UTF-16 or UTF-32, depending on the size of `wchar_t`.
+Lingo is a header only library, but some of the header files do have to be generated first. You can check the latest releases for a package that has all headers already generated.
+
+If you want to develop and/or run the test suite, you will have to build the CMake project. All you need is CMake 3.12 or higher and a C++11 compatible compiler. The tests are written using [Catch](https://github.com/catchorg/Catch2) and can be run with `ctest`.
+
+There is also one thing that you need to look out for, which is the execution character set. This library assumes by default that `char` is UTF-8, and that `wchar_t` is UTF-16 or UTF-32, depending on the size of `wchar_t`.
 
 This matches the default settings of GCC and Clang, but not of Visual Studio. If your compiler's execution set does not match the defaults, you have two options:
 
@@ -111,10 +115,8 @@ So for example, if you want to use ISO/IEC 8859-1 for `char`s, you will have to 
 * `-DLINGO_CHAR_ENCODING=none`
 * `-DLINGO_CHAR_PAGE=iso_8859_1`
 
-This method is not recommended. Setting the execution character set is a much more reliable and portable way to solve this issue.
-
-## Testing
-If you want to develop and/or run the test suite, you will have to build the CMake project. All you need is CMake 3.12 or higher and a C++11 compatible compiler. The tests are written using [Catch](https://github.com/catchorg/Catch2) and can be run with `ctest`.
+This method is not recommended.
+Compiler flags are a much more reliable way to set the correct encoding.
 
 ## More reading material
  * [Glossary](doc/glossary.md)
