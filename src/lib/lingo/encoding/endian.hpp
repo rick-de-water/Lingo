@@ -22,7 +22,7 @@ namespace lingo
 				typename Encoding::size_type buffer_size) noexcept
 			{
 				// Encode point into intermediate buffer
-				typename Encoding::unit_type intermediate_buffer[Encoding::max_units];
+				typename Encoding::unit_type intermediate_buffer[Encoding::max_units] = {};
 				const auto intermediate_result = Encoding::encode_point(point, intermediate_buffer, Encoding::max_units);
 
 				// Check for errors
@@ -50,7 +50,7 @@ namespace lingo
 				typename Encoding::size_type buffer_size) noexcept
 			{
 				// Copy and swap data from output buffer to intermediate buffer
-				typename Encoding::unit_type intermediate_buffer[Encoding::max_units];
+				typename Encoding::unit_type intermediate_buffer[Encoding::max_units] = {};
 				const size_t size = std::min(buffer_size, Encoding::max_units);
 				for (typename Encoding::size_type i = 0; i < size; ++i)
 				{

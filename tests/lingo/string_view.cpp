@@ -101,7 +101,7 @@ LINGO_UNIT_TEST_CASE("A default constructed string_view is an empty null termina
 {
 	LINGO_UNIT_TEST_TYPEDEFS;
 
-	LINGO_CONSTEXPR11 string_view_type sv;
+	const string_view_type sv{};
 	REQUIRE(sv.size() == 0);
 	REQUIRE(sv.null_terminated());
 	REQUIRE(sv.data()[0] == unit_type{});
@@ -223,7 +223,7 @@ LINGO_UNIT_TEST_CASE("string_view can be empty")
 	LINGO_UNIT_TEST_TYPEDEFS;
 
 	const string_view_type test_string_view1(lingo::test::test_string<unit_type>::value);
-	const string_view_type test_string_view2;
+	const string_view_type test_string_view2{};
 
 	if (test_string_view1.size() == 0)
 	{
@@ -250,7 +250,7 @@ LINGO_UNIT_TEST_CASE("string_view has a reasonable maximum size")
 {
 	LINGO_UNIT_TEST_TYPEDEFS;
 
-	const string_view_type test_string_view;
+	const string_view_type test_string_view{};
 	REQUIRE(test_string_view.max_size() >= 1024 * 1024 * 1024);
 }
 

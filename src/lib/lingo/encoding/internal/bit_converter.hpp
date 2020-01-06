@@ -41,8 +41,8 @@ namespace lingo
 					// Memcpy when less than the minimum required amount of the bits are part of the magnitude
 					LINGO_IF_CONSTEXPR(std::numeric_limits<point_type>::digits < min_point_bits)
 					{
-						point_bits_type point_bits;
-						std::memcpy(&point_bits, &point, sizeof(point_type));
+						point_bits_type point_bits{};
+						std::memcpy(&point_bits, &point, sizeof(point_bits));
 						return point_bits;
 					}
 					// Cast point to bits
@@ -58,8 +58,8 @@ namespace lingo
 					// Memcpy when less than the minimum required amount of the bits are part of the magnitude
 					LINGO_IF_CONSTEXPR(std::numeric_limits<unit_type>::digits < min_unit_bits)
 					{
-						unit_bits_type unit_bits;
-						std::memcpy(&unit_bits, &unit, sizeof(unit_type));
+						unit_bits_type unit_bits{};
+						std::memcpy(&unit_bits, &unit, sizeof(unit_bits));
 						return unit_bits;
 					}
 					// Cast unit to bits
@@ -75,8 +75,8 @@ namespace lingo
 					// Memcpy when less than the minimum required amount of the bits are part of the magnitude
 					LINGO_IF_CONSTEXPR(std::numeric_limits<point_type>::digits < min_point_bits)
 					{
-						point_type point;
-						std::memcpy(&point, &point_bits, sizeof(point_type));
+						point_type point{};
+						std::memcpy(&point, &point_bits, sizeof(point));
 						return point;
 					}
 					// Cast bits to point
@@ -91,8 +91,8 @@ namespace lingo
 					// Memcpy when less than the minimum required amount of the bits are part of the magnitude
 					LINGO_IF_CONSTEXPR(std::numeric_limits<unit_type>::digits < min_unit_bits)
 					{
-						unit_type unit;
-						std::memcpy(&unit, &unit_bits, sizeof(unit_type));
+						unit_type unit{};
+						std::memcpy(&unit, &unit_bits, sizeof(unit));
 						return unit;
 					}
 					// Cast bits to unit
