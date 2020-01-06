@@ -358,9 +358,29 @@ namespace lingo
 			_storage.set_size(new_size);
 		}
 
-		operator string_view() const noexcept
+		template <typename OtherAllocator>
+		basic_string& operator += (const basic_string<Encoding, Page, OtherAllocator> & other)
 		{
-			return string_view(data(), size(), true);
+			// Allocate memory
+			const size_type current_size = size();
+			const size_type added_size = other.size();
+			const size_type new_size = current_size + added_size;
+			_storage.grow(new_size);
+
+			// Destruct old null terminator
+			_storage.destruct(_storage.data() + current_size, 1);
+
+			// Fill memory
+			_storage.copy_construct(_storage.data() + current_size, other.data(), added_size);
+
+			// Construct new null terminator
+			_storage.copy_construct(_storage.data() + new_size, &null_terminator, 1);
+
+			// Update size
+			_storage.set_size(new_size);
+
+			// Return this
+			return *this;
 		}
 
 		basic_string& operator = (const basic_string& string)
@@ -373,6 +393,11 @@ namespace lingo
 		{
 			_storage = std::move(string._storage);
 			return *this;
+		}
+
+		operator string_view() const noexcept
+		{
+			return string_view(data(), size(), true);
 		}
 
 		const_pointer c_str() const noexcept
@@ -401,12 +426,20 @@ namespace lingo
 		storage_type _storage;
 	};
 
-
 	template <typename Encoding, typename Page, typename Allocator>
 	LINGO_CONSTEXPR11 typename basic_string<Encoding, Page, Allocator>::size_type basic_string<Encoding, Page, Allocator>::npos;
 	template <typename Encoding, typename Page, typename Allocator>
 	LINGO_CONSTEXPR11 typename basic_string<Encoding, Page, Allocator>::unit_type basic_string<Encoding, Page, Allocator>::null_terminator;
 
+	template <typename Encoding, typename Page, typename LeftAllocator, typename RightAllocator, typename ResultAllocator = LeftAllocator>
+	basic_string<Encoding, Page, ResultAllocator> operator + (basic_string<Encoding, Page, LeftAllocator> left, basic_string<Encoding, Page, RightAllocator> right)
+	{
+		basic_string<Encoding, Page, ResultAllocator> result;
+		result.reserve(left.size() + right.size());
+		result += left;
+		result += right;
+		return result;
+	}
 
 	template <typename Encoding, typename Page, typename LeftAllocator, typename RightAllocator>
 	bool operator == (basic_string<Encoding, Page, LeftAllocator> left, basic_string<Encoding, Page, RightAllocator> right)

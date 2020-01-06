@@ -531,3 +531,83 @@ LINGO_UNIT_TEST_CASE("strings can be compared")
 	REQUIRE(string4 >= string_view3);
 	REQUIRE(string4 >= string_view4);
 }
+
+LINGO_UNIT_TEST_CASE("A string can be concatenated to another string")
+{
+	LINGO_UNIT_TEST_TYPEDEFS;
+
+	struct different_allocator_type : public allocator_type {};
+	using different_allocator_string_type = lingo::basic_string<encoding_type, page_type, different_allocator_type>;
+
+	REQUIRE_FALSE(std::is_same<string_type, different_allocator_string_type>::value);
+
+	string_view_type source_string = lingo::test::test_string<unit_type>::value;
+	string_type test_string = source_string;
+	different_allocator_string_type different_allocator_test_string = lingo::test::test_string<unit_type>::value;
+
+	REQUIRE(test_string == different_allocator_test_string);
+
+	SECTION("n + n")
+	{
+		const auto free_result = test_string + test_string;
+		test_string += test_string;
+
+		REQUIRE(free_result.size() == source_string.size() * 2);
+		REQUIRE(test_string.size() == source_string.size() * 2);
+		REQUIRE(different_allocator_test_string.size() == source_string.size());
+
+		REQUIRE(string_view_type(free_result.data(), source_string.size()) == source_string);
+		REQUIRE(string_view_type(free_result.data() + source_string.size(), source_string.size()) == source_string);
+
+		REQUIRE(string_view_type(test_string.data(), source_string.size()) == source_string);
+		REQUIRE(string_view_type(test_string.data() + source_string.size(), source_string.size()) == source_string);
+	}
+
+	SECTION("n + d")
+	{
+		const auto free_result = test_string + different_allocator_test_string;
+		test_string += different_allocator_test_string;
+
+		REQUIRE(free_result.size() == source_string.size() * 2);
+		REQUIRE(test_string.size() == source_string.size() * 2);
+		REQUIRE(different_allocator_test_string.size() == source_string.size());
+
+		REQUIRE(string_view_type(free_result.data(), source_string.size()) == source_string);
+		REQUIRE(string_view_type(free_result.data() + source_string.size(), source_string.size()) == source_string);
+
+		REQUIRE(string_view_type(test_string.data(), source_string.size()) == source_string);
+		REQUIRE(string_view_type(test_string.data() + source_string.size(), source_string.size()) == source_string);
+	}
+
+	SECTION("d + n")
+	{
+		const auto free_result = different_allocator_test_string + test_string;
+		different_allocator_test_string += test_string;
+
+		REQUIRE(free_result.size() == source_string.size() * 2);
+		REQUIRE(test_string.size() == source_string.size());
+		REQUIRE(different_allocator_test_string.size() == source_string.size() * 2);
+
+		REQUIRE(string_view_type(free_result.data(), source_string.size()) == source_string);
+		REQUIRE(string_view_type(free_result.data() + source_string.size(), source_string.size()) == source_string);
+
+		REQUIRE(string_view_type(different_allocator_test_string.data(), source_string.size()) == source_string);
+		REQUIRE(string_view_type(different_allocator_test_string.data() + source_string.size(), source_string.size()) == source_string);
+	}
+
+	SECTION("d + d")
+	{
+		const auto free_result = different_allocator_test_string + different_allocator_test_string;
+		different_allocator_test_string += different_allocator_test_string;
+
+		REQUIRE(free_result.size() == source_string.size() * 2);
+		REQUIRE(test_string.size() == source_string.size());
+		REQUIRE(different_allocator_test_string.size() == source_string.size() * 2);
+
+		REQUIRE(string_view_type(free_result.data(), source_string.size()) == source_string);
+		REQUIRE(string_view_type(free_result.data() + source_string.size(), source_string.size()) == source_string);
+
+		REQUIRE(string_view_type(different_allocator_test_string.data(), source_string.size()) == source_string);
+		REQUIRE(string_view_type(different_allocator_test_string.data() + source_string.size(), source_string.size()) == source_string);
+	}
+}
