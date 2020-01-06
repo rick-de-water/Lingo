@@ -149,7 +149,7 @@ namespace lingo
 			if (is_long())
 			{
 				destruct(data(), size());
-				get_allocator().deallocate(data(), size());
+				get_allocator().deallocate(data(), capacity());
 			}
 		}
 
@@ -294,7 +294,7 @@ namespace lingo
 			// Free original memory if it was allocated by the allocator
 			if (is_long())
 			{
-				allocator.deallocate(original_data, data_size);
+				allocator.deallocate(original_data, capacity());
 			}
 
 			// Replace the old data pointers with the new ones
@@ -337,7 +337,7 @@ namespace lingo
 						if (is_long())
 						{
 							destruct(data(), size());
-							get_allocator().deallocate(data(), size());
+							get_allocator().deallocate(data(), capacity());
 						}
 
 						// Copy memory pointers
