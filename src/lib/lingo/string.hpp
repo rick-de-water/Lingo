@@ -341,43 +341,35 @@ namespace lingo
 			}
 
 			// Allocate memory
-			const size_type current_size = size();
-			const size_type new_size = current_size + result.size;
-			_storage.grow(new_size);
+			_storage.grow(size() + result.size);
 
-			// Destruct old null terminator
-			_storage.destruct(_storage.data() + current_size, 1);
-
-			// Fill memory
-			_storage.copy_construct(_storage.data() + current_size, encoded_point, result.size);
-			
-			// Construct new null terminator
-			_storage.copy_construct(_storage.data() + new_size, &null_terminator, 1);
-
-			// Update size
-			_storage.set_size(new_size);
+			// Append data
+			append(string_view(encoded_point, result.size));
 		}
 
 		template <typename OtherAllocator>
-		basic_string& operator += (const basic_string<Encoding, Page, OtherAllocator> & other)
+		basic_string& operator += (const basic_string<Encoding, Page, OtherAllocator>& other)
+		{
+			// We can't simply call the string_view version here
+			// If &other == this, the data pointer in the string view might become invalid when growing the capacity
+
+			// Allocate memory
+			_storage.grow(size() + other.size());
+
+			// Append data
+			append(other);
+
+			// Return this
+			return *this;
+		}
+
+		basic_string& operator += (string_view other)
 		{
 			// Allocate memory
-			const size_type current_size = size();
-			const size_type added_size = other.size();
-			const size_type new_size = current_size + added_size;
-			_storage.grow(new_size);
+			_storage.grow(size() + other.size());
 
-			// Destruct old null terminator
-			_storage.destruct(_storage.data() + current_size, 1);
-
-			// Fill memory
-			_storage.copy_construct(_storage.data() + current_size, other.data(), added_size);
-
-			// Construct new null terminator
-			_storage.copy_construct(_storage.data() + new_size, &null_terminator, 1);
-
-			// Update size
-			_storage.set_size(new_size);
+			// Append data
+			append(other);
 
 			// Return this
 			return *this;
@@ -423,6 +415,27 @@ namespace lingo
 		}
 
 		private:
+		void append(string_view other)
+		{
+			const size_type current_size = size();
+			const size_type added_size = other.size();
+			const size_type new_size = current_size + added_size;
+
+			assert(new_size <= capacity());
+
+			// Destruct old null terminator
+			_storage.destruct(_storage.data() + current_size, 1);
+
+			// Fill memory
+			_storage.copy_construct(_storage.data() + current_size, other.data(), added_size);
+
+			// Construct new null terminator
+			_storage.copy_construct(_storage.data() + new_size, &null_terminator, 1);
+
+			// Update size
+			_storage.set_size(new_size);
+		}
+
 		storage_type _storage;
 	};
 
@@ -434,7 +447,31 @@ namespace lingo
 	template <typename Encoding, typename Page, typename LeftAllocator, typename RightAllocator, typename ResultAllocator = LeftAllocator>
 	basic_string<Encoding, Page, ResultAllocator> operator + (basic_string<Encoding, Page, LeftAllocator> left, basic_string<Encoding, Page, RightAllocator> right)
 	{
-		basic_string<Encoding, Page, ResultAllocator> result;
+		return operator+<Encoding, Page, ResultAllocator>(
+			left.operator lingo::basic_string_view<Encoding, Page>(),
+			right.operator lingo::basic_string_view<Encoding, Page>());
+	}
+
+	template <typename Encoding, typename Page, typename LeftAllocator, typename ResultAllocator = LeftAllocator>
+	basic_string<Encoding, Page, ResultAllocator> operator + (basic_string<Encoding, Page, LeftAllocator> left, basic_string_view<Encoding, Page> right)
+	{
+		return operator+<Encoding, Page, ResultAllocator>(
+			left.operator lingo::basic_string_view<Encoding, Page>(),
+			right);
+	}
+
+	template <typename Encoding, typename Page, typename RightAllocator, typename ResultAllocator = RightAllocator>
+	basic_string<Encoding, Page, ResultAllocator> operator + (basic_string_view<Encoding, Page> left, basic_string<Encoding, Page, RightAllocator> right)
+	{
+		return operator+<Encoding, Page, ResultAllocator>(
+			left,
+			right.operator lingo::basic_string_view<Encoding, Page>());
+	}
+
+	template <typename Encoding, typename Page, typename Allocator = internal::default_allocator<Encoding>>
+	basic_string<Encoding, Page, Allocator> operator + (basic_string_view<Encoding, Page> left, basic_string_view<Encoding, Page> right)
+	{
+		basic_string<Encoding, Page, Allocator> result;
 		result.reserve(left.size() + right.size());
 		result += left;
 		result += right;

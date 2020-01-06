@@ -541,7 +541,7 @@ LINGO_UNIT_TEST_CASE("A string can be concatenated to another string")
 
 	REQUIRE_FALSE(std::is_same<string_type, different_allocator_string_type>::value);
 
-	string_view_type source_string = lingo::test::test_string<unit_type>::value;
+	const string_view_type source_string = lingo::test::test_string<unit_type>::value;
 	string_type test_string = source_string;
 	different_allocator_string_type different_allocator_test_string = lingo::test::test_string<unit_type>::value;
 
@@ -609,5 +609,46 @@ LINGO_UNIT_TEST_CASE("A string can be concatenated to another string")
 
 		REQUIRE(string_view_type(different_allocator_test_string.data(), source_string.size()) == source_string);
 		REQUIRE(string_view_type(different_allocator_test_string.data() + source_string.size(), source_string.size()) == source_string);
+	}
+}
+
+LINGO_UNIT_TEST_CASE("A string_view can be concatenated to a string")
+{
+	LINGO_UNIT_TEST_TYPEDEFS;
+
+	const string_view_type source_string = lingo::test::test_string<unit_type>::value;
+	string_type test_string;
+
+	test_string = test_string + source_string;
+	REQUIRE(test_string == source_string);
+
+	for (size_type i = 0; i < 10; ++i)
+	{
+		test_string += source_string;
+		REQUIRE(test_string.size() == source_string.size() * (i + 2));
+
+		for (size_type j = 0; j < i + 2; ++j)
+		{
+			REQUIRE(string_view_type(test_string.data() + source_string.size() * j, source_string.size()) == source_string);
+		}
+	}
+}
+
+LINGO_UNIT_TEST_CASE("A string_view can be concatenated to a string_view")
+{
+	LINGO_UNIT_TEST_TYPEDEFS;
+
+	const string_view_type source_string = lingo::test::test_string<unit_type>::value;
+	string_type test_string;
+
+	test_string = source_string + source_string;
+	REQUIRE(test_string.size() == source_string.size() * 2);
+	REQUIRE(string_view_type(test_string.data(), source_string.size()) == source_string);
+	REQUIRE(string_view_type(test_string.data() + source_string.size(), source_string.size()) == source_string);
+
+	for (size_type i = 0; i < 10; ++i)
+	{
+		test_string += source_string;
+		REQUIRE(test_string.size() == source_string.size() * (i + 3));
 	}
 }
