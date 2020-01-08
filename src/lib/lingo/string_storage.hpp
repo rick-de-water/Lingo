@@ -72,7 +72,7 @@ namespace lingo
 		static_assert(sizeof(basic_string_storage_data<uint_least8_t>) == sizeof(void*) * 4, "string storage is the correct size");
 		static_assert(sizeof(basic_string_storage_data<uint_least16_t>) == sizeof(void*) * 4, "string storage is the correct size");
 		static_assert(sizeof(basic_string_storage_data<uint_least32_t>) == sizeof(void*) * 4, "string storage is the correct size");
-		static_assert(sizeof(basic_string_storage_data<uint_least64_t>) == sizeof(void*) * 4, "string storage is the correct size");
+		static_assert(sizeof(basic_string_storage_data<uint_least64_t>) == sizeof(void*) * 4 || sizeof(uint_least64_t) > sizeof(void*), "string storage is the correct size");
 	}
 
 	template <typename Unit, typename Allocator = std::allocator<Unit>>
@@ -406,7 +406,7 @@ namespace lingo
 	static_assert(sizeof(basic_string_storage<uint_least8_t>) == sizeof(void*) * 4, "string storage is the correct size");
 	static_assert(sizeof(basic_string_storage<uint_least16_t>) == sizeof(void*) * 4, "string storage is the correct size");
 	static_assert(sizeof(basic_string_storage<uint_least32_t>) == sizeof(void*) * 4, "string storage is the correct size");
-	static_assert(sizeof(basic_string_storage<uint_least64_t>) == sizeof(void*) * 4, "string storage is the correct size");
+	static_assert(sizeof(basic_string_storage<uint_least64_t>) == sizeof(void*) * 4 || sizeof(uint_least64_t) > sizeof(void*), "string storage is the correct size");
 }
 
 #endif
