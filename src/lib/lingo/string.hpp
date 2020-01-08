@@ -347,6 +347,42 @@ namespace lingo
 			append(string_view(encoded_point, result.size));
 		}
 
+		void insert(size_type index, string_view string, size_type count) noexcept(noexcept(std::declval<storage_type&>().grow(std::declval<size_t>())))
+		{
+			// Make sure that the index is valid
+			assert(index <= size());
+
+			// Empty strings and counts of 0 can be ignored
+			if (string.size() == 0 || count == 0)
+			{
+				return;
+			}
+
+			size_type old_size = size();
+			size_type new_size = size() + string.size() * count;
+
+			// Allocate enough room 
+			_storage.grow(new_size);
+
+			// Destruct old data
+			for (size_type i = index; i <= old_size; ++i)
+			{
+				_storage.destruct(_storage.data() + new_size, 1);
+			}
+
+			// Copy string count times
+			for (size_type i = 0; i < count; ++i)
+			{
+				_storage.copy_construct(_storage.data() + index + string.size() * i, string.data(), string.size());
+			}
+
+			// Construct new null terminator
+			_storage.copy_construct(_storage.data() + new_size, &null_terminator, 1);
+
+			// Update size
+			_storage.set_size(new_size);
+		}
+
 		template <typename OtherAllocator>
 		basic_string& operator += (const basic_string<Encoding, Page, OtherAllocator>& other)
 		{
@@ -370,6 +406,15 @@ namespace lingo
 
 			// Append data
 			append(other);
+
+			// Return this
+			return *this;
+		}
+
+		basic_string& operator += (point_type other)
+		{
+			// Append point
+			push_back(other);
 
 			// Return this
 			return *this;
@@ -468,122 +513,142 @@ namespace lingo
 			right.operator lingo::basic_string_view<Encoding, Page>());
 	}
 
-	template <typename Encoding, typename Page, typename Allocator = internal::default_allocator<Encoding>>
-	basic_string<Encoding, Page, Allocator> operator + (basic_string_view<Encoding, Page> left, basic_string_view<Encoding, Page> right)
+	template <typename Encoding, typename Page, typename ResultAllocator = internal::default_allocator<Encoding>>
+	basic_string<Encoding, Page, ResultAllocator> operator + (basic_string_view<Encoding, Page> left, basic_string_view<Encoding, Page> right)
 	{
-		basic_string<Encoding, Page, Allocator> result;
+		basic_string<Encoding, Page, ResultAllocator> result;
 		result.reserve(left.size() + right.size());
 		result += left;
 		result += right;
 		return result;
 	}
 
+	template <typename Encoding, typename Page, typename LeftAllocator, typename ResultAllocator = LeftAllocator>
+	basic_string<Encoding, Page, ResultAllocator> operator + (basic_string<Encoding, Page, LeftAllocator> left, typename Encoding::point_type right)
+	{
+		basic_string<Encoding, Page, ResultAllocator> result;
+		result.reserve(left.size() + Encoding::max_units);
+		result = left;
+		result.push_back(right);
+		return result;
+	}
+
+	template <typename Encoding, typename Page, typename RightAllocator, typename ResultAllocator = RightAllocator>
+	basic_string<Encoding, Page, ResultAllocator> operator + (typename Encoding::point_type left, basic_string<Encoding, Page, RightAllocator> right)
+	{
+		basic_string<Encoding, Page, ResultAllocator> result;
+		result.reserve(right.size() + Encoding::max_units);
+		result.push_back(left);
+		result += right;
+		return result;
+	}
+
 	template <typename Encoding, typename Page, typename LeftAllocator, typename RightAllocator>
-	bool operator == (basic_string<Encoding, Page, LeftAllocator> left, basic_string<Encoding, Page, RightAllocator> right)
+	bool operator == (basic_string<Encoding, Page, LeftAllocator> left, basic_string<Encoding, Page, RightAllocator> right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) == 0;
 	}
 
 	template <typename Encoding, typename Page, typename LeftAllocator, typename RightAllocator>
-	bool operator != (basic_string<Encoding, Page, LeftAllocator> left, basic_string<Encoding, Page, RightAllocator> right)
+	bool operator != (basic_string<Encoding, Page, LeftAllocator> left, basic_string<Encoding, Page, RightAllocator> right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) != 0;
 	}
 
 	template <typename Encoding, typename Page, typename LeftAllocator, typename RightAllocator>
-	bool operator < (basic_string<Encoding, Page, LeftAllocator> left, basic_string<Encoding, Page, RightAllocator> right)
+	bool operator < (basic_string<Encoding, Page, LeftAllocator> left, basic_string<Encoding, Page, RightAllocator> right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) < 0;
 	}
 
 	template <typename Encoding, typename Page, typename LeftAllocator, typename RightAllocator>
-	bool operator > (basic_string<Encoding, Page, LeftAllocator> left, basic_string<Encoding, Page, RightAllocator> right)
+	bool operator > (basic_string<Encoding, Page, LeftAllocator> left, basic_string<Encoding, Page, RightAllocator> right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) > 0;
 	}
 
 	template <typename Encoding, typename Page, typename LeftAllocator, typename RightAllocator>
-	bool operator <= (basic_string<Encoding, Page, LeftAllocator> left, basic_string<Encoding, Page, RightAllocator> right)
+	bool operator <= (basic_string<Encoding, Page, LeftAllocator> left, basic_string<Encoding, Page, RightAllocator> right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) <= 0;
 	}
 
 	template <typename Encoding, typename Page, typename LeftAllocator, typename RightAllocator>
-	bool operator >= (basic_string<Encoding, Page, LeftAllocator> left, basic_string<Encoding, Page, RightAllocator> right)
+	bool operator >= (basic_string<Encoding, Page, LeftAllocator> left, basic_string<Encoding, Page, RightAllocator> right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) >= 0;
 	}
 
 
 	template <typename Encoding, typename Page, typename LeftAllocator>
-	bool operator == (basic_string<Encoding, Page, LeftAllocator> left, basic_string_view<Encoding, Page> right)
+	bool operator == (basic_string<Encoding, Page, LeftAllocator> left, basic_string_view<Encoding, Page> right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) == 0;
 	}
 
 	template <typename Encoding, typename Page, typename LeftAllocator>
-	bool operator != (basic_string<Encoding, Page, LeftAllocator> left, basic_string_view<Encoding, Page> right)
+	bool operator != (basic_string<Encoding, Page, LeftAllocator> left, basic_string_view<Encoding, Page> right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) != 0;
 	}
 
 	template <typename Encoding, typename Page, typename LeftAllocator>
-	bool operator < (basic_string<Encoding, Page, LeftAllocator> left, basic_string_view<Encoding, Page> right)
+	bool operator < (basic_string<Encoding, Page, LeftAllocator> left, basic_string_view<Encoding, Page> right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) < 0;
 	}
 
 	template <typename Encoding, typename Page, typename LeftAllocator>
-	bool operator > (basic_string<Encoding, Page, LeftAllocator> left, basic_string_view<Encoding, Page> right)
+	bool operator > (basic_string<Encoding, Page, LeftAllocator> left, basic_string_view<Encoding, Page> right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) > 0;
 	}
 
 	template <typename Encoding, typename Page, typename LeftAllocator>
-	bool operator <= (basic_string<Encoding, Page, LeftAllocator> left, basic_string_view<Encoding, Page> right)
+	bool operator <= (basic_string<Encoding, Page, LeftAllocator> left, basic_string_view<Encoding, Page> right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) <= 0;
 	}
 
 	template <typename Encoding, typename Page, typename LeftAllocator>
-	bool operator >= (basic_string<Encoding, Page, LeftAllocator> left, basic_string_view<Encoding, Page> right)
+	bool operator >= (basic_string<Encoding, Page, LeftAllocator> left, basic_string_view<Encoding, Page> right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) >= 0;
 	}
 
 
 	template <typename Encoding, typename Page, typename RightAllocator>
-	bool operator == (basic_string_view<Encoding, Page> left, basic_string<Encoding, Page, RightAllocator> right)
+	bool operator == (basic_string_view<Encoding, Page> left, basic_string<Encoding, Page, RightAllocator> right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) == 0;
 	}
 
 	template <typename Encoding, typename Page, typename RightAllocator>
-	bool operator != (basic_string_view<Encoding, Page> left, basic_string<Encoding, Page, RightAllocator> right)
+	bool operator != (basic_string_view<Encoding, Page> left, basic_string<Encoding, Page, RightAllocator> right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) != 0;
 	}
 
 	template <typename Encoding, typename Page, typename RightAllocator>
-	bool operator < (basic_string_view<Encoding, Page> left, basic_string<Encoding, Page, RightAllocator> right)
+	bool operator < (basic_string_view<Encoding, Page> left, basic_string<Encoding, Page, RightAllocator> right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) < 0;
 	}
 
 	template <typename Encoding, typename Page, typename RightAllocator>
-	bool operator > (basic_string_view<Encoding, Page> left, basic_string<Encoding, Page, RightAllocator> right)
+	bool operator > (basic_string_view<Encoding, Page> left, basic_string<Encoding, Page, RightAllocator> right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) > 0;
 	}
 
 	template <typename Encoding, typename Page, typename RightAllocator>
-	bool operator <= (basic_string_view<Encoding, Page> left, basic_string<Encoding, Page, RightAllocator> right)
+	bool operator <= (basic_string_view<Encoding, Page> left, basic_string<Encoding, Page, RightAllocator> right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) <= 0;
 	}
 
 	template <typename Encoding, typename Page, typename RightAllocator>
-	bool operator >= (basic_string_view<Encoding, Page> left, basic_string<Encoding, Page, RightAllocator> right)
+	bool operator >= (basic_string_view<Encoding, Page> left, basic_string<Encoding, Page, RightAllocator> right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) >= 0;
 	}
