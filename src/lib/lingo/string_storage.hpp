@@ -308,17 +308,10 @@ namespace lingo
 		{
 			if (&storage != this)
 			{
-				const const_pointer source_data = storage.data();
-				const size_type source_size = storage.size();
+				grow(storage.size());
 
-				grow(source_size);
-
-				const pointer destination_data = data();
-				const size_t destination_size = size();
-
-				destruct(destination_data, destination_size);
-				copy_construct(destination_data, source_data, source_size);
-				set_size(source_size);
+				resize_copy_construct(0, nullptr);
+				resize_copy_construct(storage.size(), storage.data());
 			}
 			return *this;
 		}

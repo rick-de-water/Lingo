@@ -294,6 +294,75 @@ LINGO_UNIT_TEST_CASE("push_back can add code points to a string")
 	REQUIRE(test_string == source_string);
 }
 
+namespace
+{
+	template <typename T, typename U, typename std::enable_if<!std::is_pointer<typename std::decay<T>::type>::value, int>::type = 0>
+	void test_compare(const T& left, const U& right, int expected_result)
+	{
+		if (expected_result < 0)
+		{
+			REQUIRE(left.compare(right) < 0);
+			REQUIRE_FALSE(left == right);
+			REQUIRE(left != right);
+			REQUIRE(left < right);
+			REQUIRE_FALSE(left > right);
+			REQUIRE(left <= right);
+			REQUIRE_FALSE(left >= right);
+		}
+		else if (expected_result > 0)
+		{
+			REQUIRE(left.compare(right) > 0);
+			REQUIRE_FALSE(left == right);
+			REQUIRE(left != right);
+			REQUIRE_FALSE(left < right);
+			REQUIRE(left > right);
+			REQUIRE_FALSE(left <= right);
+			REQUIRE(left >= right);
+		}
+		else
+		{
+			REQUIRE(left.compare(right) == 0);
+			REQUIRE(left == right);
+			REQUIRE_FALSE(left != right);
+			REQUIRE_FALSE(left < right);
+			REQUIRE_FALSE(left > right);
+			REQUIRE(left <= right);
+			REQUIRE(left >= right);
+		}
+	}
+
+	template <typename T, typename U, typename std::enable_if<std::is_pointer<typename std::decay<T>::type>::value, int>::type = 0>
+	void test_compare(const T& left, const U& right, int expected_result)
+	{
+		if (expected_result < 0)
+		{
+			REQUIRE_FALSE(left == right);
+			REQUIRE(left != right);
+			REQUIRE(left < right);
+			REQUIRE_FALSE(left > right);
+			REQUIRE(left <= right);
+			REQUIRE_FALSE(left >= right);
+		}
+		else if (expected_result > 0)
+		{
+			REQUIRE_FALSE(left == right);
+			REQUIRE(left != right);
+			REQUIRE_FALSE(left < right);
+			REQUIRE(left > right);
+			REQUIRE_FALSE(left <= right);
+			REQUIRE(left >= right);
+		}
+		else
+		{
+			REQUIRE(left == right);
+			REQUIRE_FALSE(left != right);
+			REQUIRE_FALSE(left < right);
+			REQUIRE_FALSE(left > right);
+			REQUIRE(left <= right);
+			REQUIRE(left >= right);
+		}
+	}
+}
 
 LINGO_UNIT_TEST_CASE("strings can be compared")
 {
@@ -358,108 +427,15 @@ LINGO_UNIT_TEST_CASE("strings can be compared")
 				string_view_type right_view(right);
 				const int expected_result = test_string_results[i].compare_results[j];
 
-				if (expected_result < 0)
-				{
-					REQUIRE(left.compare(right) < 0);
-					REQUIRE_FALSE(left == right);
-					REQUIRE(left != right);
-					REQUIRE(left < right);
-					REQUIRE_FALSE(left > right);
-					REQUIRE(left <= right);
-					REQUIRE_FALSE(left >= right);
+				test_compare(left, right, expected_result);
+				test_compare(left_view, right, expected_result);
+				test_compare(left, right_view, expected_result);
+				test_compare(left_view, right_view, expected_result);
 
-					REQUIRE(left_view.compare(right) < 0);
-					REQUIRE_FALSE(left_view == right);
-					REQUIRE(left_view != right);
-					REQUIRE(left_view < right);
-					REQUIRE_FALSE(left_view > right);
-					REQUIRE(left_view <= right);
-					REQUIRE_FALSE(left_view >= right);
-
-					REQUIRE(left.compare(right_view) < 0);
-					REQUIRE_FALSE(left == right_view);
-					REQUIRE(left != right_view);
-					REQUIRE(left < right_view);
-					REQUIRE_FALSE(left > right_view);
-					REQUIRE(left <= right_view);
-					REQUIRE_FALSE(left >= right_view);
-
-					REQUIRE(left_view.compare(right_view) < 0);
-					REQUIRE_FALSE(left_view == right_view);
-					REQUIRE(left_view != right_view);
-					REQUIRE(left_view < right_view);
-					REQUIRE_FALSE(left_view > right_view);
-					REQUIRE(left_view <= right_view);
-					REQUIRE_FALSE(left_view >= right_view);
-				}
-				else if (expected_result > 0)
-				{
-					REQUIRE(left.compare(right) > 0);
-					REQUIRE_FALSE(left == right);
-					REQUIRE(left != right);
-					REQUIRE_FALSE(left < right);
-					REQUIRE(left > right);
-					REQUIRE_FALSE(left <= right);
-					REQUIRE(left >= right);
-
-					REQUIRE(left_view.compare(right) > 0);
-					REQUIRE_FALSE(left_view == right);
-					REQUIRE(left_view != right);
-					REQUIRE_FALSE(left_view < right);
-					REQUIRE(left_view > right);
-					REQUIRE_FALSE(left_view <= right);
-					REQUIRE(left_view >= right);
-
-					REQUIRE(left.compare(right_view) > 0);
-					REQUIRE_FALSE(left == right_view);
-					REQUIRE(left != right_view);
-					REQUIRE_FALSE(left < right_view);
-					REQUIRE(left > right_view);
-					REQUIRE_FALSE(left <= right_view);
-					REQUIRE(left >= right_view);
-
-					REQUIRE(left_view.compare(right_view) > 0);
-					REQUIRE_FALSE(left_view == right_view);
-					REQUIRE(left_view != right_view);
-					REQUIRE_FALSE(left_view < right_view);
-					REQUIRE(left_view > right_view);
-					REQUIRE_FALSE(left_view <= right_view);
-					REQUIRE(left_view >= right_view);
-				}
-				else
-				{
-					REQUIRE(left.compare(right) == 0);
-					REQUIRE(left == right);
-					REQUIRE_FALSE(left != right);
-					REQUIRE_FALSE(left < right);
-					REQUIRE_FALSE(left > right);
-					REQUIRE(left <= right);
-					REQUIRE(left >= right);
-
-					REQUIRE(left_view.compare(right) == 0);
-					REQUIRE(left_view == right);
-					REQUIRE_FALSE(left_view != right);
-					REQUIRE_FALSE(left_view < right);
-					REQUIRE_FALSE(left_view > right);
-					REQUIRE(left_view <= right);
-					REQUIRE(left_view >= right);
-
-					REQUIRE(left.compare(right_view) == 0);
-					REQUIRE(left == right_view);
-					REQUIRE_FALSE(left != right_view);
-					REQUIRE_FALSE(left < right_view);
-					REQUIRE_FALSE(left > right_view);
-					REQUIRE(left <= right_view);
-					REQUIRE(left >= right_view);
-
-					REQUIRE(left_view.compare(right_view) == 0);
-					REQUIRE(left_view == right_view);
-					REQUIRE_FALSE(left_view != right_view);
-					REQUIRE_FALSE(left_view < right_view);
-					REQUIRE_FALSE(left_view > right_view);
-					REQUIRE(left_view <= right_view);
-					REQUIRE(left_view >= right_view);
-				}
+				test_compare(left, right.data(), expected_result);
+				test_compare(left.data(), right, expected_result);
+				test_compare(left_view, right.data(), expected_result);
+				test_compare(left.data(), right_view, expected_result);
 			}
 		}
 	}

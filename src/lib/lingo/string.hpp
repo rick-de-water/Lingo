@@ -443,20 +443,28 @@ namespace lingo
 		}
 
 		template <typename Traits = std::char_traits<value_type>, typename StdAllocator = allocator_type>
-		std::basic_string<value_type, Traits, StdAllocator> std() const noexcept
+		std::basic_string<value_type, Traits, StdAllocator> std() const
 		{
 			return std::basic_string<value_type, Traits, StdAllocator>(data(), size());
 		}
 
 		template <typename RightAllocator>
-		LINGO_CONSTEXPR14 int compare(const basic_string<Encoding, Page, RightAllocator>& other) const noexcept
+		LINGO_CONSTEXPR14 int compare(const basic_string<Encoding, Page, RightAllocator>& other) const noexcept(noexcept(std::declval<const basic_string&>().compare(other.operator lingo::basic_string_view<Encoding, Page>())))
 		{
 			return compare(other.operator lingo::basic_string_view<Encoding, Page>());
 		}
 
-		LINGO_CONSTEXPR14 int compare(basic_string_view<Encoding, Page> other) const noexcept
+		LINGO_CONSTEXPR14 int compare(basic_string_view<Encoding, Page> other) const
 		{
 			return operator lingo::basic_string_view<Encoding, Page>().compare(other);
+		}
+
+		template <typename _ = int, typename std::enable_if<
+			std::is_same<encoding::cstring_default_encoding_t<unit_type>, encoding_type>::value &&
+			std::is_same<page::cstring_default_page_t<unit_type>, page_type>::value, _>::type = 0>
+		LINGO_CONSTEXPR14 int compare(const unit_type* other) const noexcept(noexcept(std::declval<const basic_string&>().compare(string_view(other))))
+		{
+			return compare(string_view(other));
 		}
 
 		private:
@@ -544,113 +552,211 @@ namespace lingo
 	}
 
 	template <typename Encoding, typename Page, typename LeftAllocator, typename RightAllocator>
-	bool operator == (basic_string<Encoding, Page, LeftAllocator> left, basic_string<Encoding, Page, RightAllocator> right) noexcept(noexcept(left.compare(right)))
+	bool operator == (const basic_string<Encoding, Page, LeftAllocator>& left, const basic_string<Encoding, Page, RightAllocator>& right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) == 0;
 	}
 
 	template <typename Encoding, typename Page, typename LeftAllocator, typename RightAllocator>
-	bool operator != (basic_string<Encoding, Page, LeftAllocator> left, basic_string<Encoding, Page, RightAllocator> right) noexcept(noexcept(left.compare(right)))
+	bool operator != (const basic_string<Encoding, Page, LeftAllocator>& left, const basic_string<Encoding, Page, RightAllocator>& right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) != 0;
 	}
 
 	template <typename Encoding, typename Page, typename LeftAllocator, typename RightAllocator>
-	bool operator < (basic_string<Encoding, Page, LeftAllocator> left, basic_string<Encoding, Page, RightAllocator> right) noexcept(noexcept(left.compare(right)))
+	bool operator < (const basic_string<Encoding, Page, LeftAllocator>& left, const basic_string<Encoding, Page, RightAllocator>& right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) < 0;
 	}
 
 	template <typename Encoding, typename Page, typename LeftAllocator, typename RightAllocator>
-	bool operator > (basic_string<Encoding, Page, LeftAllocator> left, basic_string<Encoding, Page, RightAllocator> right) noexcept(noexcept(left.compare(right)))
+	bool operator > (const basic_string<Encoding, Page, LeftAllocator>& left, const basic_string<Encoding, Page, RightAllocator>& right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) > 0;
 	}
 
 	template <typename Encoding, typename Page, typename LeftAllocator, typename RightAllocator>
-	bool operator <= (basic_string<Encoding, Page, LeftAllocator> left, basic_string<Encoding, Page, RightAllocator> right) noexcept(noexcept(left.compare(right)))
+	bool operator <= (const basic_string<Encoding, Page, LeftAllocator>& left, const basic_string<Encoding, Page, RightAllocator>& right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) <= 0;
 	}
 
 	template <typename Encoding, typename Page, typename LeftAllocator, typename RightAllocator>
-	bool operator >= (basic_string<Encoding, Page, LeftAllocator> left, basic_string<Encoding, Page, RightAllocator> right) noexcept(noexcept(left.compare(right)))
+	bool operator >= (const basic_string<Encoding, Page, LeftAllocator>& left, const basic_string<Encoding, Page, RightAllocator>& right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) >= 0;
 	}
 
 
 	template <typename Encoding, typename Page, typename LeftAllocator>
-	bool operator == (basic_string<Encoding, Page, LeftAllocator> left, basic_string_view<Encoding, Page> right) noexcept(noexcept(left.compare(right)))
+	bool operator == (const basic_string<Encoding, Page, LeftAllocator>& left, basic_string_view<Encoding, Page> right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) == 0;
 	}
 
 	template <typename Encoding, typename Page, typename LeftAllocator>
-	bool operator != (basic_string<Encoding, Page, LeftAllocator> left, basic_string_view<Encoding, Page> right) noexcept(noexcept(left.compare(right)))
+	bool operator != (const basic_string<Encoding, Page, LeftAllocator>& left, basic_string_view<Encoding, Page> right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) != 0;
 	}
 
 	template <typename Encoding, typename Page, typename LeftAllocator>
-	bool operator < (basic_string<Encoding, Page, LeftAllocator> left, basic_string_view<Encoding, Page> right) noexcept(noexcept(left.compare(right)))
+	bool operator < (const basic_string<Encoding, Page, LeftAllocator>& left, basic_string_view<Encoding, Page> right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) < 0;
 	}
 
 	template <typename Encoding, typename Page, typename LeftAllocator>
-	bool operator > (basic_string<Encoding, Page, LeftAllocator> left, basic_string_view<Encoding, Page> right) noexcept(noexcept(left.compare(right)))
+	bool operator > (const basic_string<Encoding, Page, LeftAllocator>& left, basic_string_view<Encoding, Page> right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) > 0;
 	}
 
 	template <typename Encoding, typename Page, typename LeftAllocator>
-	bool operator <= (basic_string<Encoding, Page, LeftAllocator> left, basic_string_view<Encoding, Page> right) noexcept(noexcept(left.compare(right)))
+	bool operator <= (const basic_string<Encoding, Page, LeftAllocator>& left, basic_string_view<Encoding, Page> right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) <= 0;
 	}
 
 	template <typename Encoding, typename Page, typename LeftAllocator>
-	bool operator >= (basic_string<Encoding, Page, LeftAllocator> left, basic_string_view<Encoding, Page> right) noexcept(noexcept(left.compare(right)))
+	bool operator >= (const basic_string<Encoding, Page, LeftAllocator>& left, basic_string_view<Encoding, Page> right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) >= 0;
 	}
 
 
 	template <typename Encoding, typename Page, typename RightAllocator>
-	bool operator == (basic_string_view<Encoding, Page> left, basic_string<Encoding, Page, RightAllocator> right) noexcept(noexcept(left.compare(right)))
+	bool operator == (basic_string_view<Encoding, Page> left, const basic_string<Encoding, Page, RightAllocator>& right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) == 0;
 	}
 
 	template <typename Encoding, typename Page, typename RightAllocator>
-	bool operator != (basic_string_view<Encoding, Page> left, basic_string<Encoding, Page, RightAllocator> right) noexcept(noexcept(left.compare(right)))
+	bool operator != (basic_string_view<Encoding, Page> left, const basic_string<Encoding, Page, RightAllocator>& right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) != 0;
 	}
 
 	template <typename Encoding, typename Page, typename RightAllocator>
-	bool operator < (basic_string_view<Encoding, Page> left, basic_string<Encoding, Page, RightAllocator> right) noexcept(noexcept(left.compare(right)))
+	bool operator < (basic_string_view<Encoding, Page> left, const basic_string<Encoding, Page, RightAllocator>& right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) < 0;
 	}
 
 	template <typename Encoding, typename Page, typename RightAllocator>
-	bool operator > (basic_string_view<Encoding, Page> left, basic_string<Encoding, Page, RightAllocator> right) noexcept(noexcept(left.compare(right)))
+	bool operator > (basic_string_view<Encoding, Page> left, const basic_string<Encoding, Page, RightAllocator>& right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) > 0;
 	}
 
 	template <typename Encoding, typename Page, typename RightAllocator>
-	bool operator <= (basic_string_view<Encoding, Page> left, basic_string<Encoding, Page, RightAllocator> right) noexcept(noexcept(left.compare(right)))
+	bool operator <= (basic_string_view<Encoding, Page> left, const basic_string<Encoding, Page, RightAllocator>& right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) <= 0;
 	}
 
 	template <typename Encoding, typename Page, typename RightAllocator>
-	bool operator >= (basic_string_view<Encoding, Page> left, basic_string<Encoding, Page, RightAllocator> right) noexcept(noexcept(left.compare(right)))
+	bool operator >= (basic_string_view<Encoding, Page> left, const basic_string<Encoding, Page, RightAllocator>& right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) >= 0;
+	}
+
+
+	template <typename Encoding, typename Page, typename LeftAllocator, typename std::enable_if<
+		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
+		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+	bool operator == (const basic_string<Encoding, Page, LeftAllocator>& left, const typename Encoding::unit_type* right) noexcept(noexcept(left.compare(right)))
+	{
+		return left.compare(right) == 0;
+	}
+
+	template <typename Encoding, typename Page, typename LeftAllocator, typename std::enable_if<
+		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
+		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+	bool operator != (const basic_string<Encoding, Page, LeftAllocator>& left, const typename Encoding::unit_type* right) noexcept(noexcept(left.compare(right)))
+	{
+		return left.compare(right) != 0;
+	}
+
+	template <typename Encoding, typename Page, typename LeftAllocator, typename std::enable_if<
+		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
+		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+	bool operator < (const basic_string<Encoding, Page, LeftAllocator>& left, const typename Encoding::unit_type* right) noexcept(noexcept(left.compare(right)))
+	{
+		return left.compare(right) < 0;
+	}
+
+	template <typename Encoding, typename Page, typename LeftAllocator, typename std::enable_if<
+		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
+		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+	bool operator > (const basic_string<Encoding, Page, LeftAllocator>& left, const typename Encoding::unit_type* right) noexcept(noexcept(left.compare(right)))
+	{
+		return left.compare(right) > 0;
+	}
+
+	template <typename Encoding, typename Page, typename LeftAllocator, typename std::enable_if<
+		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
+		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+	bool operator <= (const basic_string<Encoding, Page, LeftAllocator>& left, const typename Encoding::unit_type* right) noexcept(noexcept(left.compare(right)))
+	{
+		return left.compare(right) <= 0;
+	}
+
+	template <typename Encoding, typename Page, typename LeftAllocator, typename std::enable_if<
+		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
+		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+	bool operator >= (const basic_string<Encoding, Page, LeftAllocator>& left, const typename Encoding::unit_type* right) noexcept(noexcept(left.compare(right)))
+	{
+		return left.compare(right) >= 0;
+	}
+
+
+	template <typename Encoding, typename Page, typename RightAllocator, typename std::enable_if<
+		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
+		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+	bool operator == (const typename Encoding::unit_type* left, const basic_string<Encoding, Page, RightAllocator>& right) noexcept(noexcept(right.compare(left)))
+	{
+		return right.compare(left) == 0;
+	}
+
+	template <typename Encoding, typename Page, typename RightAllocator, typename std::enable_if<
+		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
+		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+	bool operator != (const typename Encoding::unit_type* left, const basic_string<Encoding, Page, RightAllocator>& right) noexcept(noexcept(right.compare(left)))
+	{
+		return right.compare(left) != 0;
+	}
+
+	template <typename Encoding, typename Page, typename RightAllocator, typename std::enable_if<
+		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
+		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+	bool operator < (const typename Encoding::unit_type* left, const basic_string<Encoding, Page, RightAllocator>& right) noexcept(noexcept(right.compare(left)))
+	{
+		return right.compare(left) > 0;
+	}
+
+	template <typename Encoding, typename Page, typename RightAllocator, typename std::enable_if<
+		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
+		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+	bool operator > (const typename Encoding::unit_type* left, const basic_string<Encoding, Page, RightAllocator>& right) noexcept(noexcept(right.compare(left)))
+	{
+		return right.compare(left) < 0;
+	}
+
+	template <typename Encoding, typename Page, typename RightAllocator, typename std::enable_if<
+		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
+		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+	bool operator <= (const typename Encoding::unit_type* left, const basic_string<Encoding, Page, RightAllocator>& right) noexcept(noexcept(right.compare(left)))
+	{
+		return right.compare(left) >= 0;
+	}
+
+	template <typename Encoding, typename Page, typename RightAllocator, typename std::enable_if<
+		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
+		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+	bool operator >= (const typename Encoding::unit_type* left, const basic_string<Encoding, Page, RightAllocator>& right) noexcept(noexcept(right.compare(left)))
+	{
+		return right.compare(left) <= 0;
 	}
 
 	// Fixed page typedefs
