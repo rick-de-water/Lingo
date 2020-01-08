@@ -5,6 +5,9 @@
 
 #include <lingo/encoding/endian.hpp>
 #include <lingo/encoding/result.hpp>
+#include <lingo/encoding/internal/bit_converter.hpp>
+
+#include <climits>
 
 namespace lingo
 {
@@ -20,6 +23,12 @@ namespace lingo
 			using difference_type = std::ptrdiff_t;
 
 			static LINGO_CONSTEXPR11 size_type max_units = 1;
+			static LINGO_CONSTEXPR11 size_type min_point_bits = sizeof(point_type) * CHAR_BIT;
+			static LINGO_CONSTEXPR11 size_type min_unit_bits = min_point_bits;
+
+			using bit_converter = internal::bit_converter<unit_type, min_unit_bits, point_type, min_point_bits>;
+			using unit_bits_type = typename bit_converter::unit_bits_type;
+			using point_bits_type = typename bit_converter::point_bits_type;
 
 			static LINGO_CONSTEXPR14 encode_result encode_point(point_type point, unit_type* buffer, size_type buffer_size) noexcept
 			{

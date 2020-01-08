@@ -11,6 +11,7 @@
 
 #include <lingo/encoding/cstring.hpp>
 #include <lingo/encoding/none.hpp>
+#include <lingo/encoding/point_iterator.hpp>
 #include <lingo/encoding/utf8.hpp>
 #include <lingo/encoding/utf16.hpp>
 #include <lingo/encoding/utf32.hpp>
@@ -50,6 +51,8 @@ namespace lingo
 		using iterator = const_iterator;
 		using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 		using reverse_iterator = const_reverse_iterator;
+
+		using point_iterator = encoding::point_iterator<encoding_type>;
 
 		private:
 		static_assert(std::is_same<typename page_type::point_type, typename encoding_type::point_type>::value, "page_type::point_type must be the same type as encoding_type::point_type");
@@ -232,20 +235,20 @@ namespace lingo
 			_storage.swap(other._storage);
 		}
 
-		LINGO_CONSTEXPR14 int compare(basic_string_view other) const noexcept
+		LINGO_CONSTEXPR14 int compare(basic_string_view other) const
 		{
-			const size_type left_size = size();
-			const size_type right_size = other.size();
-			const size_type min_size = std::min(left_size, right_size);
+			point_iterator left(*this);
+			point_iterator right(other);
+			const point_iterator end;
 
-			for (size_type i = 0; i < min_size; ++i)
+			for (; left != end && right != end; ++left, ++right)
 			{
-				const auto left_unit = operator[](i);
-				const auto right_unit = other[i];
+				const auto left_point = *left;
+				const auto right_point = *right;
 
-				if (left_unit != right_unit)
+				if (left_point != right_point)
 				{
-					if (left_unit < right_unit)
+					if (left_point < right_point)
 					{
 						return -1;
 					}
@@ -256,9 +259,9 @@ namespace lingo
 				}
 			}
 
-			if (left_size != right_size)
+			if ((left == end) != (right == end))
 			{
-				if (left_size < right_size)
+				if (left == end)
 				{
 					return -1;
 				}
@@ -273,6 +276,14 @@ namespace lingo
 			}
 		}
 
+		template <typename _ = int, typename std::enable_if<
+			std::is_same<encoding::cstring_default_encoding_t<unit_type>, encoding_type>::value &&
+			std::is_same<page::cstring_default_page_t<unit_type>, page_type>::value, _>::type = 0>
+		LINGO_CONSTEXPR14 int compare(const unit_type* other) const noexcept(noexcept(std::declval<const basic_string_view&>().compare(basic_string_view(other))))
+		{
+			return compare(basic_string_view(other));
+		}
+
 		LINGO_CONSTEXPR14 basic_string_view& operator = (const basic_string_view&) noexcept = default;
 		LINGO_CONSTEXPR14 basic_string_view& operator = (basic_string_view&&) noexcept = default;
 		
@@ -281,39 +292,137 @@ namespace lingo
 	};
 
 	template <typename Encoding, typename Page>
-	LINGO_CONSTEXPR14 bool operator == (basic_string_view<Encoding, Page> left, basic_string_view<Encoding, Page> right)
+	LINGO_CONSTEXPR14 bool operator == (basic_string_view<Encoding, Page> left, basic_string_view<Encoding, Page> right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) == 0;
 	}
 
 	template <typename Encoding, typename Page>
-	LINGO_CONSTEXPR14 bool operator != (basic_string_view<Encoding, Page> left, basic_string_view<Encoding, Page> right)
+	LINGO_CONSTEXPR14 bool operator != (basic_string_view<Encoding, Page> left, basic_string_view<Encoding, Page> right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) != 0;
 	}
 
 	template <typename Encoding, typename Page>
-	LINGO_CONSTEXPR14 bool operator < (basic_string_view<Encoding, Page> left, basic_string_view<Encoding, Page> right)
+	LINGO_CONSTEXPR14 bool operator < (basic_string_view<Encoding, Page> left, basic_string_view<Encoding, Page> right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) < 0;
 	}
 
 	template <typename Encoding, typename Page>
-	LINGO_CONSTEXPR14 bool operator > (basic_string_view<Encoding, Page> left, basic_string_view<Encoding, Page> right)
+	LINGO_CONSTEXPR14 bool operator > (basic_string_view<Encoding, Page> left, basic_string_view<Encoding, Page> right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) > 0;
 	}
 
 	template <typename Encoding, typename Page>
-	LINGO_CONSTEXPR14 bool operator <= (basic_string_view<Encoding, Page> left, basic_string_view<Encoding, Page> right)
+	LINGO_CONSTEXPR14 bool operator <= (basic_string_view<Encoding, Page> left, basic_string_view<Encoding, Page> right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) <= 0;
 	}
 
 	template <typename Encoding, typename Page>
-	LINGO_CONSTEXPR14 bool operator >= (basic_string_view<Encoding, Page> left, basic_string_view<Encoding, Page> right)
+	LINGO_CONSTEXPR14 bool operator >= (basic_string_view<Encoding, Page> left, basic_string_view<Encoding, Page> right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) >= 0;
+	}
+
+
+	template <typename Encoding, typename Page, typename std::enable_if<
+		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
+		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+	LINGO_CONSTEXPR14 bool operator == (const basic_string_view<Encoding, Page>& left, const typename Encoding::unit_type* right) noexcept(noexcept(left.compare(right)))
+	{
+		return left.compare(right) == 0;
+	}
+
+	template <typename Encoding, typename Page, typename std::enable_if<
+		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
+		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+	LINGO_CONSTEXPR14 bool operator != (const basic_string_view<Encoding, Page>& left, const typename Encoding::unit_type* right) noexcept(noexcept(left.compare(right)))
+	{
+		return left.compare(right) != 0;
+	}
+
+	template <typename Encoding, typename Page, typename std::enable_if<
+		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
+		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+	LINGO_CONSTEXPR14 bool operator < (const basic_string_view<Encoding, Page>& left, const typename Encoding::unit_type* right) noexcept(noexcept(left.compare(right)))
+	{
+		return left.compare(right) < 0;
+	}
+
+	template <typename Encoding, typename Page, typename std::enable_if<
+		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
+		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+	LINGO_CONSTEXPR14 bool operator > (const basic_string_view<Encoding, Page>& left, const typename Encoding::unit_type* right) noexcept(noexcept(left.compare(right)))
+	{
+		return left.compare(right) > 0;
+	}
+
+	template <typename Encoding, typename Page, typename std::enable_if<
+		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
+		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+	LINGO_CONSTEXPR14 bool operator <= (const basic_string_view<Encoding, Page>& left, const typename Encoding::unit_type* right) noexcept(noexcept(left.compare(right)))
+	{
+		return left.compare(right) <= 0;
+	}
+
+	template <typename Encoding, typename Page, typename std::enable_if<
+		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
+		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+	LINGO_CONSTEXPR14 bool operator >= (const basic_string_view<Encoding, Page>& left, const typename Encoding::unit_type* right) noexcept(noexcept(left.compare(right)))
+	{
+		return left.compare(right) >= 0;
+	}
+
+
+	template <typename Encoding, typename Page, typename std::enable_if<
+		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
+		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+	LINGO_CONSTEXPR14 bool operator == (const typename Encoding::unit_type* left, const basic_string_view<Encoding, Page>& right) noexcept(noexcept(right.compare(left)))
+	{
+		return right.compare(left) == 0;
+	}
+
+	template <typename Encoding, typename Page, typename std::enable_if<
+		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
+		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+	LINGO_CONSTEXPR14 bool operator != (const typename Encoding::unit_type* left, const basic_string_view<Encoding, Page>& right) noexcept(noexcept(right.compare(left)))
+	{
+		return right.compare(left) != 0;
+	}
+
+	template <typename Encoding, typename Page, typename std::enable_if<
+		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
+		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+	LINGO_CONSTEXPR14 bool operator < (const typename Encoding::unit_type* left, const basic_string_view<Encoding, Page>& right) noexcept(noexcept(right.compare(left)))
+	{
+		return right.compare(left) > 0;
+	}
+
+	template <typename Encoding, typename Page, typename std::enable_if<
+		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
+		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+	LINGO_CONSTEXPR14 bool operator > (const typename Encoding::unit_type* left, const basic_string_view<Encoding, Page>& right) noexcept(noexcept(right.compare(left)))
+	{
+		return right.compare(left) < 0;
+	}
+
+	template <typename Encoding, typename Page, typename std::enable_if<
+		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
+		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+	LINGO_CONSTEXPR14 bool operator <= (const typename Encoding::unit_type* left, const basic_string_view<Encoding, Page>& right) noexcept(noexcept(right.compare(left)))
+	{
+		return right.compare(left) >= 0;
+	}
+
+	template <typename Encoding, typename Page, typename std::enable_if<
+		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
+		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+	LINGO_CONSTEXPR14 bool operator >= (const typename Encoding::unit_type* left, const basic_string_view<Encoding, Page>& right) noexcept(noexcept(right.compare(left)))
+	{
+		return right.compare(left) <= 0;
 	}
 
 	// Fixed code page typedefs

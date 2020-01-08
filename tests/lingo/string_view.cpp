@@ -290,28 +290,6 @@ LINGO_UNIT_TEST_CASE("string_view can have prefixes and suffixes removed")
 	}
 }
 
-LINGO_UNIT_TEST_CASE("string_view can be compared")
-{
-	LINGO_UNIT_TEST_TYPEDEFS;
-
-	const unit_type* data = lingo::test::test_string<unit_type>::value;
-	const size_type size = sizeof(lingo::test::test_string<unit_type>::value) / sizeof(lingo::test::test_string<unit_type>::value[0]) - 1;
-
-	string_view_type prev_test_string_view(data);
-	string_view_type test_string_view(data);
-
-	prev_test_string_view.remove_prefix(size / 4);
-	prev_test_string_view.remove_suffix(size / 4);
-
-	REQUIRE(test_string_view == test_string_view);
-	REQUIRE_FALSE(test_string_view != test_string_view);
-
-	REQUIRE_FALSE(test_string_view == prev_test_string_view);
-	REQUIRE(test_string_view != prev_test_string_view);
-
-	prev_test_string_view = test_string_view;
-}
-
 LINGO_UNIT_TEST_CASE("string_view can be swapped")
 {
 	LINGO_UNIT_TEST_TYPEDEFS;
@@ -322,8 +300,8 @@ LINGO_UNIT_TEST_CASE("string_view can be swapped")
 	string_view_type test_string_view1(data);
 	string_view_type test_string_view2(test_string_view1);
 
-	test_string_view2.remove_prefix(size / 4);
-	test_string_view2.remove_suffix(size / 4);
+	test_string_view2.remove_prefix(size / 4 + 2);
+	test_string_view2.remove_suffix(size / 4 + 2);
 
 	string_view_type test_string_view3(test_string_view1);
 	string_view_type test_string_view4(test_string_view2);

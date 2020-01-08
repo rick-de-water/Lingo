@@ -294,242 +294,151 @@ LINGO_UNIT_TEST_CASE("push_back can add code points to a string")
 	REQUIRE(test_string == source_string);
 }
 
+namespace
+{
+	template <typename T, typename U, typename std::enable_if<!std::is_pointer<typename std::decay<T>::type>::value, int>::type = 0>
+	void test_compare(const T& left, const U& right, int expected_result)
+	{
+		if (expected_result < 0)
+		{
+			REQUIRE(left.compare(right) < 0);
+			REQUIRE_FALSE(left == right);
+			REQUIRE(left != right);
+			REQUIRE(left < right);
+			REQUIRE_FALSE(left > right);
+			REQUIRE(left <= right);
+			REQUIRE_FALSE(left >= right);
+		}
+		else if (expected_result > 0)
+		{
+			REQUIRE(left.compare(right) > 0);
+			REQUIRE_FALSE(left == right);
+			REQUIRE(left != right);
+			REQUIRE_FALSE(left < right);
+			REQUIRE(left > right);
+			REQUIRE_FALSE(left <= right);
+			REQUIRE(left >= right);
+		}
+		else
+		{
+			REQUIRE(left.compare(right) == 0);
+			REQUIRE(left == right);
+			REQUIRE_FALSE(left != right);
+			REQUIRE_FALSE(left < right);
+			REQUIRE_FALSE(left > right);
+			REQUIRE(left <= right);
+			REQUIRE(left >= right);
+		}
+	}
+
+	template <typename T, typename U, typename std::enable_if<std::is_pointer<typename std::decay<T>::type>::value, int>::type = 0>
+	void test_compare(const T& left, const U& right, int expected_result)
+	{
+		if (expected_result < 0)
+		{
+			REQUIRE_FALSE(left == right);
+			REQUIRE(left != right);
+			REQUIRE(left < right);
+			REQUIRE_FALSE(left > right);
+			REQUIRE(left <= right);
+			REQUIRE_FALSE(left >= right);
+		}
+		else if (expected_result > 0)
+		{
+			REQUIRE_FALSE(left == right);
+			REQUIRE(left != right);
+			REQUIRE_FALSE(left < right);
+			REQUIRE(left > right);
+			REQUIRE_FALSE(left <= right);
+			REQUIRE(left >= right);
+		}
+		else
+		{
+			REQUIRE(left == right);
+			REQUIRE_FALSE(left != right);
+			REQUIRE_FALSE(left < right);
+			REQUIRE_FALSE(left > right);
+			REQUIRE(left <= right);
+			REQUIRE(left >= right);
+		}
+	}
+}
+
 LINGO_UNIT_TEST_CASE("strings can be compared")
 {
 	LINGO_UNIT_TEST_TYPEDEFS;
 
-	const point_type point = encoding_type::decode_point(lingo::test::test_string<unit_type>::value, lingo::test::test_string<unit_type>::size).point;
+	LINGO_CONSTEXPR11 size_type test_string_count = 11;
 
-	const string_type string1(1, point);
-	const string_type string2(1, point + 1);
-	const string_type string3(1, point - 1);
-	const string_type string4(2, point);
+	string_type test_strings[test_string_count];
+	struct test_string_results_type
+	{
+		int compare_results[test_string_count];
+	};
 
-	const string_view_type string_view1(string1);
-	const string_view_type string_view2(string2);
-	const string_view_type string_view3(string3);
-	const string_view_type string_view4(string4);
+	const string_view_type source = lingo::test::test_string<unit_type>::value;
+	const auto first_point = encoding_type::decode_point(source.data(), source.size()).point;
 
-	REQUIRE(string1 == string1);
-	REQUIRE_FALSE(string1 == string2);
-	REQUIRE_FALSE(string1 == string3);
-	REQUIRE_FALSE(string1 == string4);
-	REQUIRE(string1 == string_view1);
-	REQUIRE_FALSE(string1 == string_view2);
-	REQUIRE_FALSE(string1 == string_view3);
-	REQUIRE_FALSE(string1 == string_view4);
+	for (char32_t point : point_iterator_type(source))
+	{
+		test_string_results_type test_string_results[test_string_count];
+		for (size_t i = 0; i < test_string_count; ++i)
+		{
+			// Always equal to self
+			test_string_results[i].compare_results[i] = 0;
+		}
 
-	REQUIRE_FALSE(string2 == string1);
-	REQUIRE(string2 == string2);
-	REQUIRE_FALSE(string2 == string3);
-	REQUIRE_FALSE(string2 == string4);
-	REQUIRE_FALSE(string2 == string_view1);
-	REQUIRE(string2 == string_view2);
-	REQUIRE_FALSE(string2 == string_view3);
-	REQUIRE_FALSE(string2 == string_view4);
+		// string 0 is empty
+		for (size_t i = 1; i < test_string_count; ++i)
+		{
+			// Always lower than other strings
+			test_string_results[0].compare_results[i] = -1;
+			test_string_results[i].compare_results[0] = 1;
+		}
 
-	REQUIRE_FALSE(string3 == string1);
-	REQUIRE_FALSE(string3 == string2);
-	REQUIRE(string3 == string3);
-	REQUIRE_FALSE(string3 == string4);
-	REQUIRE_FALSE(string3 == string_view1);
-	REQUIRE_FALSE(string3 == string_view2);
-	REQUIRE(string3 == string_view3);
-	REQUIRE_FALSE(string3 == string_view4);
+		// string 10 is the string iterated up till now
+		test_strings[10].push_back(point);
 
-	REQUIRE_FALSE(string4 == string1);
-	REQUIRE_FALSE(string4 == string2);
-	REQUIRE_FALSE(string4 == string3);
-	REQUIRE(string4 == string4);
-	REQUIRE_FALSE(string4 == string_view1);
-	REQUIRE_FALSE(string4 == string_view2);
-	REQUIRE_FALSE(string4 == string_view3);
-	REQUIRE(string4 == string_view4);
+		// string 1-9 are point +/- 1 repeated 1, 2 or 3 times
+		for (size_type i = 1; i <= 9; ++i)
+		{
+			const point_type actual_point = i <= 3 ? point - 1 : i <= 6 ? point : point + 1;
+			const size_type length = i <= 3 ? i : i <= 6 ? i - 3 : i - 6;
 
+			test_strings[i] = string_type(length, actual_point);
 
-	REQUIRE_FALSE(string1 != string1);
-	REQUIRE(string1 != string2);
-	REQUIRE(string1 != string3);
-	REQUIRE(string1 != string4);
-	REQUIRE_FALSE(string1 != string_view1);
-	REQUIRE(string1 != string_view2);
-	REQUIRE(string1 != string_view3);
-	REQUIRE(string1 != string_view4);
+			for (size_type j = 1; j <= 9; ++j)
+			{
+				test_string_results[i].compare_results[j] = 0 - 1 * (i < j) + 1 * (i > j);
+			}
 
-	REQUIRE(string2 != string1);
-	REQUIRE_FALSE(string2 != string2);
-	REQUIRE(string2 != string3);
-	REQUIRE(string2 != string4);
-	REQUIRE(string2 != string_view1);
-	REQUIRE_FALSE(string2 != string_view2);
-	REQUIRE(string2 != string_view3);
-	REQUIRE(string2 != string_view4);
+			test_string_results[i].compare_results[10] = 0 - 1 * (actual_point < first_point) + 1 * (actual_point > first_point) - 1 * (actual_point == first_point && length == 1 && test_strings[10].size() > 1) + 1 * (actual_point == first_point && length > 1);
+			test_string_results[10].compare_results[i] = -test_string_results[i].compare_results[10];
+		}
+		
+		for (size_type i = 0; i < test_string_count; ++i)
+		{
+			const string_type& left = test_strings[i];
+			string_view_type left_view(left);
 
-	REQUIRE(string3 != string1);
-	REQUIRE(string3 != string2);
-	REQUIRE_FALSE(string3 != string3);
-	REQUIRE(string3 != string4);
-	REQUIRE(string3 != string_view1);
-	REQUIRE(string3 != string_view2);
-	REQUIRE_FALSE(string3 != string_view3);
-	REQUIRE(string3 != string_view4);
+			for (size_type j = 0; j < test_string_count; ++j)
+			{
+				const string_type& right = test_strings[j];
+				string_view_type right_view(right);
+				const int expected_result = test_string_results[i].compare_results[j];
 
-	REQUIRE(string4 != string1);
-	REQUIRE(string4 != string2);
-	REQUIRE(string4 != string3);
-	REQUIRE_FALSE(string4 != string4);
-	REQUIRE(string4 != string_view1);
-	REQUIRE(string4 != string_view2);
-	REQUIRE(string4 != string_view3);
-	REQUIRE_FALSE(string4 != string_view4);
+				test_compare(left, right, expected_result);
+				test_compare(left_view, right, expected_result);
+				test_compare(left, right_view, expected_result);
+				test_compare(left_view, right_view, expected_result);
 
-
-	REQUIRE_FALSE(string1 < string1);
-	REQUIRE(string1 < string2);
-	REQUIRE_FALSE(string1 < string3);
-	REQUIRE(string1 < string4);
-	REQUIRE_FALSE(string1 < string_view1);
-	REQUIRE(string1 < string_view2);
-	REQUIRE_FALSE(string1 < string_view3);
-	REQUIRE(string1 < string_view4);
-
-	REQUIRE_FALSE(string2 < string1);
-	REQUIRE_FALSE(string2 < string2);
-	REQUIRE_FALSE(string2 < string3);
-	REQUIRE_FALSE(string2 < string4);
-	REQUIRE_FALSE(string2 < string_view1);
-	REQUIRE_FALSE(string2 < string_view2);
-	REQUIRE_FALSE(string2 < string_view3);
-	REQUIRE_FALSE(string2 < string_view4);
-
-	REQUIRE(string3 < string1);
-	REQUIRE(string3 < string2);
-	REQUIRE_FALSE(string3 < string3);
-	REQUIRE(string3 < string4);
-	REQUIRE(string3 < string_view1);
-	REQUIRE(string3 < string_view2);
-	REQUIRE_FALSE(string3 < string_view3);
-	REQUIRE(string3 < string_view4);
-
-	REQUIRE_FALSE(string4 < string1);
-	REQUIRE(string4 < string2);
-	REQUIRE_FALSE(string4 < string3);
-	REQUIRE_FALSE(string4 < string4);
-	REQUIRE_FALSE(string4 < string_view1);
-	REQUIRE(string4 < string_view2);
-	REQUIRE_FALSE(string4 < string_view3);
-	REQUIRE_FALSE(string4 < string_view4);
-
-
-	REQUIRE_FALSE(string1 > string1);
-	REQUIRE_FALSE(string1 > string2);
-	REQUIRE(string1 > string3);
-	REQUIRE_FALSE(string1 > string4);
-	REQUIRE_FALSE(string1 > string_view1);
-	REQUIRE_FALSE(string1 > string_view2);
-	REQUIRE(string1 > string_view3);
-	REQUIRE_FALSE(string1 > string_view4);
-
-	REQUIRE(string2 > string1);
-	REQUIRE_FALSE(string2 > string2);
-	REQUIRE(string2 > string3);
-	REQUIRE(string2 > string4);
-	REQUIRE(string2 > string_view1);
-	REQUIRE_FALSE(string2 > string_view2);
-	REQUIRE(string2 > string_view3);
-	REQUIRE(string2 > string_view4);
-
-	REQUIRE_FALSE(string3 > string1);
-	REQUIRE_FALSE(string3 > string2);
-	REQUIRE_FALSE(string3 > string3);
-	REQUIRE_FALSE(string3 > string4);
-	REQUIRE_FALSE(string3 > string_view1);
-	REQUIRE_FALSE(string3 > string_view2);
-	REQUIRE_FALSE(string3 > string_view3);
-	REQUIRE_FALSE(string3 > string_view4);
-
-	REQUIRE(string4 > string1);
-	REQUIRE_FALSE(string4 > string2);
-	REQUIRE(string4 > string3);
-	REQUIRE_FALSE(string4 > string4);
-	REQUIRE(string4 > string_view1);
-	REQUIRE_FALSE(string4 > string_view2);
-	REQUIRE(string4 > string_view3);
-	REQUIRE_FALSE(string4 > string_view4);
-
-
-	REQUIRE(string1 <= string1);
-	REQUIRE(string1 <= string2);
-	REQUIRE_FALSE(string1 <= string3);
-	REQUIRE(string1 <= string4);
-	REQUIRE(string1 <= string_view1);
-	REQUIRE(string1 <= string_view2);
-	REQUIRE_FALSE(string1 <= string_view3);
-	REQUIRE(string1 <= string_view4);
-
-	REQUIRE_FALSE(string2 <= string1);
-	REQUIRE(string2 <= string2);
-	REQUIRE_FALSE(string2 <= string3);
-	REQUIRE_FALSE(string2 <= string4);
-	REQUIRE_FALSE(string2 <= string_view1);
-	REQUIRE(string2 <= string_view2);
-	REQUIRE_FALSE(string2 <= string_view3);
-	REQUIRE_FALSE(string2 <= string_view4);
-
-	REQUIRE(string3 <= string1);
-	REQUIRE(string3 <= string2);
-	REQUIRE(string3 <= string3);
-	REQUIRE(string3 <= string4);
-	REQUIRE(string3 <= string_view1);
-	REQUIRE(string3 <= string_view2);
-	REQUIRE(string3 <= string_view3);
-	REQUIRE(string3 <= string_view4);
-
-	REQUIRE_FALSE(string4 <= string1);
-	REQUIRE(string4 <= string2);
-	REQUIRE_FALSE(string4 <= string3);
-	REQUIRE(string4 <= string4);
-	REQUIRE_FALSE(string4 <= string_view1);
-	REQUIRE(string4 <= string_view2);
-	REQUIRE_FALSE(string4 <= string_view3);
-	REQUIRE(string4 <= string_view4);
-
-
-	REQUIRE(string1 >= string1);
-	REQUIRE_FALSE(string1 >= string2);
-	REQUIRE(string1 >= string3);
-	REQUIRE_FALSE(string1 >= string4);
-	REQUIRE(string1 >= string_view1);
-	REQUIRE_FALSE(string1 >= string_view2);
-	REQUIRE(string1 >= string_view3);
-	REQUIRE_FALSE(string1 >= string_view4);
-
-	REQUIRE(string2 >= string1);
-	REQUIRE(string2 >= string2);
-	REQUIRE(string2 >= string3);
-	REQUIRE(string2 >= string4);
-	REQUIRE(string2 >= string_view1);
-	REQUIRE(string2 >= string_view2);
-	REQUIRE(string2 >= string_view3);
-	REQUIRE(string2 >= string_view4);
-
-	REQUIRE_FALSE(string3 >= string1);
-	REQUIRE_FALSE(string3 >= string2);
-	REQUIRE(string3 >= string3);
-	REQUIRE_FALSE(string3 >= string4);
-	REQUIRE_FALSE(string3 >= string_view1);
-	REQUIRE_FALSE(string3 >= string_view2);
-	REQUIRE(string3 >= string_view3);
-	REQUIRE_FALSE(string3 >= string_view4);
-
-	REQUIRE(string4 >= string1);
-	REQUIRE_FALSE(string4 >= string2);
-	REQUIRE(string4 >= string3);
-	REQUIRE(string4 >= string4);
-	REQUIRE(string4 >= string_view1);
-	REQUIRE_FALSE(string4 >= string_view2);
-	REQUIRE(string4 >= string_view3);
-	REQUIRE(string4 >= string_view4);
+				test_compare(left, right.data(), expected_result);
+				test_compare(left.data(), right, expected_result);
+				test_compare(left_view, right.data(), expected_result);
+				test_compare(left.data(), right_view, expected_result);
+			}
+		}
+	}
 }
 
 LINGO_UNIT_TEST_CASE("A string can be concatenated to another string")
@@ -541,7 +450,7 @@ LINGO_UNIT_TEST_CASE("A string can be concatenated to another string")
 
 	REQUIRE_FALSE(std::is_same<string_type, different_allocator_string_type>::value);
 
-	string_view_type source_string = lingo::test::test_string<unit_type>::value;
+	const string_view_type source_string = lingo::test::test_string<unit_type>::value;
 	string_type test_string = source_string;
 	different_allocator_string_type different_allocator_test_string = lingo::test::test_string<unit_type>::value;
 
@@ -610,4 +519,152 @@ LINGO_UNIT_TEST_CASE("A string can be concatenated to another string")
 		REQUIRE(string_view_type(different_allocator_test_string.data(), source_string.size()) == source_string);
 		REQUIRE(string_view_type(different_allocator_test_string.data() + source_string.size(), source_string.size()) == source_string);
 	}
+}
+
+LINGO_UNIT_TEST_CASE("A string_view can be concatenated to a string")
+{
+	LINGO_UNIT_TEST_TYPEDEFS;
+
+	const string_view_type source_string = lingo::test::test_string<unit_type>::value;
+	string_type prefix_test_string = source_string;
+	string_type suffix_test_string = source_string;
+
+	prefix_test_string = source_string + prefix_test_string;
+	suffix_test_string = suffix_test_string + source_string;
+
+	REQUIRE(string_view_type(prefix_test_string.data(), source_string.size()) == source_string);
+	REQUIRE(string_view_type(prefix_test_string.data() + source_string.size(), source_string.size()) == source_string);
+
+	REQUIRE(string_view_type(suffix_test_string.data(), source_string.size()) == source_string);
+	REQUIRE(string_view_type(suffix_test_string.data() + source_string.size(), source_string.size()) == source_string);
+
+	for (size_type i = 0; i < 10; ++i)
+	{
+		prefix_test_string += source_string;
+		REQUIRE(prefix_test_string.size() == source_string.size() * (i + 3));
+
+		for (size_type j = 0; j < i + 3; ++j)
+		{
+			REQUIRE(string_view_type(prefix_test_string.data() + source_string.size() * j, source_string.size()) == source_string);
+		}
+	}
+}
+
+LINGO_UNIT_TEST_CASE("A string_view can be concatenated to a string_view")
+{
+	LINGO_UNIT_TEST_TYPEDEFS;
+
+	const string_view_type source_string = lingo::test::test_string<unit_type>::value;
+	string_type test_string;
+
+	test_string = source_string + source_string;
+	REQUIRE(test_string.size() == source_string.size() * 2);
+	REQUIRE(string_view_type(test_string.data(), source_string.size()) == source_string);
+	REQUIRE(string_view_type(test_string.data() + source_string.size(), source_string.size()) == source_string);
+
+	for (size_type i = 0; i < 10; ++i)
+	{
+		test_string += source_string;
+		REQUIRE(test_string.size() == source_string.size() * (i + 3));
+	}
+}
+
+LINGO_UNIT_TEST_CASE("A character can be concatenated to a string")
+{
+	LINGO_UNIT_TEST_TYPEDEFS;
+
+	const string_view_type source_string = lingo::test::test_string<unit_type>::value;
+	string_type prefix_test_string = source_string;
+	string_type suffix_test_string = source_string;
+	string_type suffix_assign_test_string = source_string;
+
+	std::vector<char32_t> expected_points;
+
+	for (char32_t point : point_iterator_type(source_string))
+	{
+		prefix_test_string = point + prefix_test_string;
+		suffix_test_string = suffix_test_string + point;
+		suffix_assign_test_string += point;
+
+		expected_points.push_back(point);
+		point_iterator_type prefix_iterator(prefix_test_string);
+		point_iterator_type suffix_iterator(suffix_test_string);
+		point_iterator_type suffix_assign_iterator(suffix_assign_test_string);
+
+		for (auto it = expected_points.rbegin(); it != expected_points.rend(); ++it)
+		{
+			REQUIRE(*prefix_iterator == *it);
+
+			++prefix_iterator;
+		}
+
+		for (char32_t expected_point : point_iterator_type(source_string))
+		{
+			REQUIRE(*prefix_iterator == expected_point);
+			REQUIRE(*suffix_iterator == expected_point);
+			REQUIRE(*suffix_assign_iterator == expected_point);
+
+			++prefix_iterator;
+			++suffix_iterator;
+			++suffix_assign_iterator;
+		}
+
+		for (auto it = expected_points.begin(); it != expected_points.end(); ++it)
+		{
+			REQUIRE(*suffix_iterator == *it);
+			REQUIRE(*suffix_assign_iterator == *it);
+
+			++suffix_iterator;
+			++suffix_assign_iterator;
+		}
+	}
+}
+
+LINGO_UNIT_TEST_CASE("A cstring can be concatenated to a string")
+{
+	LINGO_UNIT_TEST_TYPEDEFS;
+
+	const string_view_type source_string = lingo::test::test_string<unit_type>::value;
+	string_type prefix_test_string = source_string;
+	string_type suffix_test_string = source_string;
+
+	REQUIRE(source_string.null_terminated());
+	prefix_test_string = source_string.data() + prefix_test_string;
+	suffix_test_string = suffix_test_string + source_string.data();
+
+	REQUIRE(string_view_type(prefix_test_string.data(), source_string.size()) == source_string);
+	REQUIRE(string_view_type(prefix_test_string.data() + source_string.size(), source_string.size()) == source_string);
+
+	REQUIRE(string_view_type(suffix_test_string.data(), source_string.size()) == source_string);
+	REQUIRE(string_view_type(suffix_test_string.data() + source_string.size(), source_string.size()) == source_string);
+
+	for (size_type i = 0; i < 10; ++i)
+	{
+		prefix_test_string += source_string.data();
+		REQUIRE(prefix_test_string.size() == source_string.size() * (i + 3));
+
+		for (size_type j = 0; j < i + 3; ++j)
+		{
+			REQUIRE(string_view_type(prefix_test_string.data() + source_string.size() * j, source_string.size()) == source_string);
+		}
+	}
+}
+
+LINGO_UNIT_TEST_CASE("A cstring can be concatenated to a string_view")
+{
+	LINGO_UNIT_TEST_TYPEDEFS;
+
+	const string_view_type source_string = lingo::test::test_string<unit_type>::value;
+	const string_view_type prefix_test_string = source_string;
+	const string_view_type suffix_test_string = source_string;
+
+	REQUIRE(source_string.null_terminated());
+	const string_type prefix_test_string_result = source_string.data() + prefix_test_string;
+	const string_type suffix_test_string_result = suffix_test_string + source_string.data();
+
+	REQUIRE(string_view_type(prefix_test_string_result.data(), source_string.size()) == source_string);
+	REQUIRE(string_view_type(prefix_test_string_result.data() + source_string.size(), source_string.size()) == source_string);
+
+	REQUIRE(string_view_type(suffix_test_string_result.data(), source_string.size()) == source_string);
+	REQUIRE(string_view_type(suffix_test_string_result.data() + source_string.size(), source_string.size()) == source_string);
 }
