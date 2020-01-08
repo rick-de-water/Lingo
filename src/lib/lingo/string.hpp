@@ -419,6 +419,14 @@ namespace lingo
 			// Return this
 			return *this;
 		}
+		
+		template <typename _ = int, typename std::enable_if<
+			std::is_same<encoding::cstring_default_encoding_t<unit_type>, encoding_type>::value &&
+			std::is_same<page::cstring_default_page_t<unit_type>, page_type>::value, _>::type = 0>
+		basic_string& operator += (const unit_type* other)
+		{
+			return (*this) += string_view(other);
+		}
 
 		basic_string& operator = (const basic_string& string)
 		{
@@ -522,7 +530,7 @@ namespace lingo
 	}
 
 	template <typename Encoding, typename Page, typename ResultAllocator = internal::default_allocator<Encoding>>
-	basic_string<Encoding, Page, ResultAllocator> operator + (basic_string_view<Encoding, Page> left, basic_string_view<Encoding, Page> right)
+	basic_string<Encoding, Page, ResultAllocator> operator + (const basic_string_view<Encoding, Page>& left, const basic_string_view<Encoding, Page>& right)
 	{
 		basic_string<Encoding, Page, ResultAllocator> result;
 		result.reserve(left.size() + right.size());
@@ -532,7 +540,7 @@ namespace lingo
 	}
 
 	template <typename Encoding, typename Page, typename LeftAllocator, typename ResultAllocator = LeftAllocator>
-	basic_string<Encoding, Page, ResultAllocator> operator + (basic_string<Encoding, Page, LeftAllocator> left, typename Encoding::point_type right)
+	basic_string<Encoding, Page, ResultAllocator> operator + (const basic_string<Encoding, Page, LeftAllocator>& left, typename Encoding::point_type right)
 	{
 		basic_string<Encoding, Page, ResultAllocator> result;
 		result.reserve(left.size() + Encoding::max_units);
@@ -542,13 +550,45 @@ namespace lingo
 	}
 
 	template <typename Encoding, typename Page, typename RightAllocator, typename ResultAllocator = RightAllocator>
-	basic_string<Encoding, Page, ResultAllocator> operator + (typename Encoding::point_type left, basic_string<Encoding, Page, RightAllocator> right)
+	basic_string<Encoding, Page, ResultAllocator> operator + (typename Encoding::point_type left, const basic_string<Encoding, Page, RightAllocator>& right)
 	{
 		basic_string<Encoding, Page, ResultAllocator> result;
 		result.reserve(right.size() + Encoding::max_units);
 		result.push_back(left);
 		result += right;
 		return result;
+	}
+
+	template <typename Encoding, typename Page, typename LeftAllocator, typename ResultAllocator = LeftAllocator, typename std::enable_if<
+		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
+		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+	basic_string<Encoding, Page, ResultAllocator> operator + (const basic_string<Encoding, Page, LeftAllocator>& left, const typename Encoding::unit_type* right)
+	{
+		return left + basic_string_view<Encoding, Page>(right);
+	}
+
+	template <typename Encoding, typename Page, typename RightAllocator, typename ResultAllocator = RightAllocator, typename std::enable_if<
+		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
+		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+	basic_string<Encoding, Page, ResultAllocator> operator + (const typename Encoding::unit_type* left, const basic_string<Encoding, Page, RightAllocator>& right)
+	{
+		return basic_string_view<Encoding, Page>(left) + right;
+	}
+
+	template <typename Encoding, typename Page, typename std::enable_if<
+		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
+		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+	basic_string<Encoding, Page> operator + (basic_string_view<Encoding, Page> left, const typename Encoding::unit_type* right)
+	{
+		return left + basic_string_view<Encoding, Page>(right);
+	}
+
+	template <typename Encoding, typename Page, typename std::enable_if<
+		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
+		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+	basic_string<Encoding, Page> operator + (const typename Encoding::unit_type* left, basic_string_view<Encoding, Page> right)
+	{
+		return basic_string_view<Encoding, Page>(left) + right;
 	}
 
 	template <typename Encoding, typename Page, typename LeftAllocator, typename RightAllocator>

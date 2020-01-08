@@ -619,3 +619,52 @@ LINGO_UNIT_TEST_CASE("A character can be concatenated to a string")
 		}
 	}
 }
+
+LINGO_UNIT_TEST_CASE("A cstring can be concatenated to a string")
+{
+	LINGO_UNIT_TEST_TYPEDEFS;
+
+	const string_view_type source_string = lingo::test::test_string<unit_type>::value;
+	string_type prefix_test_string = source_string;
+	string_type suffix_test_string = source_string;
+
+	REQUIRE(source_string.null_terminated());
+	prefix_test_string = source_string.data() + prefix_test_string;
+	suffix_test_string = suffix_test_string + source_string.data();
+
+	REQUIRE(string_view_type(prefix_test_string.data(), source_string.size()) == source_string);
+	REQUIRE(string_view_type(prefix_test_string.data() + source_string.size(), source_string.size()) == source_string);
+
+	REQUIRE(string_view_type(suffix_test_string.data(), source_string.size()) == source_string);
+	REQUIRE(string_view_type(suffix_test_string.data() + source_string.size(), source_string.size()) == source_string);
+
+	for (size_type i = 0; i < 10; ++i)
+	{
+		prefix_test_string += source_string.data();
+		REQUIRE(prefix_test_string.size() == source_string.size() * (i + 3));
+
+		for (size_type j = 0; j < i + 3; ++j)
+		{
+			REQUIRE(string_view_type(prefix_test_string.data() + source_string.size() * j, source_string.size()) == source_string);
+		}
+	}
+}
+
+LINGO_UNIT_TEST_CASE("A cstring can be concatenated to a string_view")
+{
+	LINGO_UNIT_TEST_TYPEDEFS;
+
+	const string_view_type source_string = lingo::test::test_string<unit_type>::value;
+	const string_view_type prefix_test_string = source_string;
+	const string_view_type suffix_test_string = source_string;
+
+	REQUIRE(source_string.null_terminated());
+	const string_type prefix_test_string_result = source_string.data() + prefix_test_string;
+	const string_type suffix_test_string_result = suffix_test_string + source_string.data();
+
+	REQUIRE(string_view_type(prefix_test_string_result.data(), source_string.size()) == source_string);
+	REQUIRE(string_view_type(prefix_test_string_result.data() + source_string.size(), source_string.size()) == source_string);
+
+	REQUIRE(string_view_type(suffix_test_string_result.data(), source_string.size()) == source_string);
+	REQUIRE(string_view_type(suffix_test_string_result.data() + source_string.size(), source_string.size()) == source_string);
+}
