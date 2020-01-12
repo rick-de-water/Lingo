@@ -3,9 +3,9 @@
 #include <lingo/encoding/endian.hpp>
 #include <lingo/string.hpp>
 
-#include "test_case.hpp"
-#include "test_types.hpp"
-#include "test_strings.hpp"
+#include <lingo/test_case.hpp>
+#include <lingo/test_types.hpp>
+#include <lingo/test_strings.hpp>
 
 #include <limits>
 #include <type_traits>

@@ -3,7 +3,7 @@
 
 #include <lingo/platform/constexpr.hpp>
 
-#include <test_types.hpp>
+#include <lingo/test_types.hpp>
 
 #include <array>
 #include <cstddef>

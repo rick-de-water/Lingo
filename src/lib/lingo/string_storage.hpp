@@ -187,6 +187,17 @@ namespace lingo
 			}
 		}
 
+		// Unit construction and destruction
+		static void default_construct(pointer destination, size_type size) noexcept(noexcept(std::declval<basic_string_storage&>().default_construct_impl(destination, size)))
+		{
+			default_construct_impl(destination, size);
+		}
+
+
+
+
+
+
 		void resize_default_construct(size_type new_size)
 		{
 			assert(new_size <= capacity());
@@ -357,16 +368,19 @@ namespace lingo
 			return *this;
 		}
 
-		static void default_construct(
-			LINGO_UNUSED_IF_CONSTEXPR(pointer destination),
-			LINGO_UNUSED_IF_CONSTEXPR(size_type size))
+		template <typename _ = int, typename std::enable_if<
+			std::is_trivially_default_constructible<unit_type>::value, _>::type = 0>
+		static void default_construct_impl(pointer, size_type) noexcept
 		{
-			LINGO_IF_CONSTEXPR(!std::is_trivially_constructible<value_type>::value)
+		}
+
+		template <typename _ = int, typename std::enable_if<
+			!std::is_trivially_default_constructible<unit_type>::value, _>::type = 0>
+		static void default_construct_impl(pointer destination, size_type size) noexcept(noexcept(new (destination) value_type()))
+		{
+			for (size_type i = 0; i < size; ++i)
 			{
-				for (size_type i = 0; i < size; ++i)
-				{
-					new (destination + i) value_type();
-				}
+				new (destination + i) value_type();
 			}
 		}
 
