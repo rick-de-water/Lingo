@@ -84,30 +84,7 @@ namespace lingo
 		basic_string(size_type count, point_type point, const allocator_type& allocator = allocator_type()):
 			basic_string(allocator)
 		{
-			// Encode the point into units
-			unit_type encoded_point[encoding_type::max_units];
-			const auto result = encoding_type::encode_point(point, encoded_point, encoding_type::max_units);
-			if (result.error != error::error_code::success)
-			{
-				throw error::exception(result.error);
-			}
-
-			// Allocate memory
-			const size_type destination_size = result.size * count;
-			_storage.grow_empty(destination_size);
-			const pointer destination_data = data();
-
-			// Fill memory
-			for (size_type i = 0; i < count; ++i)
-			{
-				_storage.copy_construct(destination_data + i * result.size, encoded_point, result.size);
-			}
-
-			// Construct null terminator
-			_storage.copy_construct(destination_data + destination_size, &null_terminator, 1);
-
-			// Set size
-			_storage.set_size(destination_size);
+			assign(count, point);
 		}
 
 		template <std::size_t N, typename Foo = int, typename std::enable_if<(
@@ -121,22 +98,7 @@ namespace lingo
 		basic_string(string_view string_view, const allocator_type& allocator = allocator_type()):
 			basic_string(allocator)
 		{
-			const const_pointer source_data = string_view.data();
-			const size_type source_size = string_view.size();
-
-			_storage.grow_empty(source_size);
-			const pointer destination_data = data();
-
-			if (string_view.null_terminated())
-			{
-				_storage.copy_construct(destination_data, source_data, source_size + 1);
-			}
-			else
-			{
-				_storage.copy_construct(destination_data, source_data, source_size);
-				_storage.copy_construct(destination_data + source_size, &null_terminator, 1);
-			}
-			_storage.set_size(source_size);
+			assign(string_view);
 		}
 
 		template <typename SourceEncoding, typename SourcePage>
@@ -151,43 +113,43 @@ namespace lingo
 		{
 		}
 
-		basic_string(const basic_string& string):
-			basic_string(string, allocator_type())
+		basic_string(const basic_string& str):
+			basic_string(str, allocator_type())
 		{
 		}
 
-		basic_string(const basic_string& string, const allocator_type& allocator):
-			_storage(string._storage, allocator)
+		basic_string(const basic_string& str, const allocator_type& allocator):
+			_storage(str._storage, allocator)
 		{
 		}
 
-		basic_string(const basic_string& string, size_type pos):
-			basic_string(string, pos, allocator_type())
+		basic_string(const basic_string& str, size_type pos):
+			basic_string(str, pos, allocator_type())
 		{
 		}
 
-		basic_string(const basic_string& string, size_type pos, const allocator_type& allocator):
-			basic_string(string, pos, npos, allocator)
+		basic_string(const basic_string& str, size_type pos, const allocator_type& allocator):
+			basic_string(str, pos, npos, allocator)
 		{
 		}
 
-		basic_string(const basic_string& string, size_type pos, size_type count):
-			basic_string(string, pos, count, allocator_type())
+		basic_string(const basic_string& str, size_type pos, size_type count):
+			basic_string(str, pos, count, allocator_type())
 		{
 		}
 
-		basic_string(const basic_string& string, size_type pos, size_type count, const allocator_type& allocator):
-			basic_string(string_view(string.data() + pos, count == npos ? string.size() - pos : count), allocator)
+		basic_string(const basic_string& str, size_type pos, size_type count, const allocator_type& allocator):
+			basic_string(string_view(str.data() + pos, count == npos ? str.size() - pos : count), allocator)
 		{
 		}
 
-		basic_string(basic_string&& string):
-			basic_string(std::move(string), allocator_type())
+		basic_string(basic_string&& str):
+			basic_string(std::move(str), allocator_type())
 		{
 		}
 
-		basic_string(basic_string&& string, const allocator_type& allocator):
-			_storage(std::move(string._storage), allocator)
+		basic_string(basic_string&& str, const allocator_type& allocator):
+			_storage(std::move(str._storage), allocator)
 		{
 		}
 
@@ -353,6 +315,82 @@ namespace lingo
 			resize(0);
 		}
 
+		void assign(size_type count, point_type point)
+		{
+			// Encode the point into units
+			unit_type encoded_point[encoding_type::max_units];
+			const auto result = encoding_type::encode_point(point, encoded_point, encoding_type::max_units);
+			if (result.error != error::error_code::success)
+			{
+				throw error::exception(result.error);
+			}
+
+			// Allocate memory
+			const size_type destination_size = result.size * count;
+			_storage.grow_discard(destination_size);
+			const pointer destination_data = data();
+
+			// Fill memory
+			for (size_type i = 0; i < count; ++i)
+			{
+				_storage.copy_construct(destination_data + i * result.size, encoded_point, result.size);
+			}
+
+			// Construct null terminator
+			_storage.copy_construct(destination_data + destination_size, &null_terminator, 1);
+
+			// Update size
+			_storage.set_size(destination_size);
+		}
+
+		void assign(const basic_string& str) noexcept(std::is_nothrow_copy_assignable<storage_type>::value)
+		{
+			_storage = str._storage;
+		}
+
+		void assign(const basic_string& str, size_type pos) noexcept(noexcept(assign(str, pos, npos)))
+		{
+			assign(str, pos, npos);
+		}
+
+		void assign(const basic_string& str, size_type pos, size_type count) noexcept(noexcept(assign(std::declval<string_view>())))
+		{
+			assign(string_view(str.data() + pos, count == npos ? str.size() - pos : count));
+		}
+
+		void assign(basic_string&& str) noexcept(std::is_nothrow_move_assignable<storage_type>::value)
+		{
+			_storage = std::move(str._storage);
+		}
+
+		void assign(string_view other)
+		{
+			assert(other.data() < data() || other.data() >= data() + capacity());
+
+			// Get source data and size
+			const const_pointer source_data = other.data();
+			const size_type source_size = other.size();
+
+			// Allocate memory
+			_storage.grow_discard(source_size);
+			const pointer destination_data = data();
+			
+			// Copy with null terminator
+			if (other.null_terminated())
+			{
+				_storage.copy_construct(destination_data, source_data, source_size + 1);
+			}
+			// Copy and add null terminator
+			else
+			{
+				_storage.copy_construct(destination_data, source_data, source_size);
+				_storage.copy_construct(destination_data + source_size, &null_terminator, 1);
+			}
+
+			// Update size
+			_storage.set_size(source_size);
+		}
+
 		void push_back(point_type point)
 		{
 			// Encode the point into units
@@ -485,7 +523,7 @@ namespace lingo
 
 		basic_string& operator = (const basic_string& string)
 		{
-			_storage = string._storage;
+			assign(string);
 			return *this;
 		}
 

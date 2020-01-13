@@ -123,7 +123,7 @@ namespace lingo
 		basic_string_storage(const basic_string_storage& storage, const allocator_type& allocator):
 			basic_string_storage(allocator)
 		{
-			grow_empty(storage.size());
+			grow_discard(storage.size());
 			copy_construct(data(), storage.data(), storage.size() + 1);
 			set_size(storage.size());
 		}
@@ -155,7 +155,7 @@ namespace lingo
 			// Allocators cannot share memory, so we have to copy
 			else
 			{
-				grow_empty(storage.size());
+				grow_discard(storage.size());
 				copy_construct(data(), storage.data(), storage.size() + 1);
 				set_size(storage.size());
 			}
@@ -245,13 +245,6 @@ namespace lingo
 		}
 
 		// Combined operations
-		// Grow when empty (usually from constructor)
-		void grow_empty(size_type new_capacity)
-		{
-			const auto alloc = allocate(new_capacity);
-			swap_data(alloc);
-		}
-
 		// Grow while discarding existing data (usually due to some kind of copy assignment)
 		void grow_discard(size_type new_capacity)
 		{
@@ -509,6 +502,7 @@ namespace lingo
 			{
 				return;
 			}
+			assert(is_long_allocation(alloc));
 
 			const allocation original_alloc = current_allocation();
 
@@ -519,19 +513,10 @@ namespace lingo
 			}
 
 			// Replace the old data pointers with the new ones
-			if (is_long_allocation(alloc))
-			{
-				auto& long_storage = _data.first()._long;
-				long_storage._data = alloc.data;
-				long_storage._capacity = alloc.size;
-				long_storage._last_unit = internal::basic_string_storage_long_marker<value_type>::value;
-			}
-			else
-			{
-				auto& short_storage = _data.first()._short;
-				short_storage._data[0];
-				short_storage._last_unit = internal::basic_string_storage_short_marker<Unit>::value;
-			}
+			auto& long_storage = _data.first()._long;
+			long_storage._data = alloc.data;
+			long_storage._capacity = alloc.size;
+			long_storage._last_unit = internal::basic_string_storage_long_marker<value_type>::value;
 		}
 
 		bool is_long_allocation(allocation alloc) noexcept
