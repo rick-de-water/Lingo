@@ -586,6 +586,10 @@ LINGO_UNIT_TEST_CASE("A character can be concatenated to a string")
 		suffix_test_string = suffix_test_string + point;
 		suffix_assign_test_string += point;
 
+		REQUIRE(prefix_test_string[prefix_test_string.size()] == unit_type{});
+		REQUIRE(suffix_test_string[suffix_test_string.size()] == unit_type{});
+		REQUIRE(suffix_assign_test_string[suffix_assign_test_string.size()] == unit_type{});
+
 		expected_points.push_back(point);
 		point_iterator_type prefix_iterator(prefix_test_string);
 		point_iterator_type suffix_iterator(suffix_test_string);

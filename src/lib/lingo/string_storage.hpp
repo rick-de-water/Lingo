@@ -22,6 +22,12 @@ namespace lingo
 		};
 
 		template <typename Unit>
+		struct basic_string_storage_short_marker
+		{
+			static LINGO_CONSTEXPR11 Unit value = Unit(((sizeof(void*) * 4) / sizeof(Unit)) - 1);
+		};
+
+		template <typename Unit>
 		struct basic_string_storage_data_requires_padding
 		{
 			static LINGO_CONSTEXPR11 bool value = sizeof(Unit) < sizeof(void*);
@@ -62,7 +68,7 @@ namespace lingo
 			basic_string_storage_data() noexcept
 			{
 				_short._data[0] = {};
-				_short._last_unit = Unit(((sizeof(void*) * 4) / sizeof(Unit)) - 1);
+				_short._last_unit = basic_string_storage_short_marker<Unit>::value;
 			}
 
 			basic_string_storage_data_long<Unit> _long;
@@ -94,24 +100,32 @@ namespace lingo
 
 		static_assert(std::is_same<unit_type, typename allocator_type::value_type>::value, "allocator_type::value_type must be the same type as basic_string_storage::unit_type");
 
-		basic_string_storage() noexcept(
-			std::is_nothrow_constructible<allocator_type>::value &&
-			std::is_nothrow_constructible<basic_string_storage, const allocator_type&>::value):
+		private:
+		using compressed_pair = utility::compressed_pair<internal::basic_string_storage_data<unit_type>, allocator_type>;
+
+		struct allocation
+		{
+			pointer data;
+			size_type size;
+		};
+
+		public:
+		basic_string_storage() noexcept(noexcept(basic_string_storage(allocator_type()))):
 			basic_string_storage(allocator_type())
 		{
 		}
 
-		explicit basic_string_storage(const allocator_type& allocator) noexcept(std::is_nothrow_copy_constructible<allocator_type>::value):
+		explicit basic_string_storage(const allocator_type& allocator) noexcept(noexcept(compressed_pair{ {}, allocator })):
 			_data{ {}, allocator }
 		{
 		}
 
-
 		basic_string_storage(const basic_string_storage& storage, const allocator_type& allocator):
 			basic_string_storage(allocator)
 		{
-			grow(storage.size());
-			resize_copy_construct(storage.size(), storage.data());
+			grow_empty(storage.size());
+			copy_construct(data(), storage.data(), storage.size() + 1);
+			set_size(storage.size());
 		}
 
 		basic_string_storage(basic_string_storage&& storage, const allocator_type& allocator):
@@ -123,34 +137,34 @@ namespace lingo
 				// Move memory if it was allocated dynamically
 				if (storage.is_long())
 				{
-					_data.first()._long._data = storage.data();
-					_data.first()._long._size = storage.size();
-					_data.first()._long._capacity = storage.capacity();
-					_data.first()._long._last_unit = internal::basic_string_storage_long_marker<value_type>::value;
+					// Copy allocation from source
+					swap_data(storage.current_allocation());
+					set_size(storage.size());
 
+					// Reset source
 					storage._data.first()._short = {};
 				}
 				// Small string optimized memory cannot be moved, so we still need to copy it
 				else
 				{
-					resize_copy_construct(storage.size(), storage.data());
+					// No need to grow because we know it can fit inside the storage itself
+					copy_construct(data(), storage.data(), storage.size() + 1);
+					set_size(storage.size());
 				}
 			}
 			// Allocators cannot share memory, so we have to copy
 			else
 			{
-				grow(storage.size());
-				resize_copy_construct(storage.size(), storage.data());
+				grow_empty(storage.size());
+				copy_construct(data(), storage.data(), storage.size() + 1);
+				set_size(storage.size());
 			}
 		}
 
 		~basic_string_storage() noexcept
 		{
-			if (is_long())
-			{
-				destruct(data(), size());
-				get_allocator().deallocate(data(), capacity());
-			}
+			destruct(data(), size() + 1);
+			free(current_allocation());
 		}
 
 		allocator_type get_allocator() const noexcept(std::is_nothrow_copy_constructible<allocator_type>::value)
@@ -187,66 +201,6 @@ namespace lingo
 			}
 		}
 
-		// Unit construction and destruction
-		static void default_construct(pointer destination, size_type size) noexcept(noexcept(std::declval<basic_string_storage&>().default_construct_impl(destination, size)))
-		{
-			default_construct_impl(destination, size);
-		}
-
-
-
-
-
-
-		void resize_default_construct(size_type new_size)
-		{
-			assert(new_size <= capacity());
-			const size_type original_size = size();
-			pointer buffer = data();
-			if (new_size > original_size)
-			{
-				default_construct(buffer + original_size, new_size - original_size);
-				buffer[new_size] = value_type{};
-			}
-			else if (new_size < original_size)
-			{
-				destruct(buffer + new_size, original_size - new_size);
-				buffer[new_size] = value_type{};
-			}
-			set_size(new_size);
-		}
-
-		void resize_copy_construct(size_type new_size, const_pointer source)
-		{
-			assert(new_size <= capacity());
-			const size_type original_size = size();
-			pointer buffer = data();
-			if (new_size > original_size)
-			{
-				copy_construct(buffer, source, new_size - original_size);
-				buffer[new_size] = value_type{};
-			}
-			else if (new_size < original_size)
-			{
-				destruct(buffer + new_size, original_size - new_size);
-				buffer[new_size] = value_type{};
-			}
-			set_size(new_size);
-		}
-
-		void set_size(size_type new_size)
-		{
-			assert(new_size <= capacity());
-			if (is_long())
-			{
-				_data.first()._long._size = new_size;
-			}
-			else
-			{
-				_data.first()._short._last_unit = static_cast<value_type>(sizeof(void*) * 4 / sizeof(value_type) - (new_size + 1));
-			}
-		}
-
 		size_type max_size() const noexcept
 		{
 			return std::numeric_limits<size_t>::max();
@@ -269,60 +223,132 @@ namespace lingo
 			return _data.first()._long._last_unit == internal::basic_string_storage_long_marker<value_type>::value;
 		}
 
-		void grow(size_type requested_capacity)
+		// Unit construction and destruction operations
+		static void default_construct(pointer destination, size_type size) noexcept(noexcept(std::declval<basic_string_storage&>().default_construct_impl(destination, size)))
 		{
-			// Don't do anything when there is already enough capacity
-			size_type new_capacity = capacity();
-			if (new_capacity >= requested_capacity)
+			default_construct_impl(destination, size);
+		}
+
+		static void copy_construct(pointer destination, const_pointer source, size_type size) noexcept(noexcept(std::declval<basic_string_storage&>().copy_construct_impl(destination, source, size)))
+		{
+			copy_construct_impl(destination, source, size);
+		}
+
+		static void move_contruct(pointer destination, const_pointer source, size_type size) noexcept(noexcept(std::declval<basic_string_storage&>().move_construct_impl(destination, source, size)))
+		{
+			move_construct_impl(destination, source, size);
+		}
+
+		static void destruct(pointer destination, size_type size) noexcept(noexcept(std::declval<basic_string_storage&>().destruct_impl(destination, size)))
+		{
+			destruct_impl(destination, size);
+		}
+
+		// Combined operations
+		// Grow when empty (usually from constructor)
+		void grow_empty(size_type new_capacity)
+		{
+			const auto alloc = allocate(new_capacity);
+			swap_data(alloc);
+		}
+
+		// Grow while discarding existing data (usually due to some kind of copy assignment)
+		void grow_discard(size_type new_capacity)
+		{
+			const allocation current_alloc = current_allocation();
+			const auto alloc = allocate(new_capacity);
+			try
+			{
+				destruct(data(), size() + 1);
+				swap_data(alloc);
+			}
+			catch (...)
+			{
+				if (alloc.data != current_alloc.data)
+				{
+					free(alloc);
+				}
+				throw;
+			}
+		}
+
+		// Grow while keeping the existing data including the null terminator
+		void grow_reserve(size_type new_capacity)
+		{
+			const allocation current_alloc = current_allocation();
+			const auto alloc = allocate(new_capacity);
+
+			// Current allocation is already big enough
+			if (current_alloc.data == alloc.data)
 			{
 				return;
 			}
 
-			// Calculate the new capacity
-			// TODO: handle requested_capacity > max_size
-			if (new_capacity * 2 >= requested_capacity)
+			// New buffer has been allocated
+			try
 			{
-				new_capacity *= 2;
+				// Move all data over to the new buffer
+				move_contruct(alloc.data, current_alloc.data, size() + 1);
+
+				// Destruct old data
+				destruct(current_alloc.data, size() + 1);
+
+				// Swap allocations
+				swap_data(alloc);
 			}
+			catch (...)
+			{
+				if (alloc.data != current_alloc.data)
+				{
+					free(alloc);
+				}
+				throw;
+			}
+		}
+
+		// Grow while keeping the existing data except for the null terminator (useful for things like string concatination)
+		void grow_append(size_type new_capacity)
+		{
+			const allocation current_alloc = current_allocation();
+			const auto alloc = allocate(new_capacity);
+
+			// Current allocation is already big enough, so we only need to remove the null terminator
+			if (current_alloc.data == alloc.data)
+			{
+				destruct(data() + size(), 1);
+			}
+			// New buffer has been allocated
 			else
 			{
-				new_capacity = requested_capacity;
+				try
+				{
+					// Move all data over to the new buffer
+					move_contruct(alloc.data, current_alloc.data, size());
+
+					// Destruct old data
+					destruct(current_alloc.data, size() + 1);
+
+					// Swap allocations
+					swap_data(alloc);
+				}
+				catch (...)
+				{
+					if (alloc.data != current_alloc.data)
+					{
+						free(alloc);
+					}
+					throw;
+				}
 			}
-
-			// Allocate a new buffer
-			allocator_type allocator = get_allocator();
-			pointer original_data = data();
-			const size_type data_size = size();
-			pointer new_data = allocator.allocate(new_capacity + 1);
-
-			// Copy the old data to the new buffer
-			// TODO: rollback on exceptions when the copy constructor can throw
-			copy_construct(new_data, original_data, data_size);
-
-			// Clean up the original data
-			destruct(original_data, data_size);
-			
-			// Free original memory if it was allocated by the allocator
-			if (is_long())
-			{
-				allocator.deallocate(original_data, capacity());
-			}
-
-			// Replace the old data pointers with the new ones
-			_data.first()._long._data = new_data;
-			_data.first()._long._size = data_size;
-			_data.first()._long._capacity = new_capacity;
-			_data.first()._long._last_unit = internal::basic_string_storage_long_marker<value_type>::value;
 		}
 
 		basic_string_storage& operator = (const basic_string_storage& storage)
 		{
 			if (&storage != this)
 			{
-				grow(storage.size());
-
-				resize_copy_construct(0, nullptr);
-				resize_copy_construct(storage.size(), storage.data());
+				grow_discard(storage.size());
+				copy_construct(data(), storage.data(), storage.size() + 1);
+				set_size(storage.size());
 			}
 			return *this;
 		}
@@ -340,15 +366,12 @@ namespace lingo
 						// Destruct existing data if it exists
 						if (is_long())
 						{
-							destruct(data(), size());
-							get_allocator().deallocate(data(), capacity());
+							destruct(data(), size() + 1);
 						}
 
-						// Copy memory pointers
-						_data.first()._long._data = storage.data();
-						_data.first()._long._size = storage.size();
-						_data.first()._long._capacity = storage.capacity();
-						_data.first()._long._last_unit = internal::basic_string_storage_long_marker<value_type>::value;
+						// Copy allocation from source
+						swap_data(storage.current_allocation());
+						set_size(storage.size());
 
 						// Mark source as empty
 						storage._data.first()._short = {};
@@ -369,13 +392,14 @@ namespace lingo
 		}
 
 		template <typename _ = int, typename std::enable_if<
-			std::is_trivially_default_constructible<unit_type>::value, _>::type = 0>
+			std::is_trivially_default_constructible<value_type>::value, _>::type = 0>
 		static void default_construct_impl(pointer, size_type) noexcept
 		{
 		}
 
 		template <typename _ = int, typename std::enable_if<
-			!std::is_trivially_default_constructible<unit_type>::value, _>::type = 0>
+			!std::is_trivially_default_constructible<value_type>::value &&
+			std::is_default_constructible<value_type>::value, _>::type = 0>
 		static void default_construct_impl(pointer destination, size_type size) noexcept(noexcept(new (destination) value_type()))
 		{
 			for (size_type i = 0; i < size; ++i)
@@ -384,37 +408,157 @@ namespace lingo
 			}
 		}
 
-		static void copy_construct(pointer destination, const_pointer source, size_type size) noexcept(std::is_nothrow_copy_constructible<value_type>::value)
+		template <typename _ = int, typename std::enable_if<
+			std::is_trivially_copy_constructible<value_type>::value, _>::type = 0>
+		static void copy_construct_impl(pointer destination, const_pointer source, size_type size) noexcept
 		{
-			// Copy data over to the new data
-			LINGO_IF_CONSTEXPR(std::is_trivially_copyable<value_type>::value)
+			std::memcpy(destination, source, size * sizeof(unit_type));
+		}
+
+		template <typename _ = int, typename std::enable_if<
+			!std::is_trivially_copy_constructible<value_type>::value &&
+			std::is_copy_constructible<value_type>::value, _>::type = 0>
+		static void copy_construct_impl(pointer destination, const_pointer source, size_type size) noexcept(noexcept(new (destination) value_type(source[0])))
+		{
+			for (size_type i = 0; i < size; ++i)
 			{
-				std::memcpy(destination, source, size * sizeof(value_type));
-			}
-			else
-			{
-				for (size_type i = 0; i < size; ++i)
-				{
-					new (destination + i) value_type(source[i]);
-				}
+				new (destination + i) value_type(source[i]);
 			}
 		}
 
-		static void destruct(
-			LINGO_UNUSED_IF_CONSTEXPR(pointer destination),
-			LINGO_UNUSED_IF_CONSTEXPR(size_type size))
+		template <typename _ = int, typename std::enable_if<
+			std::is_trivially_move_constructible<value_type>::value, _>::type = 0>
+		static void move_construct_impl(pointer destination, const_pointer source, size_type size) noexcept
 		{
-			LINGO_IF_CONSTEXPR(!std::is_trivially_destructible<value_type>::value)
+			std::memcpy(destination, source, size * sizeof(unit_type));
+		}
+
+		template <typename _ = int, typename std::enable_if<
+			!std::is_trivially_move_constructible<value_type>::value &&
+			std::is_move_constructible<value_type>::value, _>::type = 0>
+		static void move_construct_impl(pointer destination, const_pointer source, size_type size) noexcept(noexcept(new (destination) value_type(std::move(source[0]))))
+		{
+			for (size_type i = 0; i < size; ++i)
 			{
-				for (size_type i = 0; i < size; ++i)
-				{
-					destination[i].~value_type();
-				}
+				new (destination + i) value_type(source[i]);
+			}
+		}
+
+		template <typename _ = int, typename std::enable_if<
+			std::is_trivially_destructible<value_type>::value, _>::type = 0>
+		static void destruct_impl(pointer, size_type) noexcept
+		{
+		}
+
+		template <typename _ = int, typename std::enable_if<
+			!std::is_trivially_destructible<value_type>::value &&
+			std::is_destructible<value_type>::value, _>::type = 0>
+		static void destruct_impl(pointer destination, size_type size) noexcept(noexcept((destination)->~value_type()))
+		{
+			for (size_type i = 0; i < size; ++i)
+			{
+				(destination + i)->~value_type();
+			}
+		}
+
+		allocation allocate(size_type requested_capacity) noexcept(noexcept(std::declval<allocator_type&>().allocate(requested_capacity)))
+		{
+			assert(requested_capacity <= max_size());
+
+			// Don't do anything when there is already enough capacity
+			size_type new_capacity = capacity();
+			if (new_capacity >= requested_capacity)
+			{
+				allocation alloc;
+				alloc.data = data();
+				alloc.size = new_capacity;
+				return alloc;
+			}
+
+			// Calculate the new capacity
+			if (new_capacity * 2 >= requested_capacity)
+			{
+				new_capacity *= 2;
+			}
+			else
+			{
+				new_capacity = requested_capacity;
+			}
+
+			// Allocate a new buffer
+			allocator_type allocator = get_allocator();
+			allocation alloc;
+			alloc.data = allocator.allocate(new_capacity + 1);
+			alloc.size = new_capacity;
+			return alloc;
+		}
+
+		void free(allocation alloc) noexcept
+		{
+			if (is_long_allocation(alloc))
+			{
+				allocator_type allocator = get_allocator();
+				allocator.deallocate(alloc.data, alloc.size);
+			}
+		}
+
+		void swap_data(allocation alloc) noexcept
+		{
+			pointer original_data = data();
+			if (original_data == alloc.data)
+			{
+				return;
+			}
+
+			const allocation original_alloc = current_allocation();
+
+			// Free original data if it was allocated by the allocator
+			if (is_long())
+			{
+				free(original_alloc);
+			}
+
+			// Replace the old data pointers with the new ones
+			if (is_long_allocation(alloc))
+			{
+				auto& long_storage = _data.first()._long;
+				long_storage._data = alloc.data;
+				long_storage._capacity = alloc.size;
+				long_storage._last_unit = internal::basic_string_storage_long_marker<value_type>::value;
+			}
+			else
+			{
+				auto& short_storage = _data.first()._short;
+				short_storage._data[0];
+				short_storage._last_unit = internal::basic_string_storage_short_marker<Unit>::value;
+			}
+		}
+
+		bool is_long_allocation(allocation alloc) noexcept
+		{
+			return alloc.data != _data.first()._short._data;
+		}
+
+		allocation current_allocation() noexcept
+		{
+			return allocation{ data(), capacity() + 1 };
+		}
+
+		void set_size(size_type new_size) noexcept
+		{
+			assert(new_size <= capacity());
+			if (is_long())
+			{
+				_data.first()._long._size = new_size;
+			}
+			else
+			{
+				_data.first()._short._last_unit = static_cast<value_type>(internal::basic_string_storage_short_marker<Unit>::value - new_size);
 			}
 		}
 
 		private:
-		utility::compressed_pair<internal::basic_string_storage_data<unit_type>, allocator_type> _data;
+		compressed_pair _data;
 	};
 
 	static_assert(sizeof(basic_string_storage<uint_least8_t>) == sizeof(void*) * 4, "string storage is the correct size");

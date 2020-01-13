@@ -93,20 +93,21 @@ namespace lingo
 			}
 
 			// Allocate memory
-			const size_type new_size = result.size * count;
-			_storage.grow(new_size);
+			const size_type destination_size = result.size * count;
+			_storage.grow_empty(destination_size);
+			const pointer destination_data = data();
 
 			// Fill memory
 			for (size_type i = 0; i < count; ++i)
 			{
-				_storage.copy_construct(_storage.data() + i * result.size, encoded_point, result.size);
+				_storage.copy_construct(destination_data + i * result.size, encoded_point, result.size);
 			}
 
 			// Construct null terminator
-			_storage.copy_construct(_storage.data() + new_size, &null_terminator, 1);
+			_storage.copy_construct(destination_data + destination_size, &null_terminator, 1);
 
 			// Set size
-			_storage.set_size(new_size);
+			_storage.set_size(destination_size);
 		}
 
 		template <std::size_t N, typename Foo = int, typename std::enable_if<(
@@ -120,10 +121,22 @@ namespace lingo
 		basic_string(string_view string_view, const allocator_type& allocator = allocator_type()):
 			basic_string(allocator)
 		{
-			const size_type required_size = string_view.size();
+			const const_pointer source_data = string_view.data();
+			const size_type source_size = string_view.size();
 
-			_storage.grow(required_size);
-			_storage.resize_copy_construct(required_size, string_view.data());
+			_storage.grow_empty(source_size);
+			const pointer destination_data = data();
+
+			if (string_view.null_terminated())
+			{
+				_storage.copy_construct(destination_data, source_data, source_size + 1);
+			}
+			else
+			{
+				_storage.copy_construct(destination_data, source_data, source_size);
+				_storage.copy_construct(destination_data + source_size, &null_terminator, 1);
+			}
+			_storage.set_size(source_size);
 		}
 
 		template <typename SourceEncoding, typename SourcePage>
@@ -305,24 +318,34 @@ namespace lingo
 			return size() == 0;
 		}
 
-		void resize(size_type size)
+		void resize(size_type new_size)
 		{
-			if (size == _storage.size())
+			const size_type original_size = size();
+			if (new_size == original_size)
 			{
 				return;
 			}
 
-			if (size > _storage.capacity())
+			_storage.grow_append(new_size);
+
+			if (new_size > original_size)
 			{
-				_storage.grow(size);
+				_storage.default_construct(data() + original_size, new_size - original_size);
+			}
+			else
+			{
+				_storage.destruct(data() + new_size, original_size - new_size);
 			}
 
-			_storage.resize_default_construct(size);
+			_storage.copy_construct(data() + new_size, &null_terminator, 1);
+			_storage.set_size(new_size);
 		}
 
-		void reserve(size_type size)
+		void reserve(size_type reserved_size)
 		{
-			_storage.grow(size);
+			const size_type original_size = size();
+			_storage.grow_reserve(reserved_size);
+			_storage.set_size(original_size);
 		}
 
 		void clear() noexcept
@@ -340,11 +363,8 @@ namespace lingo
 				throw error::exception(result.error);
 			}
 
-			// Allocate memory
-			_storage.grow(size() + result.size);
-
 			// Append data
-			append(string_view(encoded_point, result.size));
+			operator+=(string_view(encoded_point, result.size));
 		}
 
 		void insert(size_type index, string_view string, size_type count) noexcept(noexcept(std::declval<storage_type&>().grow(std::declval<size_t>())))
@@ -362,10 +382,10 @@ namespace lingo
 			size_type new_size = size() + string.size() * count;
 
 			// Allocate enough room 
-			_storage.grow(new_size);
+			_storage.grow_append(new_size); // TODO: grow_move
 
-			// Destruct old data
-			for (size_type i = index; i <= old_size; ++i)
+			// Destruct old data (null terminator was destructed by grow_append)
+			for (size_type i = index; i < old_size; ++i)
 			{
 				_storage.destruct(_storage.data() + new_size, 1);
 			}
@@ -389,11 +409,23 @@ namespace lingo
 			// We can't simply call the string_view version here
 			// If &other == this, the data pointer in the string view might become invalid when growing the capacity
 
-			// Allocate memory
-			_storage.grow(size() + other.size());
+			// Get size values
+			const size_type original_size = size();
+			const size_type other_size = other.size();
+			const size_type new_size = original_size + other_size;
 
-			// Append data
-			append(other);
+			// Allocate memory
+			_storage.grow_append(new_size);
+
+			// Get data values
+			const pointer current_data = data();
+			const const_pointer other_data = other.data();
+
+			// Copy data
+			_storage.copy_construct(current_data + original_size, other_data, other_size + 1);
+
+			// Update size
+			_storage.set_size(new_size);
 
 			// Return this
 			return *this;
@@ -401,11 +433,34 @@ namespace lingo
 
 		basic_string& operator += (string_view other)
 		{
-			// Allocate memory
-			_storage.grow(size() + other.size());
+			// Get size values
+			const size_type original_size = size();
+			const size_type other_size = other.size();
+			const size_type new_size = original_size + other_size;
 
-			// Append data
-			append(other);
+			// Allocate memory
+			_storage.grow_append(new_size);
+
+			// Get data values
+			const pointer current_data = data();
+			const const_pointer other_data = other.data();
+
+			if (other.null_terminated())
+			{
+				// Copy data
+				_storage.copy_construct(current_data + original_size, other_data, other_size + 1);
+			}
+			else
+			{
+				// Copy data
+				_storage.copy_construct(current_data + original_size, other_data, other_size);
+
+				// Construct new null terminator
+				_storage.copy_construct(current_data + new_size, &null_terminator, 1);
+			}
+
+			// Update size
+			_storage.set_size(new_size);
 
 			// Return this
 			return *this;
@@ -476,27 +531,6 @@ namespace lingo
 		}
 
 		private:
-		void append(string_view other)
-		{
-			const size_type current_size = size();
-			const size_type added_size = other.size();
-			const size_type new_size = current_size + added_size;
-
-			assert(new_size <= capacity());
-
-			// Destruct old null terminator
-			_storage.destruct(_storage.data() + current_size, 1);
-
-			// Fill memory
-			_storage.copy_construct(_storage.data() + current_size, other.data(), added_size);
-
-			// Construct new null terminator
-			_storage.copy_construct(_storage.data() + new_size, &null_terminator, 1);
-
-			// Update size
-			_storage.set_size(new_size);
-		}
-
 		storage_type _storage;
 	};
 
