@@ -26,6 +26,7 @@
 #include <memory>
 #include <type_traits>
 #include <string>
+#include <stdexcept>
 
 namespace lingo
 {
@@ -343,52 +344,94 @@ namespace lingo
 			_storage.set_size(destination_size);
 		}
 
-		void assign(const basic_string& str) noexcept(std::is_nothrow_copy_assignable<storage_type>::value)
+		void assign(const basic_string& str)
 		{
-			_storage = str._storage;
-		}
-
-		void assign(const basic_string& str, size_type pos) noexcept(noexcept(assign(str, pos, npos)))
-		{
-			assign(str, pos, npos);
-		}
-
-		void assign(const basic_string& str, size_type pos, size_type count) noexcept(noexcept(assign(std::declval<string_view>())))
-		{
-			assign(string_view(str.data() + pos, count == npos ? str.size() - pos : count));
-		}
-
-		void assign(basic_string&& str) noexcept(std::is_nothrow_move_assignable<storage_type>::value)
-		{
-			_storage = std::move(str._storage);
-		}
-
-		void assign(string_view other)
-		{
-			assert(other.data() < data() || other.data() >= data() + capacity());
-
-			// Get source data and size
-			const const_pointer source_data = other.data();
-			const size_type source_size = other.size();
-
-			// Allocate memory
-			_storage.grow_discard(source_size);
-			const pointer destination_data = data();
-			
-			// Copy with null terminator
-			if (other.null_terminated())
+			if (this != &str)
 			{
-				_storage.copy_construct(destination_data, source_data, source_size + 1);
+				_storage.assign(str.data(), str.length());
 			}
-			// Copy and add null terminator
-			else
+		}
+
+		void assign(const basic_string& str, size_type pos)
+		{
+			if (pos > str.size())
 			{
-				_storage.copy_construct(destination_data, source_data, source_size);
-				_storage.copy_construct(destination_data + source_size, &null_terminator, 1);
+				throw std::out_of_range("pos is out of range");
 			}
 
-			// Update size
-			_storage.set_size(source_size);
+			if (this != &str)
+			{
+				_storage.assign(str.data() + pos, str.length() - pos);
+			}
+		}
+
+		void assign(const basic_string& str, size_type pos, size_type count)
+		{
+			if (pos > str.size())
+			{
+				throw std::out_of_range("pos is out of range");
+			}
+
+			if (this != &str)
+			{
+				_storage.assign(str.data() + pos, std::min(count, str.length() - pos));
+			}
+		}
+
+		void assign(basic_string&& str)
+		{
+			if (this != &str)
+			{
+				_storage = std::move(str._storage);
+			}
+		}
+
+		void assign(string_view str)
+		{
+			_storage.assign(str.data(), str.length());
+		}
+
+		void assign(string_view str, size_type pos)
+		{
+			_storage.assign(str.data() + pos, str.length() - pos);
+		}
+
+		void assign(string_view str, size_type pos, size_type count)
+		{
+			_storage.assign(str.data() + pos, std::min(count, str.length() - pos));
+		}
+
+		template <typename T,
+			typename std::enable_if<
+				std::is_same<T, string_view>::value &&
+				std::is_convertible<const T&, string_view>::value &&
+				!std::is_convertible<const T&, unit_type>::value
+			>::type = 0>
+		void assign(const T& str)
+		{
+			assign(string_view(str));
+		}
+
+		template <typename T,
+			typename std::enable_if<
+				std::is_same<T, string_view>::value &&
+				std::is_convertible<const T&, string_view>::value &&
+				!std::is_convertible<const T&, unit_type>::value
+			>::type = 0>
+		void assign(const T& str, size_type pos)
+		{
+			assign(string_view(str), pos);
+		}
+
+		template <typename T,
+			typename std::enable_if<
+				std::is_same<T, string_view>::value &&
+				std::is_convertible<const T&, string_view>::value &&
+				!std::is_convertible<const T&, unit_type>::value
+			>::type = 0>
+		void assign(const T& str, size_type pos, size_type count)
+		{
+			assign(string_view(str), pos, count);
 		}
 
 		void push_back(point_type point)
@@ -521,15 +564,23 @@ namespace lingo
 			return (*this) += string_view(other);
 		}
 
-		basic_string& operator = (const basic_string& string)
+		basic_string& operator = (const basic_string& str)
 		{
-			assign(string);
+			if (this != &str)
+			{
+				assign(str);
+			}
+
 			return *this;
 		}
 
-		basic_string& operator = (basic_string&& string)
+		basic_string& operator = (basic_string&& str)
 		{
-			_storage = std::move(string._storage);
+			if (this != &str)
+			{
+				assign(std::move(str));
+			}
+
 			return *this;
 		}
 
@@ -569,6 +620,8 @@ namespace lingo
 		}
 
 		private:
+
+
 		storage_type _storage;
 	};
 

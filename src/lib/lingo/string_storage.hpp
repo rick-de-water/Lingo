@@ -335,6 +335,23 @@ namespace lingo
 			}
 		}
 
+		void assign(const_pointer str, size_type length)
+		{
+			assert(str < current_allocation().data || str >= current_allocation().data + current_allocation().size);
+
+			// Allocate memory
+			grow_discard(length);
+			const pointer destination_data = data();
+
+			// Copy data
+			LINGO_CONSTEXPR11 const value_type null_terminator{};
+			copy_construct(destination_data, str, length);
+			copy_construct(destination_data + length, &null_terminator, 1);
+
+			// Update size
+			set_size(length);
+		}
+
 		basic_string_storage& operator = (const basic_string_storage& storage)
 		{
 			if (&storage != this)
