@@ -350,7 +350,7 @@ namespace lingo
 		{
 			if (this != &str)
 			{
-				assign(string_view(str.data(), str.length()));
+				assign(str.operator lingo::basic_string_view<Encoding, Page>());
 			}
 		}
 
@@ -363,7 +363,7 @@ namespace lingo
 
 			if (this != &str)
 			{
-				assign(string_view(str.data() + pos, str.length() - pos));
+				assign(str.operator lingo::basic_string_view<Encoding, Page>());
 			}
 		}
 
@@ -393,8 +393,8 @@ namespace lingo
 			const const_pointer source_data = str.data();
 			const size_type source_size = str.size();
 
-			_storage.assign_grow(source_size);
-			_storage.assign_copy(source_data, source_size);
+			_storage.grow_discard(source_size);
+			_storage.assign(source_data, source_size);
 		}
 
 		void assign(string_view str, size_type pos)
@@ -452,6 +452,125 @@ namespace lingo
 			assign(string_view(str), pos, count);
 		}
 
+		void append(size_type count, point_type point)
+		{
+			// Encode the point into units
+			unit_type encoded_point[encoding_type::max_units];
+			const auto result = encoding_type::encode_point(point, encoded_point, encoding_type::max_units);
+			if (result.error != error::error_code::success)
+			{
+				throw error::exception(result.error);
+			}
+
+			// Allocate memory
+			const size_type original_size = size();
+			const size_type destination_size = result.size * count + original_size;
+			_storage.grow_append(destination_size);
+			const pointer destination_data = data();
+
+			// Fill memory
+			for (size_type i = 0; i < count; ++i)
+			{
+				_storage.copy_construct(destination_data + original_size + i * result.size, encoded_point, result.size);
+			}
+
+			// Construct null terminator
+			_storage.copy_construct(destination_data + destination_size, &null_terminator, 1);
+
+			// Update size
+			_storage.set_size(destination_size);
+		}
+
+		void append(const basic_string& str)
+		{
+			append(str, 0, npos);
+		}
+
+		void append(const basic_string& str, size_type pos)
+		{
+			append(str, pos, npos);
+		}
+
+		void append(const basic_string& str, size_type pos, size_type count)
+		{
+			const size_type original_size = size();
+			const size_type source_size = std::min(str.size() - pos, count);
+			const size_type new_size = original_size + source_size;
+			_storage.grow_append(new_size);
+
+			const const_pointer source_data = str.data() + pos;
+			_storage.append(original_size, source_data, source_size);
+		}
+
+		void append(string_view str)
+		{
+			append(str, 0, npos);
+		}
+
+		void append(string_view str, size_type pos)
+		{
+			append(str, pos, npos);
+		}
+
+		void append(string_view str, size_type pos, size_type count)
+		{
+			// Assert for self append
+			assert(str.data() < data() || str.data() > data() + capacity());
+
+			const size_type original_size = size();
+			const size_type source_size = std::min(str.size() - pos, count);
+			const size_type new_size = original_size + source_size;
+			_storage.grow_append(new_size);
+
+			const const_pointer source_data = str.data() + pos;
+			_storage.append(original_size, source_data, source_size);
+		}
+
+		template <typename _ = int, typename std::enable_if<is_execution_set, _>::type = 0>
+		void append(const_pointer str)
+		{
+			append(string_view(str));
+		}
+
+		template <typename _ = int, typename std::enable_if<is_execution_set, _>::type = 0>
+		void append(const_pointer str, size_type count)
+		{
+			append(string_view(str, count));
+		}
+
+		template <typename T,
+			typename std::enable_if<
+				!std::is_same<T, string_view>::value &&
+				std::is_convertible<const T&, string_view>::value &&
+				!std::is_convertible<const T&, unit_type>::value
+			>::type = 0>
+		void append(const T& str)
+		{
+			append(string_view(str));
+		}
+
+		template <typename T,
+			typename std::enable_if<
+				!std::is_same<T, string_view>::value &&
+				std::is_convertible<const T&, string_view>::value &&
+				!std::is_convertible<const T&, unit_type>::value
+			>::type = 0>
+		void append(const T& str, size_type pos)
+		{
+			append(string_view(str), pos);
+		}
+
+		template <typename T,
+			typename std::enable_if<
+				!std::is_same<T, string_view>::value &&
+				std::is_convertible<const T&, string_view>::value &&
+				!std::is_convertible<const T&, unit_type>::value
+			>::type = 0>
+		void append(const T& str, size_type pos, size_type count)
+		{
+			append(string_view(str), pos, count);
+		}
+
 		void push_back(point_type point)
 		{
 			// Encode the point into units
@@ -463,7 +582,7 @@ namespace lingo
 			}
 
 			// Append data
-			operator+=(string_view(encoded_point, result.size));
+			append(string_view(encoded_point, result.size));
 		}
 
 		void insert(size_type index, string_view string, size_type count) noexcept(noexcept(std::declval<storage_type&>().grow(std::declval<size_t>())))
@@ -507,61 +626,13 @@ namespace lingo
 		{
 			// We can't simply call the string_view version here
 			// If &other == this, the data pointer in the string view might become invalid when growing the capacity
-
-			// Get size values
-			const size_type original_size = size();
-			const size_type other_size = other.size();
-			const size_type new_size = original_size + other_size;
-
-			// Allocate memory
-			_storage.grow_append(new_size);
-
-			// Get data values
-			const pointer current_data = data();
-			const const_pointer other_data = other.data();
-
-			// Copy data
-			_storage.copy_construct(current_data + original_size, other_data, other_size + 1);
-
-			// Update size
-			_storage.set_size(new_size);
-
-			// Return this
+			append(other);
 			return *this;
 		}
 
 		basic_string& operator += (string_view other)
 		{
-			// Get size values
-			const size_type original_size = size();
-			const size_type other_size = other.size();
-			const size_type new_size = original_size + other_size;
-
-			// Allocate memory
-			_storage.grow_append(new_size);
-
-			// Get data values
-			const pointer current_data = data();
-			const const_pointer other_data = other.data();
-
-			if (other.null_terminated())
-			{
-				// Copy data
-				_storage.copy_construct(current_data + original_size, other_data, other_size + 1);
-			}
-			else
-			{
-				// Copy data
-				_storage.copy_construct(current_data + original_size, other_data, other_size);
-
-				// Construct new null terminator
-				_storage.copy_construct(current_data + new_size, &null_terminator, 1);
-			}
-
-			// Update size
-			_storage.set_size(new_size);
-
-			// Return this
+			append(other);
 			return *this;
 		}
 
@@ -677,8 +748,8 @@ namespace lingo
 	{
 		basic_string<Encoding, Page, ResultAllocator> result;
 		result.reserve(left.size() + right.size());
-		result += left;
-		result += right;
+		result.append(left);
+		result.append(right);
 		return result;
 	}
 
@@ -698,7 +769,7 @@ namespace lingo
 		basic_string<Encoding, Page, ResultAllocator> result;
 		result.reserve(right.size() + Encoding::max_units);
 		result.push_back(left);
-		result += right;
+		result.append(right);
 		return result;
 	}
 
