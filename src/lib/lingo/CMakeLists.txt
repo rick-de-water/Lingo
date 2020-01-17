@@ -79,6 +79,7 @@ list(APPEND LINGO_MANUAL_HEADERS "error/strict.hpp")
 # Utility
 list(APPEND LINGO_MANUAL_HEADERS "utility/compressed_pair.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "utility/integer_sequence.hpp")
+list(APPEND LINGO_MANUAL_HEADERS "utility/type_traits.hpp")
 
 # Strings
 list(APPEND LINGO_MANUAL_HEADERS "string.hpp" "string_storage.hpp")

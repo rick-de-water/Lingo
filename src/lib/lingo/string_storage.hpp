@@ -335,22 +335,47 @@ namespace lingo
 			}
 		}
 
-		void assign(const_pointer str, size_type length)
+		void assign_grow(size_type length)
 		{
-			assert(str < current_allocation().data || str >= current_allocation().data + current_allocation().size);
-
 			// Allocate memory
 			grow_discard(length);
-			const pointer destination_data = data();
+		}
+
+		void assign_copy(const_pointer str, size_type length)
+		{
+			const pointer destination = data();
 
 			// Copy data
 			LINGO_CONSTEXPR11 const value_type null_terminator{};
-			copy_construct(destination_data, str, length);
-			copy_construct(destination_data + length, &null_terminator, 1);
+			copy_construct(destination, str, length);
+			copy_construct(destination + length, &null_terminator, 1);
 
 			// Update size
 			set_size(length);
 		}
+
+		/*void append(const_pointer str, size_type length, size_type at)
+		{
+			// Assert if we aren't trying to append to ourselves
+			assert(str < current_allocation().data || str >= current_allocation().data + current_allocation().size);
+			const size_type current_size = size();
+			assert(at <= current_size);
+			if (at == current_size)
+			{
+				grow_append(current_size + length);
+			}
+			else
+			{
+
+			}
+
+			replace()
+		}
+
+		void replace(const pointer str, size_type length, size_type at)
+		{
+
+		}*/
 
 		basic_string_storage& operator = (const basic_string_storage& storage)
 		{

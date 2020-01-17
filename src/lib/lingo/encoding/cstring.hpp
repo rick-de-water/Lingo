@@ -64,7 +64,6 @@ namespace lingo
 
 		template <typename Unit>
 		using cstring_default_encoding_t = typename cstring_default_encoding<Unit>::type;
-
 	}
 }
 

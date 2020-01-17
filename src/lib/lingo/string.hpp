@@ -21,6 +21,8 @@
 
 #include <lingo/platform/endian.hpp>
 
+#include <lingo/utility/type_traits.hpp>
+
 #include <cassert>
 #include <iterator>
 #include <memory>
@@ -63,6 +65,7 @@ namespace lingo
 
 		static LINGO_CONSTEXPR11 size_type npos = static_cast<size_type>(-1);
 		static LINGO_CONSTEXPR11 unit_type null_terminator = unit_type{};
+		static LINGO_CONSTEXPR11 bool is_execution_set = lingo::utility::is_execution_set<encoding_type, page_type>::value;
 
 		private:
 		static_assert(std::is_same<typename page_type::point_type, typename encoding_type::point_type>::value, "page_type::point_type must be the same type as encoding_type::point_type");
@@ -88,9 +91,8 @@ namespace lingo
 			assign(count, point);
 		}
 
-		template <std::size_t N, typename Foo = int, typename std::enable_if<(
-			std::is_same<Encoding, encoding::cstring_default_encoding_t<value_type>>::value &&
-			std::is_same<Page, page::cstring_default_page_t<value_type>>::value), Foo>::type = N>
+		template <std::size_t N, typename _ = std::size_t,
+			typename std::enable_if<is_execution_set, _>::type = 0>
 		basic_string(const value_type (&cstring)[N], const allocator_type& allocator = allocator_type()):
 			basic_string(string_view(cstring, N - 1, cstring[N - 1] == value_type{}), allocator)
 		{
@@ -348,7 +350,7 @@ namespace lingo
 		{
 			if (this != &str)
 			{
-				_storage.assign(str.data(), str.length());
+				assign(string_view(str.data(), str.length()));
 			}
 		}
 
@@ -361,7 +363,7 @@ namespace lingo
 
 			if (this != &str)
 			{
-				_storage.assign(str.data() + pos, str.length() - pos);
+				assign(string_view(str.data() + pos, str.length() - pos));
 			}
 		}
 
@@ -374,7 +376,7 @@ namespace lingo
 
 			if (this != &str)
 			{
-				_storage.assign(str.data() + pos, std::min(count, str.length() - pos));
+				assign(string_view(str.data() + pos, std::min(count, str.length() - pos)));
 			}
 		}
 
@@ -388,22 +390,38 @@ namespace lingo
 
 		void assign(string_view str)
 		{
-			_storage.assign(str.data(), str.length());
+			const const_pointer source_data = str.data();
+			const size_type source_size = str.size();
+
+			_storage.assign_grow(source_size);
+			_storage.assign_copy(source_data, source_size);
 		}
 
 		void assign(string_view str, size_type pos)
 		{
-			_storage.assign(str.data() + pos, str.length() - pos);
+			assign(string_view(str.data() + pos, str.length() - pos));
 		}
 
 		void assign(string_view str, size_type pos, size_type count)
 		{
-			_storage.assign(str.data() + pos, std::min(count, str.length() - pos));
+			assign(string_view(str.data() + pos, std::min(count, str.length() - pos)));
+		}
+
+		template <typename _ = int, typename std::enable_if<is_execution_set, _>::type = 0>
+		void assign(const_pointer str)
+		{
+			assign(string_view(str));
+		}
+
+		template <typename _ = int, typename std::enable_if<is_execution_set, _>::type = 0>
+		void assign(const_pointer str, size_type count)
+		{
+			assign(string_view(str, count));
 		}
 
 		template <typename T,
 			typename std::enable_if<
-				std::is_same<T, string_view>::value &&
+				!std::is_same<T, string_view>::value &&
 				std::is_convertible<const T&, string_view>::value &&
 				!std::is_convertible<const T&, unit_type>::value
 			>::type = 0>
@@ -414,7 +432,7 @@ namespace lingo
 
 		template <typename T,
 			typename std::enable_if<
-				std::is_same<T, string_view>::value &&
+				!std::is_same<T, string_view>::value &&
 				std::is_convertible<const T&, string_view>::value &&
 				!std::is_convertible<const T&, unit_type>::value
 			>::type = 0>
@@ -425,7 +443,7 @@ namespace lingo
 
 		template <typename T,
 			typename std::enable_if<
-				std::is_same<T, string_view>::value &&
+				!std::is_same<T, string_view>::value &&
 				std::is_convertible<const T&, string_view>::value &&
 				!std::is_convertible<const T&, unit_type>::value
 			>::type = 0>
@@ -556,9 +574,8 @@ namespace lingo
 			return *this;
 		}
 		
-		template <typename _ = int, typename std::enable_if<
-			std::is_same<encoding::cstring_default_encoding_t<unit_type>, encoding_type>::value &&
-			std::is_same<page::cstring_default_page_t<unit_type>, page_type>::value, _>::type = 0>
+		template <typename _ = int,
+			typename std::enable_if<is_execution_set, _>::type = 0>
 		basic_string& operator += (const unit_type* other)
 		{
 			return (*this) += string_view(other);
@@ -601,19 +618,18 @@ namespace lingo
 		}
 
 		template <typename RightAllocator>
-		LINGO_CONSTEXPR14 int compare(const basic_string<Encoding, Page, RightAllocator>& other) const noexcept(noexcept(std::declval<const basic_string&>().compare(other.operator lingo::basic_string_view<Encoding, Page>())))
+		LINGO_CONSTEXPR14 int compare(const basic_string<encoding_type, page_type, RightAllocator>& other) const noexcept(noexcept(std::declval<const basic_string&>().compare(other.operator lingo::basic_string_view<Encoding, Page>())))
 		{
-			return compare(other.operator lingo::basic_string_view<Encoding, Page>());
+			return compare(other.operator lingo::basic_string_view<encoding_type, page_type>());
 		}
 
-		LINGO_CONSTEXPR14 int compare(basic_string_view<Encoding, Page> other) const
+		LINGO_CONSTEXPR14 int compare(basic_string_view<encoding_type, page_type> other) const
 		{
-			return operator lingo::basic_string_view<Encoding, Page>().compare(other);
+			return operator lingo::basic_string_view<Encoding, page_type>().compare(other);
 		}
 
-		template <typename _ = int, typename std::enable_if<
-			std::is_same<encoding::cstring_default_encoding_t<unit_type>, encoding_type>::value &&
-			std::is_same<page::cstring_default_page_t<unit_type>, page_type>::value, _>::type = 0>
+		template <typename _ = int,
+			typename std::enable_if<is_execution_set, _>::type = 0>
 		LINGO_CONSTEXPR14 int compare(const unit_type* other) const noexcept(noexcept(std::declval<const basic_string&>().compare(string_view(other))))
 		{
 			return compare(string_view(other));
@@ -629,6 +645,8 @@ namespace lingo
 	LINGO_CONSTEXPR11 typename basic_string<Encoding, Page, Allocator>::size_type basic_string<Encoding, Page, Allocator>::npos;
 	template <typename Encoding, typename Page, typename Allocator>
 	LINGO_CONSTEXPR11 typename basic_string<Encoding, Page, Allocator>::unit_type basic_string<Encoding, Page, Allocator>::null_terminator;
+	template <typename Encoding, typename Page, typename Allocator>
+	LINGO_CONSTEXPR11 bool basic_string<Encoding, Page, Allocator>::is_execution_set;
 
 	template <typename Encoding, typename Page, typename LeftAllocator, typename RightAllocator, typename ResultAllocator = LeftAllocator>
 	basic_string<Encoding, Page, ResultAllocator> operator + (basic_string<Encoding, Page, LeftAllocator> left, basic_string<Encoding, Page, RightAllocator> right)
@@ -684,33 +702,29 @@ namespace lingo
 		return result;
 	}
 
-	template <typename Encoding, typename Page, typename LeftAllocator, typename ResultAllocator = LeftAllocator, typename std::enable_if<
-		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
-		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+	template <typename Encoding, typename Page, typename LeftAllocator, typename ResultAllocator = LeftAllocator,
+		typename std::enable_if<lingo::utility::is_execution_set_v<Encoding, Page>, int>::type = 0>
 	basic_string<Encoding, Page, ResultAllocator> operator + (const basic_string<Encoding, Page, LeftAllocator>& left, const typename Encoding::unit_type* right)
 	{
 		return left + basic_string_view<Encoding, Page>(right);
 	}
 
-	template <typename Encoding, typename Page, typename RightAllocator, typename ResultAllocator = RightAllocator, typename std::enable_if<
-		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
-		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+	template <typename Encoding, typename Page, typename RightAllocator, typename ResultAllocator = RightAllocator,
+		typename std::enable_if<lingo::utility::is_execution_set_v<Encoding, Page>, int>::type = 0>
 	basic_string<Encoding, Page, ResultAllocator> operator + (const typename Encoding::unit_type* left, const basic_string<Encoding, Page, RightAllocator>& right)
 	{
 		return basic_string_view<Encoding, Page>(left) + right;
 	}
 
-	template <typename Encoding, typename Page, typename std::enable_if<
-		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
-		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+	template <typename Encoding, typename Page,
+		typename std::enable_if<lingo::utility::is_execution_set_v<Encoding, Page>, int>::type = 0>
 	basic_string<Encoding, Page> operator + (basic_string_view<Encoding, Page> left, const typename Encoding::unit_type* right)
 	{
 		return left + basic_string_view<Encoding, Page>(right);
 	}
 
-	template <typename Encoding, typename Page, typename std::enable_if<
-		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
-		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+	template <typename Encoding, typename Page,
+		typename std::enable_if<lingo::utility::is_execution_set_v<Encoding, Page>, int>::type = 0>
 	basic_string<Encoding, Page> operator + (const typename Encoding::unit_type* left, basic_string_view<Encoding, Page> right)
 	{
 		return basic_string_view<Encoding, Page>(left) + right;
@@ -827,98 +841,86 @@ namespace lingo
 	}
 
 
-	template <typename Encoding, typename Page, typename LeftAllocator, typename std::enable_if<
-		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
-		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+	template <typename Encoding, typename Page, typename LeftAllocator,
+		typename std::enable_if<lingo::utility::is_execution_set_v<Encoding, Page>, int>::type = 0>
 	bool operator == (const basic_string<Encoding, Page, LeftAllocator>& left, const typename Encoding::unit_type* right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) == 0;
 	}
 
-	template <typename Encoding, typename Page, typename LeftAllocator, typename std::enable_if<
-		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
-		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+	template <typename Encoding, typename Page, typename LeftAllocator,
+		typename std::enable_if<lingo::utility::is_execution_set_v<Encoding, Page>, int>::type = 0>
 	bool operator != (const basic_string<Encoding, Page, LeftAllocator>& left, const typename Encoding::unit_type* right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) != 0;
 	}
 
-	template <typename Encoding, typename Page, typename LeftAllocator, typename std::enable_if<
-		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
-		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+	template <typename Encoding, typename Page, typename LeftAllocator,
+		typename std::enable_if<lingo::utility::is_execution_set_v<Encoding, Page>, int>::type = 0>
 	bool operator < (const basic_string<Encoding, Page, LeftAllocator>& left, const typename Encoding::unit_type* right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) < 0;
 	}
 
-	template <typename Encoding, typename Page, typename LeftAllocator, typename std::enable_if<
-		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
-		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+	template <typename Encoding, typename Page, typename LeftAllocator,
+		typename std::enable_if<lingo::utility::is_execution_set_v<Encoding, Page>, int>::type = 0>
 	bool operator > (const basic_string<Encoding, Page, LeftAllocator>& left, const typename Encoding::unit_type* right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) > 0;
 	}
 
-	template <typename Encoding, typename Page, typename LeftAllocator, typename std::enable_if<
-		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
-		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+	template <typename Encoding, typename Page, typename LeftAllocator,
+		typename std::enable_if<lingo::utility::is_execution_set_v<Encoding, Page>, int>::type = 0>
 	bool operator <= (const basic_string<Encoding, Page, LeftAllocator>& left, const typename Encoding::unit_type* right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) <= 0;
 	}
 
-	template <typename Encoding, typename Page, typename LeftAllocator, typename std::enable_if<
-		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
-		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+	template <typename Encoding, typename Page, typename LeftAllocator,
+		typename std::enable_if<lingo::utility::is_execution_set_v<Encoding, Page>, int>::type = 0>
 	bool operator >= (const basic_string<Encoding, Page, LeftAllocator>& left, const typename Encoding::unit_type* right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) >= 0;
 	}
 
 
-	template <typename Encoding, typename Page, typename RightAllocator, typename std::enable_if<
-		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
-		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+	template <typename Encoding, typename Page, typename RightAllocator,
+		typename std::enable_if<lingo::utility::is_execution_set_v<Encoding, Page>, int>::type = 0>
 	bool operator == (const typename Encoding::unit_type* left, const basic_string<Encoding, Page, RightAllocator>& right) noexcept(noexcept(right.compare(left)))
 	{
 		return right.compare(left) == 0;
 	}
 
-	template <typename Encoding, typename Page, typename RightAllocator, typename std::enable_if<
-		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
-		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+	template <typename Encoding, typename Page, typename RightAllocator,
+		typename std::enable_if<lingo::utility::is_execution_set_v<Encoding, Page>, int>::type = 0>
 	bool operator != (const typename Encoding::unit_type* left, const basic_string<Encoding, Page, RightAllocator>& right) noexcept(noexcept(right.compare(left)))
 	{
 		return right.compare(left) != 0;
 	}
 
-	template <typename Encoding, typename Page, typename RightAllocator, typename std::enable_if<
-		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
-		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+	template <typename Encoding, typename Page, typename RightAllocator,
+		typename std::enable_if<lingo::utility::is_execution_set_v<Encoding, Page>, int>::type = 0>
 	bool operator < (const typename Encoding::unit_type* left, const basic_string<Encoding, Page, RightAllocator>& right) noexcept(noexcept(right.compare(left)))
 	{
 		return right.compare(left) > 0;
 	}
 
-	template <typename Encoding, typename Page, typename RightAllocator, typename std::enable_if<
-		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
-		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+	template <typename Encoding, typename Page, typename RightAllocator,
+		typename std::enable_if<lingo::utility::is_execution_set_v<Encoding, Page>, int>::type = 0>
 	bool operator > (const typename Encoding::unit_type* left, const basic_string<Encoding, Page, RightAllocator>& right) noexcept(noexcept(right.compare(left)))
 	{
 		return right.compare(left) < 0;
 	}
 
-	template <typename Encoding, typename Page, typename RightAllocator, typename std::enable_if<
-		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
-		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+	template <typename Encoding, typename Page, typename RightAllocator,
+		typename std::enable_if<lingo::utility::is_execution_set_v<Encoding, Page>, int>::type = 0>
 	bool operator <= (const typename Encoding::unit_type* left, const basic_string<Encoding, Page, RightAllocator>& right) noexcept(noexcept(right.compare(left)))
 	{
 		return right.compare(left) >= 0;
 	}
 
-	template <typename Encoding, typename Page, typename RightAllocator, typename std::enable_if<
-		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
-		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+	template <typename Encoding, typename Page, typename RightAllocator,
+		typename std::enable_if<lingo::utility::is_execution_set_v<Encoding, Page>, int>::type = 0>
 	bool operator >= (const typename Encoding::unit_type* left, const basic_string<Encoding, Page, RightAllocator>& right) noexcept(noexcept(right.compare(left)))
 	{
 		return right.compare(left) <= 0;
