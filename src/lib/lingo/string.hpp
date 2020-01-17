@@ -703,28 +703,28 @@ namespace lingo
 	}
 
 	template <typename Encoding, typename Page, typename LeftAllocator, typename ResultAllocator = LeftAllocator,
-		typename std::enable_if<lingo::utility::is_execution_set_v<Encoding, Page>, int>::type = 0>
+		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value, int>::type = 0>
 	basic_string<Encoding, Page, ResultAllocator> operator + (const basic_string<Encoding, Page, LeftAllocator>& left, const typename Encoding::unit_type* right)
 	{
 		return left + basic_string_view<Encoding, Page>(right);
 	}
 
 	template <typename Encoding, typename Page, typename RightAllocator, typename ResultAllocator = RightAllocator,
-		typename std::enable_if<lingo::utility::is_execution_set_v<Encoding, Page>, int>::type = 0>
+		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value, int>::type = 0>
 	basic_string<Encoding, Page, ResultAllocator> operator + (const typename Encoding::unit_type* left, const basic_string<Encoding, Page, RightAllocator>& right)
 	{
 		return basic_string_view<Encoding, Page>(left) + right;
 	}
 
 	template <typename Encoding, typename Page,
-		typename std::enable_if<lingo::utility::is_execution_set_v<Encoding, Page>, int>::type = 0>
+		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value, int>::type = 0>
 	basic_string<Encoding, Page> operator + (basic_string_view<Encoding, Page> left, const typename Encoding::unit_type* right)
 	{
 		return left + basic_string_view<Encoding, Page>(right);
 	}
 
 	template <typename Encoding, typename Page,
-		typename std::enable_if<lingo::utility::is_execution_set_v<Encoding, Page>, int>::type = 0>
+		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value, int>::type = 0>
 	basic_string<Encoding, Page> operator + (const typename Encoding::unit_type* left, basic_string_view<Encoding, Page> right)
 	{
 		return basic_string_view<Encoding, Page>(left) + right;
@@ -842,42 +842,42 @@ namespace lingo
 
 
 	template <typename Encoding, typename Page, typename LeftAllocator,
-		typename std::enable_if<lingo::utility::is_execution_set_v<Encoding, Page>, int>::type = 0>
+		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value, int>::type = 0>
 	bool operator == (const basic_string<Encoding, Page, LeftAllocator>& left, const typename Encoding::unit_type* right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) == 0;
 	}
 
 	template <typename Encoding, typename Page, typename LeftAllocator,
-		typename std::enable_if<lingo::utility::is_execution_set_v<Encoding, Page>, int>::type = 0>
+		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value, int>::type = 0>
 	bool operator != (const basic_string<Encoding, Page, LeftAllocator>& left, const typename Encoding::unit_type* right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) != 0;
 	}
 
 	template <typename Encoding, typename Page, typename LeftAllocator,
-		typename std::enable_if<lingo::utility::is_execution_set_v<Encoding, Page>, int>::type = 0>
+		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value, int>::type = 0>
 	bool operator < (const basic_string<Encoding, Page, LeftAllocator>& left, const typename Encoding::unit_type* right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) < 0;
 	}
 
 	template <typename Encoding, typename Page, typename LeftAllocator,
-		typename std::enable_if<lingo::utility::is_execution_set_v<Encoding, Page>, int>::type = 0>
+		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value, int>::type = 0>
 	bool operator > (const basic_string<Encoding, Page, LeftAllocator>& left, const typename Encoding::unit_type* right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) > 0;
 	}
 
 	template <typename Encoding, typename Page, typename LeftAllocator,
-		typename std::enable_if<lingo::utility::is_execution_set_v<Encoding, Page>, int>::type = 0>
+		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value, int>::type = 0>
 	bool operator <= (const basic_string<Encoding, Page, LeftAllocator>& left, const typename Encoding::unit_type* right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) <= 0;
 	}
 
 	template <typename Encoding, typename Page, typename LeftAllocator,
-		typename std::enable_if<lingo::utility::is_execution_set_v<Encoding, Page>, int>::type = 0>
+		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value, int>::type = 0>
 	bool operator >= (const basic_string<Encoding, Page, LeftAllocator>& left, const typename Encoding::unit_type* right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) >= 0;
@@ -885,42 +885,42 @@ namespace lingo
 
 
 	template <typename Encoding, typename Page, typename RightAllocator,
-		typename std::enable_if<lingo::utility::is_execution_set_v<Encoding, Page>, int>::type = 0>
+		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value, int>::type = 0>
 	bool operator == (const typename Encoding::unit_type* left, const basic_string<Encoding, Page, RightAllocator>& right) noexcept(noexcept(right.compare(left)))
 	{
 		return right.compare(left) == 0;
 	}
 
 	template <typename Encoding, typename Page, typename RightAllocator,
-		typename std::enable_if<lingo::utility::is_execution_set_v<Encoding, Page>, int>::type = 0>
+		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value, int>::type = 0>
 	bool operator != (const typename Encoding::unit_type* left, const basic_string<Encoding, Page, RightAllocator>& right) noexcept(noexcept(right.compare(left)))
 	{
 		return right.compare(left) != 0;
 	}
 
 	template <typename Encoding, typename Page, typename RightAllocator,
-		typename std::enable_if<lingo::utility::is_execution_set_v<Encoding, Page>, int>::type = 0>
+		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value, int>::type = 0>
 	bool operator < (const typename Encoding::unit_type* left, const basic_string<Encoding, Page, RightAllocator>& right) noexcept(noexcept(right.compare(left)))
 	{
 		return right.compare(left) > 0;
 	}
 
 	template <typename Encoding, typename Page, typename RightAllocator,
-		typename std::enable_if<lingo::utility::is_execution_set_v<Encoding, Page>, int>::type = 0>
+		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value, int>::type = 0>
 	bool operator > (const typename Encoding::unit_type* left, const basic_string<Encoding, Page, RightAllocator>& right) noexcept(noexcept(right.compare(left)))
 	{
 		return right.compare(left) < 0;
 	}
 
 	template <typename Encoding, typename Page, typename RightAllocator,
-		typename std::enable_if<lingo::utility::is_execution_set_v<Encoding, Page>, int>::type = 0>
+		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value, int>::type = 0>
 	bool operator <= (const typename Encoding::unit_type* left, const basic_string<Encoding, Page, RightAllocator>& right) noexcept(noexcept(right.compare(left)))
 	{
 		return right.compare(left) >= 0;
 	}
 
 	template <typename Encoding, typename Page, typename RightAllocator,
-		typename std::enable_if<lingo::utility::is_execution_set_v<Encoding, Page>, int>::type = 0>
+		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value, int>::type = 0>
 	bool operator >= (const typename Encoding::unit_type* left, const basic_string<Encoding, Page, RightAllocator>& right) noexcept(noexcept(right.compare(left)))
 	{
 		return right.compare(left) <= 0;
