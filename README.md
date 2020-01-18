@@ -4,9 +4,10 @@
 
 Lingo is an encoding aware string library for C++11 and up. It tries to be a drop in replacement for the standard library strings by mirroring its interface as much as possible, while also adding new functionally by utilizing the encoding definitions.
 
-# Some of the features
+# Features
 * Encoding and code page aware `lingo::string` and `lingo::string_view`, almost fully compatible with `std::string` and `std::string_view`.
 * Null terminator aware `lingo::string_view`.
+* `lingo::null_terminated_string` wrapper for APIs that don't support length strings, which turns a string object into a null terminated string while avoiding copying whenever possible.
 * Support for endianness conversion.
 * Explicit conversion constructors between `lingo::string`s of different encodings and code pages.
 * `lingo::encoding::*` for low level encoding and decoding of code points.

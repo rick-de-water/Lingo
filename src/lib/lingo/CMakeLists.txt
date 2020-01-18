@@ -83,6 +83,7 @@ list(APPEND LINGO_MANUAL_HEADERS "utility/type_traits.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "utility/object_builder.hpp")
 
 # Strings
+list(APPEND LINGO_MANUAL_HEADERS "null_terminated_string.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "string.hpp" "string_storage.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "string_view.hpp" "string_view_storage.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "string_converter.hpp" "conversion_result.hpp")
