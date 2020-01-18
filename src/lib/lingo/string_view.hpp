@@ -69,23 +69,14 @@ namespace lingo
 		LINGO_CONSTEXPR11 basic_string_view(const basic_string_view&) noexcept = default;
 		LINGO_CONSTEXPR11 basic_string_view(basic_string_view&&) noexcept = default;
 
-		template <std::size_t N, typename Foo = int, typename std::enable_if<(
-			std::is_same<Encoding, encoding::execution_encoding_t<value_type>>::value &&
-			std::is_same<Page, page::execution_page_t<value_type>>::value), Foo>::type = N>
-		LINGO_CONSTEXPR11 basic_string_view(const value_type (&cstring)[N]) noexcept:
-			basic_string_view(cstring, N - 1, cstring[N - 1] == value_type{})
+		template <typename _ = int, typename std::enable_if<is_execution_set, _>::type = 0>
+		LINGO_CONSTEXPR14 basic_string_view(const_pointer cstring) noexcept:
+			basic_string_view(cstring, strlen(cstring), true)
 		{
 		}
 
-		template <std::size_t N, typename Foo = int, typename std::enable_if<!(
-			std::is_same<Encoding, encoding::execution_encoding_t<value_type>>::value &&
-			std::is_same<Page, page::execution_page_t<value_type>>::value), Foo>::type = N>
-		explicit LINGO_CONSTEXPR11 basic_string_view(const value_type (&cstring)[N]) noexcept:
-			basic_string_view(cstring, N - 1, cstring[N - 1] == value_type{})
-		{
-		}
-
-		explicit LINGO_CONSTEXPR11 basic_string_view(const_pointer cstring) noexcept:
+		template <typename _ = int, typename std::enable_if<!is_execution_set, _>::type = 0>
+		explicit LINGO_CONSTEXPR14 basic_string_view(const_pointer cstring) noexcept:
 			basic_string_view(cstring, strlen(cstring), true)
 		{
 		}
@@ -218,6 +209,15 @@ namespace lingo
 			return std::basic_string_view<value_type, Traits>(data(), size());
 		}
 		#endif
+
+		basic_string_view substr(size_type pos = 0, size_type count = npos)
+		{
+			const const_pointer d = data() + pos;
+			const size_type s = std::min(count, size() - pos);
+			const bool nt = null_terminated() && (s == size() - pos);
+
+			return basic_string_view(d, s, nt);
+		}
 
 		LINGO_CONSTEXPR14 basic_string_view remove_prefix(size_type n) noexcept
 		{

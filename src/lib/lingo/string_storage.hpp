@@ -493,10 +493,7 @@ namespace lingo
 			size_type new_capacity = capacity();
 			if (new_capacity >= requested_capacity)
 			{
-				allocation alloc;
-				alloc.data = data();
-				alloc.size = new_capacity;
-				return alloc;
+				return current_allocation();
 			}
 
 			// Calculate the new capacity
@@ -512,8 +509,8 @@ namespace lingo
 			// Allocate a new buffer
 			allocator_type allocator = get_allocator();
 			allocation alloc;
-			alloc.data = allocator.allocate(new_capacity + 1);
-			alloc.size = new_capacity;
+			alloc.size = new_capacity + 1;
+			alloc.data = allocator.allocate(alloc.size);
 			return alloc;
 		}
 
@@ -546,7 +543,7 @@ namespace lingo
 			// Replace the old data pointers with the new ones
 			auto& long_storage = _data.first()._long;
 			long_storage._data = alloc.data;
-			long_storage._capacity = alloc.size;
+			long_storage._capacity = alloc.size - 1;
 			long_storage._last_unit = internal::basic_string_storage_long_marker<value_type>::value;
 		}
 

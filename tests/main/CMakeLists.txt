@@ -23,6 +23,10 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES Clang)
 	if (LINGO_WARNINGS_AS_ERRORS)
 		target_compile_options(test_main PUBLIC -Werror)
 	endif()
+	if (LINGO_SANITIZE)
+		target_compile_options(test_main PUBLIC -fsanitize=address -fno-omit-frame-pointer)
+		target_link_options(test_main PUBLIC -fsanitize=address)
+	endif()
 endif()
 
 # Add dependencies

@@ -314,7 +314,10 @@ namespace lingo
 
 			if (new_size > original_size)
 			{
-				_storage.default_construct(data() + original_size, new_size - original_size);
+				for (size_type i = original_size; i < new_size; ++i)
+				{
+					_storage.copy_construct(data() + i, &null_terminator, 1);
+				}
 			}
 			else
 			{
@@ -638,6 +641,11 @@ namespace lingo
 
 			// Update size
 			_storage.set_size(new_size);
+		}
+
+		basic_string substr(size_type pos = 0, size_type count = npos)
+		{
+			return basic_string(*this, pos, count);
 		}
 
 		template <typename OtherAllocator>
