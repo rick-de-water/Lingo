@@ -24,6 +24,7 @@
 #include <lingo/utility/type_traits.hpp>
 
 #include <cassert>
+#include <iosfwd>
 #include <iterator>
 #include <memory>
 #include <type_traits>
@@ -995,6 +996,14 @@ namespace lingo
 	bool operator >= (const typename Encoding::unit_type* left, const basic_string<Encoding, Page, RightAllocator>& right) noexcept(noexcept(right.compare(left)))
 	{
 		return right.compare(left) <= 0;
+	}
+
+	template <typename Unit, typename Allocator>
+	typename std::enable_if<std::is_same<Unit, typename Allocator::value_type>::value, std::basic_ostream<Unit>&>::type 
+		operator << (std::basic_ostream<Unit>& os,
+			const lingo::basic_string<encoding::cstring_default_encoding_t<Unit>, page::cstring_default_page_t<Unit>, Allocator>& str)
+	{
+		return os.write(str.data(), static_cast<std::streamsize>(str.size()));
 	}
 
 	// Fixed page typedefs

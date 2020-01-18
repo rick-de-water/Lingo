@@ -425,6 +425,13 @@ namespace lingo
 		return right.compare(left) <= 0;
 	}
 
+	template <typename Unit>
+	std::basic_ostream<Unit>& operator << (std::basic_ostream<Unit>& os,
+		const lingo::basic_string_view<encoding::cstring_default_encoding_t<Unit>, page::cstring_default_page_t<Unit>>& str)
+	{
+		return os.write(str.data(), static_cast<std::streamsize>(str.size()));
+	}
+
 	// Fixed code page typedefs
 	template <typename Encoding>
 	using basic_ascii_string_view = basic_string_view<Encoding, page::ascii>;
