@@ -68,6 +68,8 @@ namespace lingo
 		using reverse_iterator = std::reverse_iterator<iterator>;
 		using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
+		using object_builder = utility::object_builder<value_type>;
+
 		static LINGO_CONSTEXPR11 size_type npos = static_cast<size_type>(-1);
 		static LINGO_CONSTEXPR11 unit_type null_terminator = unit_type{};
 		static LINGO_CONSTEXPR11 bool is_execution_set = lingo::utility::is_execution_set<encoding_type, page_type>::value;
@@ -316,15 +318,15 @@ namespace lingo
 			{
 				for (size_type i = original_size; i < new_size; ++i)
 				{
-					_storage.copy_construct(data() + i, &null_terminator, 1);
+					object_builder::copy_construct(data() + i, &null_terminator, 1);
 				}
 			}
 			else
 			{
-				_storage.destruct(data() + new_size, original_size - new_size);
+				object_builder::destruct(data() + new_size, original_size - new_size);
 			}
 
-			_storage.copy_construct(data() + new_size, &null_terminator, 1);
+			object_builder::copy_construct(data() + new_size, &null_terminator, 1);
 			_storage.set_size(new_size);
 		}
 
@@ -358,11 +360,11 @@ namespace lingo
 			// Fill memory
 			for (size_type i = 0; i < count; ++i)
 			{
-				_storage.copy_construct(destination_data + i * result.size, encoded_point, result.size);
+				object_builder::copy_construct(destination_data + i * result.size, encoded_point, result.size);
 			}
 
 			// Construct null terminator
-			_storage.copy_construct(destination_data + destination_size, &null_terminator, 1);
+			object_builder::copy_construct(destination_data + destination_size, &null_terminator, 1);
 
 			// Update size
 			_storage.set_size(destination_size);
@@ -493,11 +495,11 @@ namespace lingo
 			// Fill memory
 			for (size_type i = 0; i < count; ++i)
 			{
-				_storage.copy_construct(destination_data + original_size + i * result.size, encoded_point, result.size);
+				object_builder::copy_construct(destination_data + original_size + i * result.size, encoded_point, result.size);
 			}
 
 			// Construct null terminator
-			_storage.copy_construct(destination_data + destination_size, &null_terminator, 1);
+			object_builder::copy_construct(destination_data + destination_size, &null_terminator, 1);
 
 			// Update size
 			_storage.set_size(destination_size);
@@ -627,17 +629,17 @@ namespace lingo
 			// Destruct old data (null terminator was destructed by grow_append)
 			for (size_type i = index; i < old_size; ++i)
 			{
-				_storage.destruct(_storage.data() + new_size, 1);
+				object_builder::destruct(_storage.data() + new_size, 1);
 			}
 
 			// Copy string count times
 			for (size_type i = 0; i < count; ++i)
 			{
-				_storage.copy_construct(_storage.data() + index + string.size() * i, string.data(), string.size());
+				object_builder::copy_construct(_storage.data() + index + string.size() * i, string.data(), string.size());
 			}
 
 			// Construct new null terminator
-			_storage.copy_construct(_storage.data() + new_size, &null_terminator, 1);
+			object_builder::copy_construct(_storage.data() + new_size, &null_terminator, 1);
 
 			// Update size
 			_storage.set_size(new_size);

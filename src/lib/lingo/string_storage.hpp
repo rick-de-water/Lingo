@@ -2,7 +2,9 @@
 #define H_LINGO_STRING_STORAGE
 
 #include <lingo/platform/constexpr.hpp>
+
 #include <lingo/utility/compressed_pair.hpp>
+#include <lingo/utility/object_builder.hpp>
 
 #include <cassert>
 #include <cstddef>
@@ -98,6 +100,8 @@ namespace lingo
 		using size_type = typename allocator_type::size_type;
 		using difference_type = typename allocator_type::difference_type;
 
+		using object_builder = utility::object_builder<value_type>;
+
 		static_assert(std::is_same<unit_type, typename allocator_type::value_type>::value, "allocator_type::value_type must be the same type as basic_string_storage::unit_type");
 
 		private:
@@ -124,7 +128,7 @@ namespace lingo
 			basic_string_storage(allocator)
 		{
 			grow_discard(storage.size());
-			copy_construct(data(), storage.data(), storage.size() + 1);
+			object_builder::copy_construct(data(), storage.data(), storage.size() + 1);
 			set_size(storage.size());
 		}
 
@@ -148,7 +152,7 @@ namespace lingo
 				else
 				{
 					// No need to grow because we know it can fit inside the storage itself
-					copy_construct(data(), storage.data(), storage.size() + 1);
+					object_builder::copy_construct(data(), storage.data(), storage.size() + 1);
 					set_size(storage.size());
 				}
 			}
@@ -156,14 +160,14 @@ namespace lingo
 			else
 			{
 				grow_discard(storage.size());
-				copy_construct(data(), storage.data(), storage.size() + 1);
+				object_builder::copy_construct(data(), storage.data(), storage.size() + 1);
 				set_size(storage.size());
 			}
 		}
 
 		~basic_string_storage() noexcept
 		{
-			destruct(data(), size() + 1);
+			object_builder::destruct(data(), size() + 1);
 			free(current_allocation());
 		}
 
@@ -223,27 +227,6 @@ namespace lingo
 			return _data.first()._long._last_unit == internal::basic_string_storage_long_marker<value_type>::value;
 		}
 
-		// Unit construction and destruction operations
-		static void default_construct(pointer destination, size_type size) noexcept(noexcept(std::declval<basic_string_storage&>().default_construct_impl(destination, size)))
-		{
-			default_construct_impl(destination, size);
-		}
-
-		static void copy_construct(pointer destination, const_pointer source, size_type size) noexcept(noexcept(std::declval<basic_string_storage&>().copy_construct_impl(destination, source, size)))
-		{
-			copy_construct_impl(destination, source, size);
-		}
-
-		static void move_contruct(pointer destination, const_pointer source, size_type size) noexcept(noexcept(std::declval<basic_string_storage&>().move_construct_impl(destination, source, size)))
-		{
-			move_construct_impl(destination, source, size);
-		}
-
-		static void destruct(pointer destination, size_type size) noexcept(noexcept(std::declval<basic_string_storage&>().destruct_impl(destination, size)))
-		{
-			destruct_impl(destination, size);
-		}
-
 		// Combined operations
 		// Grow while discarding existing data (usually due to some kind of copy assignment)
 		void grow_discard(size_type new_capacity)
@@ -252,7 +235,7 @@ namespace lingo
 			const auto alloc = allocate(new_capacity);
 			try
 			{
-				destruct(data(), size() + 1);
+				object_builder::destruct(data(), size() + 1);
 				swap_data(alloc);
 			}
 			catch (...)
@@ -281,10 +264,10 @@ namespace lingo
 			try
 			{
 				// Move all data over to the new buffer
-				move_contruct(alloc.data, current_alloc.data, size() + 1);
+				object_builder::move_contruct(alloc.data, current_alloc.data, size() + 1);
 
 				// Destruct old data
-				destruct(current_alloc.data, size() + 1);
+				object_builder::destruct(current_alloc.data, size() + 1);
 
 				// Swap allocations
 				swap_data(alloc);
@@ -308,7 +291,7 @@ namespace lingo
 			// Current allocation is already big enough, so we only need to remove the null terminator
 			if (current_alloc.data == alloc.data)
 			{
-				destruct(data() + size(), 1);
+				object_builder::destruct(data() + size(), 1);
 			}
 			// New buffer has been allocated
 			else
@@ -316,10 +299,10 @@ namespace lingo
 				try
 				{
 					// Move all data over to the new buffer
-					move_contruct(alloc.data, current_alloc.data, size());
+					object_builder::move_contruct(alloc.data, current_alloc.data, size());
 
 					// Destruct old data
-					destruct(current_alloc.data, size() + 1);
+					object_builder::destruct(current_alloc.data, size() + 1);
 
 					// Swap allocations
 					swap_data(alloc);
@@ -343,8 +326,8 @@ namespace lingo
 
 			// Copy data
 			LINGO_CONSTEXPR11 const value_type null_terminator{};
-			copy_construct(destination, str, length);
-			copy_construct(destination + length, &null_terminator, 1);
+			object_builder::copy_construct(destination, str, length);
+			object_builder::copy_construct(destination + length, &null_terminator, 1);
 
 			// Update size
 			set_size(length);
@@ -359,8 +342,8 @@ namespace lingo
 
 			// Copy data
 			LINGO_CONSTEXPR11 const value_type null_terminator{};
-			copy_construct(destination, str, length);
-			copy_construct(destination + length, &null_terminator, 1);
+			object_builder::copy_construct(destination, str, length);
+			object_builder::copy_construct(destination + length, &null_terminator, 1);
 
 			// Update size
 			set_size(new_size);
@@ -371,7 +354,7 @@ namespace lingo
 			if (&storage != this)
 			{
 				grow_discard(storage.size());
-				copy_construct(data(), storage.data(), storage.size() + 1);
+				object_builder::copy_construct(data(), storage.data(), storage.size() + 1);
 				set_size(storage.size());
 			}
 			return *this;
@@ -390,7 +373,7 @@ namespace lingo
 						// Destruct existing data if it exists
 						if (is_long())
 						{
-							destruct(data(), size() + 1);
+							object_builder::destruct(data(), size() + 1);
 						}
 
 						// Copy allocation from source
@@ -415,75 +398,7 @@ namespace lingo
 			return *this;
 		}
 
-		template <typename _ = int, typename std::enable_if<
-			std::is_trivially_default_constructible<value_type>::value, _>::type = 0>
-		static void default_construct_impl(pointer, size_type) noexcept
-		{
-		}
-
-		template <typename _ = int, typename std::enable_if<
-			!std::is_trivially_default_constructible<value_type>::value &&
-			std::is_default_constructible<value_type>::value, _>::type = 0>
-		static void default_construct_impl(pointer destination, size_type size) noexcept(noexcept(new (destination) value_type()))
-		{
-			for (size_type i = 0; i < size; ++i)
-			{
-				new (destination + i) value_type();
-			}
-		}
-
-		template <typename _ = int, typename std::enable_if<
-			std::is_trivially_copy_constructible<value_type>::value, _>::type = 0>
-		static void copy_construct_impl(pointer destination, const_pointer source, size_type size) noexcept
-		{
-			std::memcpy(destination, source, size * sizeof(unit_type));
-		}
-
-		template <typename _ = int, typename std::enable_if<
-			!std::is_trivially_copy_constructible<value_type>::value &&
-			std::is_copy_constructible<value_type>::value, _>::type = 0>
-		static void copy_construct_impl(pointer destination, const_pointer source, size_type size) noexcept(noexcept(new (destination) value_type(source[0])))
-		{
-			for (size_type i = 0; i < size; ++i)
-			{
-				new (destination + i) value_type(source[i]);
-			}
-		}
-
-		template <typename _ = int, typename std::enable_if<
-			std::is_trivially_move_constructible<value_type>::value, _>::type = 0>
-		static void move_construct_impl(pointer destination, const_pointer source, size_type size) noexcept
-		{
-			std::memcpy(destination, source, size * sizeof(unit_type));
-		}
-
-		template <typename _ = int, typename std::enable_if<
-			!std::is_trivially_move_constructible<value_type>::value &&
-			std::is_move_constructible<value_type>::value, _>::type = 0>
-		static void move_construct_impl(pointer destination, const_pointer source, size_type size) noexcept(noexcept(new (destination) value_type(std::move(source[0]))))
-		{
-			for (size_type i = 0; i < size; ++i)
-			{
-				new (destination + i) value_type(source[i]);
-			}
-		}
-
-		template <typename _ = int, typename std::enable_if<
-			std::is_trivially_destructible<value_type>::value, _>::type = 0>
-		static void destruct_impl(pointer, size_type) noexcept
-		{
-		}
-
-		template <typename _ = int, typename std::enable_if<
-			!std::is_trivially_destructible<value_type>::value &&
-			std::is_destructible<value_type>::value, _>::type = 0>
-		static void destruct_impl(pointer destination, size_type size) noexcept(noexcept((destination)->~value_type()))
-		{
-			for (size_type i = 0; i < size; ++i)
-			{
-				(destination + i)->~value_type();
-			}
-		}
+		
 
 		allocation allocate(size_type requested_capacity) noexcept(noexcept(std::declval<allocator_type&>().allocate(requested_capacity)))
 		{
