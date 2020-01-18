@@ -1,8 +1,8 @@
 #ifndef H_LINGO_UTILITY_TYPE_TRAITS
 #define H_LINGO_UTILITY_TYPE_TRAITS
 
-#include <lingo/encoding/cstring.hpp>
-#include <lingo/page/cstring.hpp>
+#include <lingo/encoding/execution.hpp>
+#include <lingo/page/execution.hpp>
 
 #include <lingo/platform/constexpr.hpp>
 
@@ -24,7 +24,7 @@ namespace lingo
 		template <typename Encoding>
 		struct is_execution_encoding<Encoding,
 			typename std::enable_if<
-				std::is_same<Encoding, lingo::encoding::cstring_default_encoding_t<typename Encoding::unit_type>>::value>::type> : std::true_type
+				std::is_same<Encoding, lingo::encoding::execution_encoding_t<typename Encoding::unit_type>>::value>::type> : std::true_type
 		{
 		};
 
@@ -41,8 +41,8 @@ namespace lingo
 		template <typename Encoding, typename Page>
 		struct is_execution_set<Encoding, Page,
 			typename std::enable_if<
-				std::is_same<Encoding, lingo::encoding::cstring_default_encoding_t<typename Encoding::unit_type>>::value &&
-				std::is_same<Page, lingo::page::cstring_default_page_t<typename Encoding::unit_type>>::value>::type> : std::true_type
+				std::is_same<Encoding, lingo::encoding::execution_encoding_t<typename Encoding::unit_type>>::value &&
+				std::is_same<Page, lingo::page::execution_page_t<typename Encoding::unit_type>>::value>::type> : std::true_type
 		{
 		};
 

@@ -40,8 +40,8 @@ list(APPEND LINGO_MANUAL_HEADERS "encoding/utf8.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "encoding/utf16.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "encoding/utf32.hpp")
 
-list(APPEND LINGO_MANUAL_HEADERS "encoding/cstring.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "encoding/endian.hpp")
+list(APPEND LINGO_MANUAL_HEADERS "encoding/execution.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "encoding/point_iterator.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "encoding/result.hpp")
 
@@ -63,7 +63,7 @@ foreach(ISO_8859_PART RANGE 1 16)
 	endif()
 endforeach()
 
-list(APPEND LINGO_MANUAL_HEADERS "page/cstring.hpp")
+list(APPEND LINGO_MANUAL_HEADERS "page/execution.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "page/intermediate.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "page/point_mapper.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "page/result.hpp")

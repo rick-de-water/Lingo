@@ -6,10 +6,10 @@
 #include <lingo/strlen.hpp>
 
 #include <lingo/page/ascii.hpp>
-#include <lingo/page/cstring.hpp>
+#include <lingo/page/execution.hpp>
 #include <lingo/page/unicode.hpp>
 
-#include <lingo/encoding/cstring.hpp>
+#include <lingo/encoding/execution.hpp>
 #include <lingo/encoding/none.hpp>
 #include <lingo/encoding/point_iterator.hpp>
 #include <lingo/encoding/utf8.hpp>
@@ -65,16 +65,16 @@ namespace lingo
 		LINGO_CONSTEXPR11 basic_string_view(basic_string_view&&) noexcept = default;
 
 		template <std::size_t N, typename Foo = int, typename std::enable_if<(
-			std::is_same<Encoding, encoding::cstring_default_encoding_t<value_type>>::value &&
-			std::is_same<Page, page::cstring_default_page_t<value_type>>::value), Foo>::type = N>
+			std::is_same<Encoding, encoding::execution_encoding_t<value_type>>::value &&
+			std::is_same<Page, page::execution_page_t<value_type>>::value), Foo>::type = N>
 		LINGO_CONSTEXPR11 basic_string_view(const value_type (&cstring)[N]) noexcept:
 			basic_string_view(cstring, N - 1, cstring[N - 1] == value_type{})
 		{
 		}
 
 		template <std::size_t N, typename Foo = int, typename std::enable_if<!(
-			std::is_same<Encoding, encoding::cstring_default_encoding_t<value_type>>::value &&
-			std::is_same<Page, page::cstring_default_page_t<value_type>>::value), Foo>::type = N>
+			std::is_same<Encoding, encoding::execution_encoding_t<value_type>>::value &&
+			std::is_same<Page, page::execution_page_t<value_type>>::value), Foo>::type = N>
 		explicit LINGO_CONSTEXPR11 basic_string_view(const value_type (&cstring)[N]) noexcept:
 			basic_string_view(cstring, N - 1, cstring[N - 1] == value_type{})
 		{
@@ -277,8 +277,8 @@ namespace lingo
 		}
 
 		template <typename _ = int, typename std::enable_if<
-			std::is_same<encoding::cstring_default_encoding_t<unit_type>, encoding_type>::value &&
-			std::is_same<page::cstring_default_page_t<unit_type>, page_type>::value, _>::type = 0>
+			std::is_same<encoding::execution_encoding_t<unit_type>, encoding_type>::value &&
+			std::is_same<page::execution_page_t<unit_type>, page_type>::value, _>::type = 0>
 		LINGO_CONSTEXPR14 int compare(const unit_type* other) const noexcept(noexcept(std::declval<const basic_string_view&>().compare(basic_string_view(other))))
 		{
 			return compare(basic_string_view(other));
@@ -329,48 +329,48 @@ namespace lingo
 
 
 	template <typename Encoding, typename Page, typename std::enable_if<
-		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
-		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+		std::is_same<encoding::execution_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
+		std::is_same<page::execution_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
 	LINGO_CONSTEXPR14 bool operator == (const basic_string_view<Encoding, Page>& left, const typename Encoding::unit_type* right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) == 0;
 	}
 
 	template <typename Encoding, typename Page, typename std::enable_if<
-		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
-		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+		std::is_same<encoding::execution_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
+		std::is_same<page::execution_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
 	LINGO_CONSTEXPR14 bool operator != (const basic_string_view<Encoding, Page>& left, const typename Encoding::unit_type* right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) != 0;
 	}
 
 	template <typename Encoding, typename Page, typename std::enable_if<
-		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
-		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+		std::is_same<encoding::execution_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
+		std::is_same<page::execution_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
 	LINGO_CONSTEXPR14 bool operator < (const basic_string_view<Encoding, Page>& left, const typename Encoding::unit_type* right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) < 0;
 	}
 
 	template <typename Encoding, typename Page, typename std::enable_if<
-		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
-		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+		std::is_same<encoding::execution_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
+		std::is_same<page::execution_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
 	LINGO_CONSTEXPR14 bool operator > (const basic_string_view<Encoding, Page>& left, const typename Encoding::unit_type* right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) > 0;
 	}
 
 	template <typename Encoding, typename Page, typename std::enable_if<
-		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
-		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+		std::is_same<encoding::execution_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
+		std::is_same<page::execution_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
 	LINGO_CONSTEXPR14 bool operator <= (const basic_string_view<Encoding, Page>& left, const typename Encoding::unit_type* right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) <= 0;
 	}
 
 	template <typename Encoding, typename Page, typename std::enable_if<
-		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
-		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+		std::is_same<encoding::execution_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
+		std::is_same<page::execution_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
 	LINGO_CONSTEXPR14 bool operator >= (const basic_string_view<Encoding, Page>& left, const typename Encoding::unit_type* right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) >= 0;
@@ -378,48 +378,48 @@ namespace lingo
 
 
 	template <typename Encoding, typename Page, typename std::enable_if<
-		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
-		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+		std::is_same<encoding::execution_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
+		std::is_same<page::execution_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
 	LINGO_CONSTEXPR14 bool operator == (const typename Encoding::unit_type* left, const basic_string_view<Encoding, Page>& right) noexcept(noexcept(right.compare(left)))
 	{
 		return right.compare(left) == 0;
 	}
 
 	template <typename Encoding, typename Page, typename std::enable_if<
-		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
-		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+		std::is_same<encoding::execution_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
+		std::is_same<page::execution_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
 	LINGO_CONSTEXPR14 bool operator != (const typename Encoding::unit_type* left, const basic_string_view<Encoding, Page>& right) noexcept(noexcept(right.compare(left)))
 	{
 		return right.compare(left) != 0;
 	}
 
 	template <typename Encoding, typename Page, typename std::enable_if<
-		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
-		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+		std::is_same<encoding::execution_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
+		std::is_same<page::execution_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
 	LINGO_CONSTEXPR14 bool operator < (const typename Encoding::unit_type* left, const basic_string_view<Encoding, Page>& right) noexcept(noexcept(right.compare(left)))
 	{
 		return right.compare(left) > 0;
 	}
 
 	template <typename Encoding, typename Page, typename std::enable_if<
-		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
-		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+		std::is_same<encoding::execution_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
+		std::is_same<page::execution_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
 	LINGO_CONSTEXPR14 bool operator > (const typename Encoding::unit_type* left, const basic_string_view<Encoding, Page>& right) noexcept(noexcept(right.compare(left)))
 	{
 		return right.compare(left) < 0;
 	}
 
 	template <typename Encoding, typename Page, typename std::enable_if<
-		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
-		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+		std::is_same<encoding::execution_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
+		std::is_same<page::execution_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
 	LINGO_CONSTEXPR14 bool operator <= (const typename Encoding::unit_type* left, const basic_string_view<Encoding, Page>& right) noexcept(noexcept(right.compare(left)))
 	{
 		return right.compare(left) >= 0;
 	}
 
 	template <typename Encoding, typename Page, typename std::enable_if<
-		std::is_same<encoding::cstring_default_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
-		std::is_same<page::cstring_default_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
+		std::is_same<encoding::execution_encoding_t<typename Encoding::unit_type>, Encoding>::value &&
+		std::is_same<page::execution_page_t<typename Encoding::unit_type>, Page>::value, int>::type = 0>
 	LINGO_CONSTEXPR14 bool operator >= (const typename Encoding::unit_type* left, const basic_string_view<Encoding, Page>& right) noexcept(noexcept(right.compare(left)))
 	{
 		return right.compare(left) <= 0;
@@ -427,7 +427,7 @@ namespace lingo
 
 	template <typename Unit>
 	std::basic_ostream<Unit>& operator << (std::basic_ostream<Unit>& os,
-		const lingo::basic_string_view<encoding::cstring_default_encoding_t<Unit>, page::cstring_default_page_t<Unit>>& str)
+		const lingo::basic_string_view<encoding::execution_encoding_t<Unit>, page::execution_page_t<Unit>>& str)
 	{
 		return os.write(str.data(), static_cast<std::streamsize>(str.size()));
 	}
@@ -457,8 +457,8 @@ namespace lingo
 	using basic_utf32_be_string_view = basic_unicode_string_view<encoding::utf32_be<Unit, char32_t>>;
 
 	// Fully specialized typedefs
-	using narrow_string_view = basic_string_view<encoding::cstring_default_encoding_t<char>, page::cstring_default_page_t<char>>;
-	using wide_string_view = basic_string_view<encoding::cstring_default_encoding_t<wchar_t>, page::cstring_default_page_t<wchar_t>>;
+	using narrow_string_view = basic_string_view<encoding::execution_encoding_t<char>, page::execution_page_t<char>>;
+	using wide_string_view = basic_string_view<encoding::execution_encoding_t<wchar_t>, page::execution_page_t<wchar_t>>;
 
 	using ascii_string_view = basic_ascii_string_view<encoding::none<char, char>>;
 

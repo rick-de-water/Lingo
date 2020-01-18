@@ -1,5 +1,5 @@
-#ifndef H_LINGO_PAGE_CSTRING
-#define H_LINGO_PAGE_CSTRING
+#ifndef H_LINGO_PAGE_EXECUTION
+#define H_LINGO_PAGE_EXECUTION
 
 #include <lingo/page/ascii.hpp>
 #include <lingo/page/iso_8859.hpp>
@@ -10,24 +10,24 @@ namespace lingo
 	namespace page
 	{
 		template <typename Unit>
-		struct cstring_default_page
+		struct execution_page
 		{
 			using type = unicode;
 		};
 
 		#ifdef LINGO_CHAR_PAGE
 		template <>
-		struct cstring_default_page<char>
+		struct execution_page<char>
 		{
 			using type = LINGO_CHAR_PAGE;
 		};
 		template <>
-		struct cstring_default_page<signed char>
+		struct execution_page<signed char>
 		{
 			using type = LINGO_CHAR_PAGE;
 		};
 		template <>
-		struct cstring_default_page<unsigned char>
+		struct execution_page<unsigned char>
 		{
 			using type = LINGO_CHAR_PAGE;
 		};
@@ -35,14 +35,14 @@ namespace lingo
 
 		#ifdef LINGO_WCHAR_PAGE
 		template <>
-		struct cstring_default_page<wchar_t>
+		struct execution_page<wchar_t>
 		{
 			using type = LINGO_WCHAR_PAGE;
 		};
 		#endif
 
 		template <typename Unit>
-		using cstring_default_page_t = typename cstring_default_page<Unit>::type;
+		using execution_page_t = typename execution_page<Unit>::type;
 	}
 }
 

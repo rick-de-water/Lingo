@@ -6,10 +6,10 @@
 #include <lingo/string.hpp>
 #include <lingo/string_view.hpp>
 
-#include <lingo/encoding/cstring.hpp>
+#include <lingo/encoding/execution.hpp>
 #include <lingo/encoding/point_iterator.hpp>
 
-#include <lingo/page/cstring.hpp>
+#include <lingo/page/execution.hpp>
 
 #include "test_types.hpp"
 
@@ -27,8 +27,8 @@
 
 #define LINGO_UNIT_TEST_TYPEDEFS \
 	using unit_type = TestType; \
-	using encoding_type = lingo::encoding::cstring_default_encoding_t<unit_type>; \
-	using page_type = lingo::page::cstring_default_page_t<unit_type>; \
+	using encoding_type = lingo::encoding::execution_encoding_t<unit_type>; \
+	using page_type = lingo::page::execution_page_t<unit_type>; \
 	using point_type = typename page_type::point_type; \
 	using size_type = std::size_t; \
 	using difference_type = std::ptrdiff_t; \

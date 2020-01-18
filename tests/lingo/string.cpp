@@ -184,11 +184,11 @@ TEMPLATE_LIST_TEST_CASE("string can be explicitly constructed from a string_view
 	using source_unit_type = typename std::decay<decltype(std::get<0>(std::declval<TestType>()))>::type;
 	using destination_unit_type = typename std::decay<decltype(std::get<1>(std::declval<TestType>()))>::type;
 
-	using source_encoding_type = lingo::encoding::cstring_default_encoding_t<source_unit_type>;
-	using destination_encoding_type = lingo::encoding::cstring_default_encoding_t<destination_unit_type>;
+	using source_encoding_type = lingo::encoding::execution_encoding_t<source_unit_type>;
+	using destination_encoding_type = lingo::encoding::execution_encoding_t<destination_unit_type>;
 
-	using source_page_type = lingo::page::cstring_default_page_t<source_unit_type>;
-	using destination_page_type = lingo::page::cstring_default_page_t<destination_unit_type>;
+	using source_page_type = lingo::page::execution_page_t<source_unit_type>;
+	using destination_page_type = lingo::page::execution_page_t<destination_unit_type>;
 
 	using source_point_iterator_type = lingo::encoding::point_iterator<source_encoding_type>;
 	using destination_point_iterator_type = lingo::encoding::point_iterator<destination_encoding_type>;

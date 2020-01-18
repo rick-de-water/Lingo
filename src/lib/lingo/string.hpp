@@ -6,7 +6,7 @@
 #include <lingo/string_storage.hpp>
 #include <lingo/string_view.hpp>
 
-#include <lingo/encoding/cstring.hpp>
+#include <lingo/encoding/execution.hpp>
 #include <lingo/encoding/endian.hpp>
 #include <lingo/encoding/none.hpp>
 #include <lingo/encoding/point_iterator.hpp>
@@ -15,7 +15,7 @@
 #include <lingo/encoding/utf32.hpp>
 
 #include <lingo/page/ascii.hpp>
-#include <lingo/page/cstring.hpp>
+#include <lingo/page/execution.hpp>
 #include <lingo/page/point_mapper.hpp>
 #include <lingo/page/unicode.hpp>
 
@@ -1001,7 +1001,7 @@ namespace lingo
 	template <typename Unit, typename Allocator>
 	typename std::enable_if<std::is_same<Unit, typename Allocator::value_type>::value, std::basic_ostream<Unit>&>::type 
 		operator << (std::basic_ostream<Unit>& os,
-			const lingo::basic_string<encoding::cstring_default_encoding_t<Unit>, page::cstring_default_page_t<Unit>, Allocator>& str)
+			const lingo::basic_string<encoding::execution_encoding_t<Unit>, page::execution_page_t<Unit>, Allocator>& str)
 	{
 		return os.write(str.data(), static_cast<std::streamsize>(str.size()));
 	}
@@ -1031,10 +1031,10 @@ namespace lingo
 	using basic_utf32_be_string = basic_unicode_string<encoding::utf32_be<Unit, char32_t>, Allocator>;
 
 	// Fixed encoding & page typedefs
-	template <typename Allocator = internal::default_allocator<encoding::cstring_default_encoding_t<char>>>
-	using basic_narrow_string = basic_string<encoding::cstring_default_encoding_t<char>, page::cstring_default_page_t<char>, Allocator>;
-	template <typename Allocator = internal::default_allocator<encoding::cstring_default_encoding_t<wchar_t>>>
-	using basic_wide_string = basic_string<encoding::cstring_default_encoding_t<wchar_t>, page::cstring_default_page_t<wchar_t>, Allocator>;
+	template <typename Allocator = internal::default_allocator<encoding::execution_encoding_t<char>>>
+	using basic_narrow_string = basic_string<encoding::execution_encoding_t<char>, page::execution_page_t<char>, Allocator>;
+	template <typename Allocator = internal::default_allocator<encoding::execution_encoding_t<wchar_t>>>
+	using basic_wide_string = basic_string<encoding::execution_encoding_t<wchar_t>, page::execution_page_t<wchar_t>, Allocator>;
 
 	// Fully specialized typedefs
 	using narrow_string = basic_narrow_string<>;
