@@ -31,6 +31,10 @@
 #include <string>
 #include <stdexcept>
 
+#ifdef __cpp_lib_string_view
+#include <string_view>
+#endif
+
 namespace lingo
 {
 	namespace internal
@@ -156,6 +160,20 @@ namespace lingo
 			_storage(std::move(str._storage), allocator)
 		{
 		}
+
+		template <typename SourceAllocator, typename _ = int, typename std::enable_if<is_execution_set, _>::type = 0>
+		basic_string(const std::basic_string<unit_type, std::char_traits<unit_type>, SourceAllocator>& str, const allocator_type& allocator = allocator_type()):
+			basic_string(string_view(str.data(), str.size(), true), allocator)
+		{
+		}
+
+		#ifdef __cpp_lib_string_view
+		template <typename _ = int, typename std::enable_if<is_execution_set, _>::type = 0>
+		basic_string(const std::basic_string_view<unit_type, std::char_traits<unit_type>>& str, const allocator_type& allocator = allocator_type()):
+			basic_string(string_view(str.data(), str.size(), false), allocator)
+		{
+		}
+		#endif
 
 		allocator_type get_allocator() const noexcept(std::is_nothrow_copy_constructible<allocator_type>::value)
 		{

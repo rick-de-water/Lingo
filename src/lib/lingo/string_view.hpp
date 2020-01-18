@@ -16,6 +16,8 @@
 #include <lingo/encoding/utf16.hpp>
 #include <lingo/encoding/utf32.hpp>
 
+#include <lingo/utility/type_traits.hpp>
+
 #include <algorithm>
 #include <cstddef>
 #include <iterator>
@@ -53,6 +55,9 @@ namespace lingo
 		using reverse_iterator = const_reverse_iterator;
 
 		using point_iterator = encoding::point_iterator<encoding_type>;
+
+		static LINGO_CONSTEXPR11 size_type npos = static_cast<size_type>(-1);
+		static LINGO_CONSTEXPR11 bool is_execution_set = lingo::utility::is_execution_set<encoding_type, page_type>::value;
 
 		private:
 		static_assert(std::is_same<typename page_type::point_type, typename encoding_type::point_type>::value, "page_type::point_type must be the same type as encoding_type::point_type");
@@ -94,6 +99,20 @@ namespace lingo
 			_storage(cstring, size, null_terminated)
 		{
 		}
+
+		template <typename SourceAllocator, typename _ = int, typename std::enable_if<is_execution_set, _>::type = 0>
+		basic_string_view(const std::basic_string<unit_type, std::char_traits<unit_type>, SourceAllocator>& str):
+			basic_string_view(str.data(), str.size(), true)
+		{
+		}
+
+		#ifdef __cpp_lib_string_view
+		template <typename _ = int, typename std::enable_if<is_execution_set, _>::type = 0>
+		basic_string_view(const std::basic_string_view<unit_type, std::char_traits<unit_type>>& str):
+			basic_string_view(str.data(), str.size(), false)
+		{
+		}
+		#endif
 
 		LINGO_CONSTEXPR11 iterator begin() const noexcept
 		{
@@ -290,6 +309,11 @@ namespace lingo
 		private:
 		storage_type _storage;
 	};
+
+	template <typename Encoding, typename Page>
+	LINGO_CONSTEXPR11 typename basic_string_view<Encoding, Page>::size_type basic_string_view<Encoding, Page>::npos;
+	template <typename Encoding, typename Page>
+	LINGO_CONSTEXPR11 bool basic_string_view<Encoding, Page>::is_execution_set;
 
 	template <typename Encoding, typename Page>
 	LINGO_CONSTEXPR14 bool operator == (basic_string_view<Encoding, Page> left, basic_string_view<Encoding, Page> right) noexcept(noexcept(left.compare(right)))
