@@ -98,10 +98,15 @@ namespace lingo
 			assign(count, point);
 		}
 
-		template <std::size_t N, typename _ = std::size_t,
-			typename std::enable_if<is_execution_set, _>::type = 0>
-		basic_string(const value_type (&cstring)[N], const allocator_type& allocator = allocator_type()):
-			basic_string(string_view(cstring, N - 1, cstring[N - 1] == value_type{}), allocator)
+		template <typename _ = int, typename std::enable_if<is_execution_set, _>::type = 0>
+		basic_string(const_pointer cstring, const allocator_type& allocator = allocator_type()):
+			basic_string(string_view(cstring), allocator)
+		{
+		}
+
+		template <typename _ = int, typename std::enable_if<!is_execution_set, _>::type = 0>
+		explicit basic_string(const_pointer cstring, const allocator_type& allocator = allocator_type()) :
+			basic_string(string_view(cstring), allocator)
 		{
 		}
 
