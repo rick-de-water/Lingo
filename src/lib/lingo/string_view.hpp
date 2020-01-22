@@ -16,6 +16,7 @@
 #include <lingo/encoding/utf16.hpp>
 #include <lingo/encoding/utf32.hpp>
 
+#include <lingo/utility/pointer_iterator.hpp>
 #include <lingo/utility/type_traits.hpp>
 
 #include <algorithm>
@@ -49,12 +50,11 @@ namespace lingo
 		using size_type = std::size_t;
 		using difference_type = std::ptrdiff_t;
 
-		using const_iterator = const_pointer;
+		struct iterator_tag;
+		using const_iterator = utility::pointer_iterator<const unit_type, iterator_tag>;
 		using iterator = const_iterator;
 		using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 		using reverse_iterator = const_reverse_iterator;
-
-		using point_iterator = encoding::point_iterator<encoding_type>;
 
 		static LINGO_CONSTEXPR11 size_type npos = static_cast<size_type>(-1);
 		static LINGO_CONSTEXPR11 bool is_execution_set = lingo::utility::is_execution_set<encoding_type, page_type>::value;
@@ -62,6 +62,7 @@ namespace lingo
 		private:
 		static_assert(std::is_same<typename page_type::point_type, typename encoding_type::point_type>::value, "page_type::point_type must be the same type as encoding_type::point_type");
 
+		using point_iterator = encoding::point_iterator<encoding_type>;
 		using storage_type = basic_string_view_storage<value_type>;
 
 		public:

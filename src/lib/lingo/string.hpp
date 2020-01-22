@@ -21,6 +21,7 @@
 
 #include <lingo/platform/endian.hpp>
 
+#include <lingo/utility/pointer_iterator.hpp>
 #include <lingo/utility/type_traits.hpp>
 
 #include <cassert>
@@ -63,8 +64,9 @@ namespace lingo
 		using size_type = typename std::allocator_traits<allocator_type>::size_type;
 		using difference_type = typename std::allocator_traits<allocator_type>::difference_type;
 
-		using iterator = pointer;
-		using const_iterator = const_pointer;
+		struct iterator_tag;
+		using iterator = utility::pointer_iterator<value_type, iterator_tag>;
+		using const_iterator = utility::pointer_iterator<const value_type, iterator_tag>;
 		using reverse_iterator = std::reverse_iterator<iterator>;
 		using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
@@ -105,7 +107,7 @@ namespace lingo
 		}
 
 		template <typename _ = int, typename std::enable_if<!is_execution_set, _>::type = 0>
-		explicit basic_string(const_pointer cstring, const allocator_type& allocator = allocator_type()) :
+		explicit basic_string(const_pointer cstring, const allocator_type& allocator = allocator_type()):
 			basic_string(string_view(cstring), allocator)
 		{
 		}
@@ -209,12 +211,12 @@ namespace lingo
 
 		reverse_iterator rbegin() noexcept
 		{
-			return reverse_iterator(begin());
+			return reverse_iterator(end());
 		}
 
 		reverse_iterator rend() noexcept
 		{
-			return reverse_iterator(end());
+			return reverse_iterator(begin());
 		}
 
 		const_reverse_iterator crbegin() const noexcept

@@ -28,6 +28,9 @@ list(APPEND TEST_LINGO_MANUAL_SOURCES "page/ascii.cpp")
 list(APPEND TEST_LINGO_MANUAL_SOURCES "page/iso_8859.cpp")
 list(APPEND TEST_LINGO_MANUAL_SOURCES "page/unicode.cpp")
 
+# Utility
+list(APPEND TEST_LINGO_MANUAL_SOURCES "utility/pointer_iterator.cpp")
+
 # Strings
 list(APPEND TEST_LINGO_MANUAL_SOURCES "string.cpp")
 list(APPEND TEST_LINGO_MANUAL_SOURCES "string_view.cpp")
