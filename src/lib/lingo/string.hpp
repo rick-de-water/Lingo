@@ -306,6 +306,11 @@ namespace lingo
 			return _storage.capacity();
 		}
 
+		void shrink_to_fit()
+		{
+			// TODO: actually shrink
+		}
+
 		bool empty() const noexcept
 		{
 			return size() == 0;
