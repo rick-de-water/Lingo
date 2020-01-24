@@ -688,7 +688,7 @@ LINGO_UNIT_TEST_CASE("string can be copied to an array")
 		for (auto size_it = pos_it; size_it != point_iterator_type(); ++size_it)
 		{
 			const size_type buffer_size = (size_it.read_ptr() - source.data()) - pos;
-			auto buffer = std::make_unique<unit_type[]>(buffer_size);
+			auto buffer = std::unique_ptr<unit_type[]>(new unit_type[buffer_size]);
 
 			const size_type copied_count = source.copy(buffer.get(), buffer_size, pos);
 
