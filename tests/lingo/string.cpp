@@ -672,3 +672,30 @@ LINGO_UNIT_TEST_CASE("A cstring can be concatenated to a string_view")
 	REQUIRE(string_view_type(suffix_test_string_result.data(), source_string.size()) == source_string);
 	REQUIRE(string_view_type(suffix_test_string_result.data() + source_string.size(), source_string.size()) == source_string);
 }
+
+LINGO_UNIT_TEST_CASE("string can be copied to an array")
+{
+	LINGO_UNIT_TEST_TYPEDEFS;
+
+	const unit_type* data = lingo::test::test_string<unit_type>::value;
+	const size_type size = sizeof(lingo::test::test_string<unit_type>::value) / sizeof(lingo::test::test_string<unit_type>::value[0]) - 1;
+	const string_type source(data, size);
+
+	for (auto pos_it = point_iterator_type(source); pos_it != point_iterator_type(); ++pos_it)
+	{
+		const size_type pos = pos_it.read_ptr() - source.data();
+
+		for (auto size_it = pos_it; size_it != point_iterator_type(); ++size_it)
+		{
+			const size_type buffer_size = (size_it.read_ptr() - source.data()) - pos;
+			auto buffer = std::make_unique<unit_type[]>(buffer_size);
+
+			const size_type copied_count = source.copy(buffer.get(), buffer_size, pos);
+
+			REQUIRE(copied_count == buffer_size);
+			REQUIRE(string_view_type(buffer.get(), buffer_size, false) == source.substr(pos, buffer_size));
+		}
+	}
+
+	REQUIRE_THROWS_AS(source.copy(nullptr, 0, size + 1), std::out_of_range);
+}

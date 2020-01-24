@@ -59,7 +59,7 @@ namespace lingo
 
 		template <typename Iterator, typename Catagory>
 		struct is_catagory_iterator<Iterator, Catagory,
-			typename std::enable_if<std::is_same<typename std::iterator_traits<Iterator>::iterator_catagory, Catagory>::value>::type> : std::true_type
+			typename std::enable_if<std::is_base_of<Catagory, typename std::iterator_traits<Iterator>::iterator_catagory>::value>::type> : std::true_type
 		{
 		};
 
@@ -78,6 +78,10 @@ namespace lingo
 		using is_bidirectional_iterator = is_catagory_iterator<Iterator, std::bidirectional_iterator_tag>;
 		template <typename Iterator>
 		using is_random_access_iterator = is_catagory_iterator<Iterator, std::random_access_iterator_tag>;
+		#ifdef __cpp_lib_ranges
+		template <typename Iterator>
+		using is_contiguous_iterator = is_catagory_iterator<Iterator, std::contiguous_iterator_tag>;
+		#endif
 
 		#ifdef __cpp_variable_templates
 		template <typename Iterator>
@@ -90,6 +94,10 @@ namespace lingo
 		LINGO_CONSTEXPR14 bool is_bidirectional_iterator_v = is_bidirectional_iterator<Iterator>::value;
 		template <typename Iterator>
 		LINGO_CONSTEXPR14 bool is_random_access_iterator_v = is_random_access_iterator<Iterator>::value;
+		#ifdef __cpp_lib_ranges
+		template <typename Iterator>
+		LINGO_CONSTEXPR14 bool is_contiguous_iterator_v = is_contiguous_iterator<Iterator>::value;
+		#endif
 		#endif
 	}
 }

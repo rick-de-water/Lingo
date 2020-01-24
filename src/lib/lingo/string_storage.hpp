@@ -100,12 +100,11 @@ namespace lingo
 		using size_type = typename allocator_type::size_type;
 		using difference_type = typename allocator_type::difference_type;
 
-		using object_builder = utility::object_builder<value_type>;
-
 		static_assert(std::is_same<unit_type, typename allocator_type::value_type>::value, "allocator_type::value_type must be the same type as basic_string_storage::unit_type");
 
 		private:
 		using compressed_pair = utility::compressed_pair<internal::basic_string_storage_data<unit_type>, allocator_type>;
+		using object_builder = utility::object_builder<value_type>;
 
 		struct allocation
 		{

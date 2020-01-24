@@ -16,6 +16,7 @@
 #include <lingo/encoding/utf16.hpp>
 #include <lingo/encoding/utf32.hpp>
 
+#include <lingo/utility/object_builder.hpp>
 #include <lingo/utility/pointer_iterator.hpp>
 #include <lingo/utility/type_traits.hpp>
 
@@ -62,6 +63,7 @@ namespace lingo
 		private:
 		static_assert(std::is_same<typename page_type::point_type, typename encoding_type::point_type>::value, "page_type::point_type must be the same type as encoding_type::point_type");
 
+		using object_builder = utility::object_builder<value_type>;
 		using point_iterator = encoding::point_iterator<encoding_type>;
 		using storage_type = basic_string_view_storage<value_type>;
 
@@ -211,8 +213,13 @@ namespace lingo
 		}
 		#endif
 
-		basic_string_view substr(size_type pos = 0, size_type count = npos)
+		basic_string_view substr(size_type pos = 0, size_type count = npos) const
 		{
+			if (pos > size())
+			{
+				throw std::out_of_range("pos > size()");
+			}
+
 			const const_pointer d = data() + pos;
 			const size_type s = std::min(count, size() - pos);
 			const bool nt = null_terminated() && (s == size() - pos);
@@ -248,6 +255,13 @@ namespace lingo
 				_storage = storage_type(data(), size() - n, false);
 				return removed;
 			}
+		}
+
+		LINGO_CONSTEXPR14 size_type copy(value_type* dest, size_type count, size_type pos = 0) const
+		{
+			const basic_string_view str = substr(pos, count);
+			object_builder::copy_construct(dest, str.data(), str.size());
+			return str.size();
 		}
 
 		LINGO_CONSTEXPR14 void swap(basic_string_view& other) noexcept

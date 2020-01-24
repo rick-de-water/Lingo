@@ -21,6 +21,7 @@
 
 #include <lingo/platform/endian.hpp>
 
+#include <lingo/utility/object_builder.hpp>
 #include <lingo/utility/pointer_iterator.hpp>
 #include <lingo/utility/type_traits.hpp>
 
@@ -70,8 +71,6 @@ namespace lingo
 		using reverse_iterator = std::reverse_iterator<iterator>;
 		using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-		using object_builder = utility::object_builder<value_type>;
-
 		static LINGO_CONSTEXPR11 size_type npos = static_cast<size_type>(-1);
 		static LINGO_CONSTEXPR11 unit_type null_terminator = unit_type{};
 		static LINGO_CONSTEXPR11 bool is_execution_set = lingo::utility::is_execution_set<encoding_type, page_type>::value;
@@ -80,6 +79,7 @@ namespace lingo
 		static_assert(std::is_same<typename page_type::point_type, typename encoding_type::point_type>::value, "page_type::point_type must be the same type as encoding_type::point_type");
 		static_assert(std::is_same<typename allocator_type::value_type, typename encoding_type::unit_type>::value, "allocator_type::value_type must be the same type as encoding_type::unit_type");
 
+		using object_builder = utility::object_builder<value_type>;
 		using storage_type = basic_string_storage<value_type, allocator_type>;
 		using string_view = basic_string_view<encoding_type, page_type>;
 
@@ -106,9 +106,21 @@ namespace lingo
 		{
 		}
 
+		template <typename _ = int, typename std::enable_if<is_execution_set, _>::type = 0>
+		basic_string(const_pointer cstring, size_type count, const allocator_type& allocator = allocator_type()):
+			basic_string(string_view(cstring, count), allocator)
+		{
+		}
+
 		template <typename _ = int, typename std::enable_if<!is_execution_set, _>::type = 0>
 		explicit basic_string(const_pointer cstring, const allocator_type& allocator = allocator_type()):
 			basic_string(string_view(cstring), allocator)
+		{
+		}
+
+		template <typename _ = int, typename std::enable_if<!is_execution_set, _>::type = 0>
+		explicit basic_string(const_pointer cstring, size_type count, const allocator_type& allocator = allocator_type()):
+			basic_string(string_view(cstring, count), allocator)
 		{
 		}
 
@@ -657,9 +669,14 @@ namespace lingo
 			_storage.set_size(new_size);
 		}
 
-		basic_string substr(size_type pos = 0, size_type count = npos)
+		basic_string substr(size_type pos = 0, size_type count = npos) const
 		{
 			return basic_string(*this, pos, count);
+		}
+
+		size_type copy(value_type* dest, size_type count, size_type pos = 0) const
+		{
+			return view().copy(dest, count, pos);
 		}
 
 		template <typename OtherAllocator>
@@ -715,7 +732,7 @@ namespace lingo
 
 		operator string_view() const noexcept
 		{
-			return string_view(data(), size(), true);
+			return view();
 		}
 
 		const_pointer c_str() const noexcept
@@ -729,15 +746,20 @@ namespace lingo
 			return std::basic_string<value_type, Traits, StdAllocator>(data(), size());
 		}
 
-		template <typename RightAllocator>
-		LINGO_CONSTEXPR14 int compare(const basic_string<encoding_type, page_type, RightAllocator>& other) const noexcept(noexcept(std::declval<const basic_string&>().compare(other.operator lingo::basic_string_view<Encoding, Page>())))
+		string_view view() const noexcept
 		{
-			return compare(other.operator lingo::basic_string_view<encoding_type, page_type>());
+			return string_view(data(), size(), true);
+		}
+
+		template <typename RightAllocator>
+		LINGO_CONSTEXPR14 int compare(const basic_string<encoding_type, page_type, RightAllocator>& other) const noexcept(noexcept(std::declval<const basic_string&>().compare(other.view())))
+		{
+			return compare(other.view());
 		}
 
 		LINGO_CONSTEXPR14 int compare(basic_string_view<encoding_type, page_type> other) const
 		{
-			return operator lingo::basic_string_view<Encoding, page_type>().compare(other);
+			return view().compare(other);
 		}
 
 		template <typename _ = int,

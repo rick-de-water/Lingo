@@ -38,24 +38,32 @@ namespace lingo
 			LINGO_CONSTEXPR14 point_iterator() noexcept:
 				_current(nullptr),
 				_end(nullptr),
+				_last(nullptr),
 				_code_point(0)
 			{
 			}
 
 			template <typename Page, typename Allocator>
-			point_iterator(const basic_string<encoding_type, Page, Allocator>& string):
-				_current(string.data()),
-				_end(string.data() + string.size()),
+			point_iterator(const basic_string<encoding_type, Page, Allocator>& str):
+				_current(str.data()),
+				_end(str.data() + str.size()),
+				_last(str.data()),
 				_code_point(parse())
 			{
 			}
 
 			template <typename Page>
-			LINGO_CONSTEXPR14 point_iterator(basic_string_view<encoding_type, Page> string):
-				_current(string.data()),
-				_end(string.data() + string.size()),
+			LINGO_CONSTEXPR14 point_iterator(basic_string_view<encoding_type, Page> str):
+				_current(str.data()),
+				_end(str.data() + str.size()),
+				_last(str.data()),
 				_code_point(parse())
 			{
+			}
+
+			LINGO_CONSTEXPR14 const unit_type* read_ptr() const noexcept
+			{
+				return _last;
 			}
 
 			LINGO_CONSTEXPR14 const_reference operator * () const noexcept
@@ -99,6 +107,7 @@ namespace lingo
 				{
 					_current = nullptr;
 					_end = nullptr;
+					_last = nullptr;
 					return {};
 				}
 
@@ -111,6 +120,7 @@ namespace lingo
 				}
 
 				// Move the current pointer
+				_last = _current;
 				_current += result.size;
 				assert(_current <= _end); // _current should never go beyond _end
 
@@ -120,6 +130,7 @@ namespace lingo
 
 			const unit_type* _current;
 			const unit_type* _end;
+			const unit_type* _last;
 			point_type _code_point;
 		};
 

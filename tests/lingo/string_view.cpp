@@ -312,3 +312,30 @@ LINGO_UNIT_TEST_CASE("string_view can be swapped")
 	REQUIRE(test_string_view1 == test_string_view4);
 	REQUIRE(test_string_view2 == test_string_view3);
 }
+
+LINGO_UNIT_TEST_CASE("string_view can be copied to an array")
+{
+	LINGO_UNIT_TEST_TYPEDEFS;
+
+	const unit_type* data = lingo::test::test_string<unit_type>::value;
+	const size_type size = sizeof(lingo::test::test_string<unit_type>::value) / sizeof(lingo::test::test_string<unit_type>::value[0]) - 1;
+	const string_view_type source(data, size, true);
+
+	for (auto pos_it = point_iterator_type(source); pos_it != point_iterator_type(); ++pos_it)
+	{
+		const size_type pos = pos_it.read_ptr() - source.data();
+
+		for (auto size_it = pos_it; size_it != point_iterator_type(); ++size_it)
+		{
+			const size_type buffer_size = (size_it.read_ptr() - source.data()) - pos;
+			auto buffer = std::make_unique<unit_type[]>(buffer_size);
+
+			const size_type copied_count = source.copy(buffer.get(), buffer_size, pos);
+
+			REQUIRE(copied_count == buffer_size);
+			REQUIRE(string_view_type(buffer.get(), buffer_size, false) == source.substr(pos, buffer_size));
+		}
+	}
+
+	REQUIRE_THROWS_AS(source.copy(nullptr, 0, size + 1), std::out_of_range);
+}
