@@ -1,14 +1,15 @@
-name: lingo
+name: test
 on: [push, pull_request]
 
 jobs:
-  build:
+  test:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, macos-latest ,ubuntu-latest]
+        os: [windows-latest, macos-latest, ubuntu-latest]
         cxx-version: [11, 14, 17]
         config: [Debug, Release]
+    if: ${{ !contains(matrix.os, 'windows') }}
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
