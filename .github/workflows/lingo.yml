@@ -1,0 +1,12 @@
+---
+name: first
+on: [push, pull_request]
+jobs:
+  first-job:
+    runs-on: windows-latest
+---
+name: second
+on: [push, pull_request]
+jobs:
+  second-job:
+    runs-on: windows-latest
