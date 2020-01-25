@@ -4,9 +4,17 @@ on: [push, pull_request]
 jobs:
   first-job:
     runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          path: "source"
 ---
 name: second
 on: [push, pull_request]
 jobs:
   second-job:
     runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          path: "source"
