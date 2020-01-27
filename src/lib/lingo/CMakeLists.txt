@@ -109,4 +109,3 @@ foreach(LINGO_HEADER ${LINGO_HEADERS})
 endforeach()
 
 install(TARGETS lingo EXPORT lingo)
-install(EXPORT lingo DESTINATION .)

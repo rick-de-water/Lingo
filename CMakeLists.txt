@@ -24,3 +24,8 @@ enable_testing()
 # Add subdirectories
 add_subdirectory(src)
 add_subdirectory(tests)
+
+# Install
+install(EXPORT lingo DESTINATION .)
+install(FILES "LICENSE" "README.md" DESTINATION ".")
+install(DIRECTORY "doc" DESTINATION ".")
