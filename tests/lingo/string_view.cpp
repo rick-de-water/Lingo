@@ -339,3 +339,112 @@ LINGO_UNIT_TEST_CASE("string_view can be copied to an array")
 
 	REQUIRE_THROWS_AS(source.copy(nullptr, 0, size + 1), std::out_of_range);
 }
+
+TEST_CASE("string_view can be searched")
+{
+	using string_view_type = lingo::string_view;
+	using size_type = string_view_type::size_type;
+
+	const string_view_type text(
+		"ctataatcccagcttgttgggaggccaaggcaggaggatcacttgaagcc"
+		"caggagtttgagacgagcctaagcaacatagcaagaccctatctctacaa"
+		"ttataaatatagtatttgttaatatttggccaggcgtggtagtacatgcc"
+		"tgtaggcccagctacttggggagaggaggcaggaggatcacttgagggcc"
+		"gaagttctgggctgtagtgcactatgcaatcaggtgtccccaccacattg"
+		"ggcataaatctggtgatttcctgggagaaggagaccaccaggttgcctta"
+		"taaggggtaaactggcccacatcgaaaacagagtaggtcaacatttccat"
+		"gctaatcagtaatgggatccagcctatgaataaccactgcactccagctc"
+		"gggcaatacagcaagaccctgaatttttttttttttttttttttgagaca"
+		"gtcttgctctgtggcccaggatggagtgcaatggtgtgatctcagatcac"
+		"tacaacctccacctccgggattcaagcaattcttctgcttcagcctccca"
+		"agtagctgggattacaggtgggcgccaccacacctggccgtacccacatt"
+		"ttttaaaaattaaaaaaataagaataaggccaggcacggtggctcaccct"
+		"tgtaatcccagcactttgggaggccaaggtgggcagatcacctgaggtca"
+		"aaagttcgagaccagcatggccaacatggcaaaaccctgtctctaataaa"
+		"aatacaaaaattagccaggcgtggtggcgggcacctgtaatcccagctac"
+		"tcgggaggctgagacaggagaattgcttgaacccaggaactggaggtttc"
+		"agtgagccaagattgcgccattgcactccagcctgggcaacaagagtgaa"
+		"gctccatctcaaaaaaaaaaaaaaaatttagcctggcgtggtggcacgtg"
+		"cctgtagtcccagctaccagggagtttggggttggaggattgcttgagcc"
+		"cgggaagcagaggttgcagtgagctgagatcctgccaccacactccagcc"
+		"tgggctacagagtgagacactgtctcaaaaaaataaaaaataaaaataaa"
+		"atgtaaaaaaatctgatgaacatcattccaatgtcaattataaattgttt"
+		"gatgttaggtatttatttatttatttattttattttttatttttatttat"
+		"ttatttgttttttttgagatggagtttcactcgttgcccaggctagagtg"
+		"caatggcgcgatgtcggctcaccacaacctccacctcccgtgttcaagcg"
+		"attctcctgcctcggcctcctgagtagctgggattacaggcatgcgccac"
+		"cacgcccagctaattttgtacttttagtagagacgtggtttctccatgtt"
+		"ggtcaggctggtcttgctggtctcaaactccctgacctcaagtgatccac"
+		"ccgccttggcctcccaaagtgctgggattacaggtgtgagccaccacgcc"
+		"tggcctatgttaggtatttaatataaatgcctttcatatttatagaaaag"
+		"ccattccagctccccacctcttccaatggtcctagagaggtagggggcaa"
+		"gactcaactcaggaggtggggctcagaaataggaccaagttgacgactag"
+		"ctaaaacagggacggaagagaagcagctttccatgacatgcccaacagtg"
+		"tgccctgtcagttcaccattgccatggcaacactgggatgtttccgcccc"
+		"tttccattgcaacaacctgatgacctggaaattaccaaccttttcctaga"
+		"aatttctgcatagcccgcttcttaatttgcatgtaattaaaagtgagtta"
+		"taggctgggcgagttggctcacgcctgtaatcccggcactttgggaggcc"
+		"gagacgggcggatcacttgaggtcaggagttccagaccagcctggccaac"
+		"atggtaaaaccccatctctacgaaaaatataaaaattacccaggagtggt"
+		"gctgcacgcctgtaatcccagctactccagaggctgagtcaggagaatcg"
+		"cttgaacccaggaggcagtgagctgagatctcatcactgcactccagcct"
+		"aggtgacagagcaagactccatctcagaaaacaaaaacaacaacaacaac"
+		"aaaaaaagtgagttataaatatgactgcaggctgggcatggtggctgacg"
+		"cctgtaatcccagcactttgggaggccaaggtgggtggatcatgaggtca"
+		"ggagatcgagaccatcctgactaacatggtgaagccccgtctctactaaa"
+		"aatacaaaaaattagccaggcatggtggcgggtggctatagtcccagcta");
+
+	auto find = [&](string_view_type pattern, std::initializer_list<size_type> matches)
+	{
+		size_type offset = 0;
+		for (size_type expected_match : matches)
+		{
+			const size_type match = text.find(pattern, offset);
+
+			REQUIRE(expected_match == match);
+
+			offset = expected_match + 1;
+		}
+
+		REQUIRE(text.find(pattern, offset) == string_view_type::npos);
+	};
+
+	auto rfind = [&](string_view_type pattern, std::initializer_list<size_type> matches)
+	{
+		size_type offset = string_view_type::npos;
+		for (size_type expected_match : matches)
+		{
+			const size_type match = text.rfind(pattern, offset);
+
+			REQUIRE(expected_match == match);
+
+			offset = expected_match + pattern.size() - 2;
+		}
+
+		REQUIRE(text.rfind(pattern, offset) == string_view_type::npos);
+	};
+
+	REQUIRE(text.find("c") == 0);
+	REQUIRE(text.find("t") == 1);
+	REQUIRE(text.find("a") == 2);
+	REQUIRE(text.find("g") == 11);
+	REQUIRE(text.find("x") == string_view_type::npos);
+	REQUIRE(text.find(text) == 0);
+	REQUIRE(text.find(text + "c") == string_view_type::npos);
+
+	find("agaa", { 275, 620, 818, 1543, 1624, 1668, 1797, 2043, 2125 });
+	find("tttttt", { 423, 424, 425, 426, 427, 428, 429, 430, 431, 432, 433, 434, 435, 436, 437, 438, 598, 1182, 1207, 1208, 1209 });
+	find("ctga", { 418, 691, 808, 1023, 1112, 1319, 1431, 1766, 2033, 2072, 2194, 2266 });
+
+	REQUIRE(text.rfind("c") == 2347);
+	REQUIRE(text.rfind("t") == 2348);
+	REQUIRE(text.rfind("a") == 2349);
+	REQUIRE(text.rfind("g") == 2346);
+	REQUIRE(text.rfind("x") == string_view_type::npos);
+	REQUIRE(text.rfind(text) == 0);
+	REQUIRE(text.rfind(text + "c") == string_view_type::npos);
+
+	rfind("agaa", { 2125, 2043, 1797, 1668, 1624, 1543, 818, 620, 275 });
+	rfind("tttttt", { 1209, 1208, 1207, 1182, 598, 438, 437, 436, 435, 434, 433, 432, 431, 430, 429, 428, 427, 426, 425, 424, 423 });
+	rfind("ctga", { 2266, 2194, 2072, 2033, 1766, 1431, 1319, 1112, 1023, 808, 691, 418 });
+}

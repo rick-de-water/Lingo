@@ -81,7 +81,7 @@ namespace lingo
 
 		using object_builder = utility::object_builder<value_type>;
 		using storage_type = basic_string_storage<value_type, allocator_type>;
-		using string_view = basic_string_view<encoding_type, page_type>;
+		using basic_string_view = lingo::basic_string_view<encoding_type, page_type>;
 
 		public:
 		basic_string() noexcept(noexcept(allocator_type())):
@@ -102,37 +102,37 @@ namespace lingo
 
 		template <typename _ = int, typename std::enable_if<is_execution_set, _>::type = 0>
 		basic_string(const_pointer cstring, const allocator_type& allocator = allocator_type()):
-			basic_string(string_view(cstring), allocator)
+			basic_string(basic_string_view(cstring), allocator)
 		{
 		}
 
 		template <typename _ = int, typename std::enable_if<is_execution_set, _>::type = 0>
 		basic_string(const_pointer cstring, size_type count, const allocator_type& allocator = allocator_type()):
-			basic_string(string_view(cstring, count), allocator)
+			basic_string(basic_string_view(cstring, count), allocator)
 		{
 		}
 
 		template <typename _ = int, typename std::enable_if<!is_execution_set, _>::type = 0>
 		explicit basic_string(const_pointer cstring, const allocator_type& allocator = allocator_type()):
-			basic_string(string_view(cstring), allocator)
+			basic_string(basic_string_view(cstring), allocator)
 		{
 		}
 
 		template <typename _ = int, typename std::enable_if<!is_execution_set, _>::type = 0>
 		explicit basic_string(const_pointer cstring, size_type count, const allocator_type& allocator = allocator_type()):
-			basic_string(string_view(cstring, count), allocator)
+			basic_string(basic_string_view(cstring, count), allocator)
 		{
 		}
 
-		basic_string(string_view string_view, const allocator_type& allocator = allocator_type()):
+		basic_string(basic_string_view basic_string_view, const allocator_type& allocator = allocator_type()):
 			basic_string(allocator)
 		{
-			assign(string_view);
+			assign(basic_string_view);
 		}
 
 		template <typename SourceEncoding, typename SourcePage>
-		explicit basic_string(basic_string_view<SourceEncoding, SourcePage> string_view, const allocator_type& allocator = allocator_type()):
-			basic_string(string_converter<SourceEncoding, SourcePage, encoding_type, page_type>().template convert<allocator_type>(string_view, allocator))
+		explicit basic_string(lingo::basic_string_view<SourceEncoding, SourcePage> basic_string_view, const allocator_type& allocator = allocator_type()):
+			basic_string(string_converter<SourceEncoding, SourcePage, encoding_type, page_type>().template convert<allocator_type>(basic_string_view, allocator))
 		{
 		}
 
@@ -168,7 +168,7 @@ namespace lingo
 		}
 
 		basic_string(const basic_string& str, size_type pos, size_type count, const allocator_type& allocator):
-			basic_string(string_view(str.data() + pos, count == npos ? str.size() - pos : count), allocator)
+			basic_string(basic_string_view(str.data() + pos, count == npos ? str.size() - pos : count), allocator)
 		{
 		}
 
@@ -184,14 +184,14 @@ namespace lingo
 
 		template <typename SourceAllocator, typename _ = int, typename std::enable_if<is_execution_set, _>::type = 0>
 		basic_string(const std::basic_string<unit_type, std::char_traits<unit_type>, SourceAllocator>& str, const allocator_type& allocator = allocator_type()):
-			basic_string(string_view(str.data(), str.size(), true), allocator)
+			basic_string(basic_string_view(str.data(), str.size(), true), allocator)
 		{
 		}
 
 		#ifdef __cpp_lib_string_view
 		template <typename _ = int, typename std::enable_if<is_execution_set, _>::type = 0>
 		basic_string(const std::basic_string_view<unit_type, std::char_traits<unit_type>>& str, const allocator_type& allocator = allocator_type()):
-			basic_string(string_view(str.data(), str.size(), false), allocator)
+			basic_string(basic_string_view(str.data(), str.size(), false), allocator)
 		{
 		}
 		#endif
@@ -424,7 +424,7 @@ namespace lingo
 
 			if (this != &str)
 			{
-				assign(string_view(str.data() + pos, std::min(count, str.length() - pos)));
+				assign(basic_string_view(str.data() + pos, std::min(count, str.length() - pos)));
 			}
 		}
 
@@ -436,7 +436,7 @@ namespace lingo
 			}
 		}
 
-		void assign(string_view str)
+		void assign(basic_string_view str)
 		{
 			const const_pointer source_data = str.data();
 			const size_type source_size = str.size();
@@ -445,59 +445,59 @@ namespace lingo
 			_storage.assign(source_data, source_size);
 		}
 
-		void assign(string_view str, size_type pos)
+		void assign(basic_string_view str, size_type pos)
 		{
-			assign(string_view(str.data() + pos, str.length() - pos));
+			assign(basic_string_view(str.data() + pos, str.length() - pos));
 		}
 
-		void assign(string_view str, size_type pos, size_type count)
+		void assign(basic_string_view str, size_type pos, size_type count)
 		{
-			assign(string_view(str.data() + pos, std::min(count, str.length() - pos)));
+			assign(basic_string_view(str.data() + pos, std::min(count, str.length() - pos)));
 		}
 
 		template <typename _ = int, typename std::enable_if<is_execution_set, _>::type = 0>
 		void assign(const_pointer str)
 		{
-			assign(string_view(str));
+			assign(basic_string_view(str));
 		}
 
 		template <typename _ = int, typename std::enable_if<is_execution_set, _>::type = 0>
 		void assign(const_pointer str, size_type count)
 		{
-			assign(string_view(str, count));
+			assign(basic_string_view(str, count));
 		}
 
 		template <typename T,
 			typename std::enable_if<
-				!std::is_same<T, string_view>::value &&
-				std::is_convertible<const T&, string_view>::value &&
-				!std::is_convertible<const T&, unit_type>::value
+				!std::is_same<T, basic_string_view>::value &&
+				!std::is_convertible<const T&, const_pointer>::value &&
+				std::is_convertible<const T&, basic_string_view>::value
 			>::type = 0>
 		void assign(const T& str)
 		{
-			assign(string_view(str));
+			assign(basic_string_view(str));
 		}
 
 		template <typename T,
 			typename std::enable_if<
-				!std::is_same<T, string_view>::value &&
-				std::is_convertible<const T&, string_view>::value &&
-				!std::is_convertible<const T&, unit_type>::value
+				!std::is_same<T, basic_string_view>::value &&
+				!std::is_convertible<const T&, const_pointer>::value &&
+				std::is_convertible<const T&, basic_string_view>::value
 			>::type = 0>
 		void assign(const T& str, size_type pos)
 		{
-			assign(string_view(str), pos);
+			assign(basic_string_view(str), pos);
 		}
 
 		template <typename T,
 			typename std::enable_if<
-				!std::is_same<T, string_view>::value &&
-				std::is_convertible<const T&, string_view>::value &&
-				!std::is_convertible<const T&, unit_type>::value
+				!std::is_same<T, basic_string_view>::value &&
+				!std::is_convertible<const T&, const_pointer>::value &&
+				std::is_convertible<const T&, basic_string_view>::value
 			>::type = 0>
 		void assign(const T& str, size_type pos, size_type count)
 		{
-			assign(string_view(str), pos, count);
+			assign(basic_string_view(str), pos, count);
 		}
 
 		void append(size_type count, point_type point)
@@ -550,17 +550,17 @@ namespace lingo
 			_storage.append(original_size, source_data, source_size);
 		}
 
-		void append(string_view str)
+		void append(basic_string_view str)
 		{
 			append(str, 0, npos);
 		}
 
-		void append(string_view str, size_type pos)
+		void append(basic_string_view str, size_type pos)
 		{
 			append(str, pos, npos);
 		}
 
-		void append(string_view str, size_type pos, size_type count)
+		void append(basic_string_view str, size_type pos, size_type count)
 		{
 			// Assert for self append
 			assert(str.data() < data() || str.data() > data() + capacity());
@@ -577,46 +577,46 @@ namespace lingo
 		template <typename _ = int, typename std::enable_if<is_execution_set, _>::type = 0>
 		void append(const_pointer str)
 		{
-			append(string_view(str));
+			append(basic_string_view(str));
 		}
 
 		template <typename _ = int, typename std::enable_if<is_execution_set, _>::type = 0>
 		void append(const_pointer str, size_type count)
 		{
-			append(string_view(str, count));
+			append(basic_string_view(str, count));
 		}
 
 		template <typename T,
 			typename std::enable_if<
-				!std::is_same<T, string_view>::value &&
-				std::is_convertible<const T&, string_view>::value &&
-				!std::is_convertible<const T&, unit_type>::value
+				!std::is_same<T, basic_string_view>::value &&
+				!std::is_convertible<const T&, const_pointer>::value &&
+				std::is_convertible<const T&, basic_string_view>::value
 			>::type = 0>
 		void append(const T& str)
 		{
-			append(string_view(str));
+			append(basic_string_view(str));
 		}
 
 		template <typename T,
 			typename std::enable_if<
-				!std::is_same<T, string_view>::value &&
-				std::is_convertible<const T&, string_view>::value &&
-				!std::is_convertible<const T&, unit_type>::value
+				!std::is_same<T, basic_string_view>::value &&
+				!std::is_convertible<const T&, const_pointer>::value &&
+				std::is_convertible<const T&, basic_string_view>::value
 			>::type = 0>
 		void append(const T& str, size_type pos)
 		{
-			append(string_view(str), pos);
+			append(basic_string_view(str), pos);
 		}
 
 		template <typename T,
 			typename std::enable_if<
-				!std::is_same<T, string_view>::value &&
-				std::is_convertible<const T&, string_view>::value &&
-				!std::is_convertible<const T&, unit_type>::value
+				!std::is_same<T, basic_string_view>::value &&
+				!std::is_convertible<const T&, const_pointer>::value &&
+				std::is_convertible<const T&, basic_string_view>::value
 			>::type = 0>
 		void append(const T& str, size_type pos, size_type count)
 		{
-			append(string_view(str), pos, count);
+			append(basic_string_view(str), pos, count);
 		}
 
 		void push_back(point_type point)
@@ -630,10 +630,10 @@ namespace lingo
 			}
 
 			// Append data
-			append(string_view(encoded_point, result.size));
+			append(basic_string_view(encoded_point, result.size));
 		}
 
-		void insert(size_type index, string_view string, size_type count) noexcept(noexcept(std::declval<storage_type&>().grow(std::declval<size_t>())))
+		void insert(size_type index, basic_string_view string, size_type count) noexcept(noexcept(std::declval<storage_type&>().grow(std::declval<size_t>())))
 		{
 			// Make sure that the index is valid
 			assert(index <= size());
@@ -682,13 +682,13 @@ namespace lingo
 		template <typename OtherAllocator>
 		basic_string& operator += (const basic_string<Encoding, Page, OtherAllocator>& other)
 		{
-			// We can't simply call the string_view version here
+			// We can't simply call the basic_string_view version here
 			// If &other == this, the data pointer in the string view might become invalid when growing the capacity
 			append(other);
 			return *this;
 		}
 
-		basic_string& operator += (string_view other)
+		basic_string& operator += (basic_string_view other)
 		{
 			append(other);
 			return *this;
@@ -707,7 +707,7 @@ namespace lingo
 			typename std::enable_if<is_execution_set, _>::type = 0>
 		basic_string& operator += (const unit_type* other)
 		{
-			return (*this) += string_view(other);
+			return (*this) += basic_string_view(other);
 		}
 
 		basic_string& operator = (const basic_string& str)
@@ -730,7 +730,7 @@ namespace lingo
 			return *this;
 		}
 
-		operator string_view() const noexcept
+		operator basic_string_view() const noexcept
 		{
 			return view();
 		}
@@ -746,32 +746,149 @@ namespace lingo
 			return std::basic_string<value_type, Traits, StdAllocator>(data(), size());
 		}
 
-		string_view view() const noexcept
+		basic_string_view view() const noexcept
 		{
-			return string_view(data(), size(), true);
+			return basic_string_view(data(), size(), true);
 		}
 
 		template <typename RightAllocator>
-		LINGO_CONSTEXPR14 int compare(const basic_string<encoding_type, page_type, RightAllocator>& other) const noexcept(noexcept(std::declval<const basic_string&>().compare(other.view())))
+		LINGO_CONSTEXPR14 int compare(const basic_string<encoding_type, page_type, RightAllocator>& str) const noexcept(noexcept(std::declval<const basic_string&>().compare(str.view())))
 		{
-			return compare(other.view());
+			return compare(str.view());
 		}
 
-		LINGO_CONSTEXPR14 int compare(basic_string_view<encoding_type, page_type> other) const
+		LINGO_CONSTEXPR14 int compare(basic_string_view str) const
 		{
-			return view().compare(other);
+			return view().compare(str);
 		}
 
-		template <typename _ = int,
-			typename std::enable_if<is_execution_set, _>::type = 0>
-		LINGO_CONSTEXPR14 int compare(const unit_type* other) const noexcept(noexcept(std::declval<const basic_string&>().compare(string_view(other))))
+		template <typename _ = int, typename std::enable_if<is_execution_set, _>::type = 0>
+		LINGO_CONSTEXPR14 int compare(const_pointer str) const noexcept(noexcept(std::declval<const basic_string&>().compare(basic_string_view(str))))
 		{
-			return compare(string_view(other));
+			return compare(basic_string_view(str));
+		}
+
+		LINGO_CONSTEXPR14 size_type find(const basic_string& str) const noexcept
+		{
+			return find(str.view());
+		}
+
+		LINGO_CONSTEXPR14 size_type find(const basic_string& str, size_type pos) const noexcept
+		{
+			return find(str.view(), pos);
+		}
+
+		template <typename _ = int, typename std::enable_if<is_execution_set, _>::type = 0>
+		LINGO_CONSTEXPR14 size_type find(const_pointer str) const noexcept
+		{
+			return find(basic_string_view(str));
+		}
+
+		template <typename _ = int, typename std::enable_if<is_execution_set, _>::type = 0>
+		LINGO_CONSTEXPR14 size_type find(const_pointer str, size_type pos) const noexcept
+		{
+			return find(basic_string_view(str), pos);
+		}
+
+		template <typename _ = int, typename std::enable_if<is_execution_set, _>::type = 0>
+		LINGO_CONSTEXPR14 size_type find(const_pointer str, size_type pos, size_type count) const noexcept
+		{
+			return find(basic_string_view(str, count, false), pos);
+		}
+
+		LINGO_CONSTEXPR14 size_type find(basic_string_view str) const noexcept
+		{
+			return find(str);
+		}
+
+		LINGO_CONSTEXPR14 size_type find(basic_string_view str, size_type pos) const noexcept
+		{
+			return view().find(str, pos);
+		}
+
+		template <typename T,
+			typename std::enable_if<
+				!std::is_same<T, basic_string_view>::value &&
+				!std::is_convertible<const T&, const_pointer>::value &&
+				std::is_convertible<const T&, basic_string_view>::value
+			>::type = 0>
+		LINGO_CONSTEXPR14 size_type find(const T& str) const noexcept
+		{
+			return find(basic_string_view(str), 0);
+		}
+
+		template <typename T,
+			typename std::enable_if<
+				!std::is_same<T, basic_string_view>::value &&
+				!std::is_convertible<const T&, const_pointer>::value &&
+				std::is_convertible<const T&, basic_string_view>::value
+			>::type = 0>
+		LINGO_CONSTEXPR14 size_type find(const T& str, size_type pos) const noexcept
+		{
+			return find(basic_string_view(str), pos);
+		}
+
+		LINGO_CONSTEXPR14 size_type rfind(const basic_string& str) const noexcept
+		{
+			return rfind(str, npos);
+		}
+
+		LINGO_CONSTEXPR14 size_type rfind(const basic_string& str, size_type pos) const noexcept
+		{
+			return find(str.view(), pos);
+		}
+
+		template <typename _ = int, typename std::enable_if<is_execution_set, _>::type = 0>
+		LINGO_CONSTEXPR14 size_type rfind(const_pointer str) const noexcept
+		{
+			return rfind(basic_string_view(str));
+		}
+
+		template <typename _ = int, typename std::enable_if<is_execution_set, _>::type = 0>
+		LINGO_CONSTEXPR14 size_type rfind(const_pointer str, size_type pos) const noexcept
+		{
+			return rfind(basic_string_view(str), pos);
+		}
+
+		template <typename _ = int, typename std::enable_if<is_execution_set, _>::type = 0>
+		LINGO_CONSTEXPR14 size_type rfind(const_pointer str, size_type pos, size_type count) const noexcept
+		{
+			return rfind(basic_string_view(str, count, false), pos);
+		}
+
+		LINGO_CONSTEXPR14 size_type rfind(basic_string_view str) const noexcept
+		{
+			return rfind(str);
+		}
+
+		LINGO_CONSTEXPR14 size_type rfind(basic_string_view str, size_type pos) const noexcept
+		{
+			return view().rfind(str, pos);
+		}
+
+		template <typename T,
+			typename std::enable_if<
+				!std::is_same<T, basic_string_view>::value &&
+				!std::is_convertible<const T&, const_pointer>::value &&
+				std::is_convertible<const T&, basic_string_view>::value
+			>::type = 0>
+		LINGO_CONSTEXPR14 size_type rfind(const T& str) const noexcept
+		{
+			return rfind(basic_string_view(str), npos);
+		}
+
+		template <typename T,
+			typename std::enable_if<
+				!std::is_same<T, basic_string_view>::value &&
+				!std::is_convertible<const T&, const_pointer>::value &&
+				std::is_convertible<const T&, basic_string_view>::value
+			>::type = 0>
+		LINGO_CONSTEXPR14 size_type rfind(const T& str, size_type pos) const noexcept
+		{
+			return rfind(basic_string_view(str), pos);
 		}
 
 		private:
-
-
 		storage_type _storage;
 	};
 
