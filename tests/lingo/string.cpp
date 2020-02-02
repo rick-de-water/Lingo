@@ -361,10 +361,9 @@ LINGO_UNIT_TEST_CASE("strings can be compared")
 
 	const string_view_type source = lingo::test::test_string<unit_type>::value;
 	const lingo::utility::span<const unit_type> source_span(source.data(), source.size());
-	point_type first_points_buffer[encoding_type::max_points];
-	const auto first_points_result = encoding_type::decode_point(source_span, first_points_buffer);
-	const lingo::utility::span<const point_type> first_points_span(first_points_buffer, first_points_result.destination_written);
-	const point_type first_point = first_points_span[0];
+	point_type first_point;
+	const lingo::utility::span<point_type> destination_span(&first_point, 1);
+	const auto first_points_result = encoding_type::decode_one(source_span, destination_span);
 
 	for (char32_t point : point_iterator_type(source))
 	{

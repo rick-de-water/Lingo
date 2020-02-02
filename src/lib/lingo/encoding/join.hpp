@@ -24,50 +24,57 @@ namespace lingo
 			using size_type = std::size_t;
 			using difference_type = std::ptrdiff_t;
 
-			struct encoding_state
+			using encode_result_type = encode_result<unit_type, point_type>;
+			using decode_result_type = decode_result<unit_type, point_type>;
+			using encode_source_type = typename encode_result_type::source_type;
+			using decode_source_type = typename decode_result_type::source_type;
+			using encode_destination_type = typename encode_result_type::destination_type;
+			using decode_destination_type = typename decode_result_type::destination_type;
+
+			struct encode_state_type
 			{
-				typename first_encoding::encoding_state first_state;
-				typename base_encoding::encoding_state base_state;
+				typename first_encoding::encode_state_type first_state;
+				typename base_encoding::encode_state_type base_state;
 			};
 
-			struct decoding_state
+			struct decode_state_type
 			{
-				typename first_encoding::decoding_state first_state;
-				typename base_encoding::decoding_state base_state;
+				typename first_encoding::decode_state_type first_state;
+				typename base_encoding::decode_state_type base_state;
 			};
 
 			static LINGO_CONSTEXPR11 const size_type max_units = first_encoding::max_units * base_encoding::max_units;
 
 			static_assert(std::is_same<typename first_encoding::point_type, typename base_encoding::unit_type>::value, "The point_type of an encoding must match the unit_type of the next encoding");
 
-			static LINGO_CONSTEXPR14 encode_result encode_point(utility::span<const point_type> source, utility::span<unit_type> destination, encoding_state& state) noexcept
+			static LINGO_CONSTEXPR14 encode_result_type encode_one(encode_source_type source, encode_destination_type destination, encode_state_type& state) noexcept
 			{
 				typename base_encoding::unit_type base_destination_buffer[base_encoding::max_units];
 				utility::span<typename base_encoding::unit_type> base_destination(base_destination_buffer);
-				const encode_result base_result = base_encoding::encode_point(source, base_destination, state.base_state);
+				const auto base_result = base_encoding::encode_one(source, base_destination, state.base_state);
 				if (base_result.error != lingo::error::error_code::success)
 				{
 					return base_result;
 				}
 
-				utility::span<const typename first_encoding::point_type> first_source(base_destination.subspan(0, base_result.destination_written));
-				size_type first_buffer_offset = 0;
+				const auto first_source = base_destination.diff(base_result.destination);
+				auto first_destination = destination;
 				for (size_type i = 0; i < base_destination.size(); ++i)
 				{
 					utility::span<const typename first_encoding::point_type> first_subspan = first_source.subspan(i, 1);
-					const encode_result first_result = first_encoding::encode_point(first_subspan, destination.subspan(first_buffer_offset), state.first_state);
+					const auto first_result = first_encoding::encode_one(first_subspan, first_destination, state.first_state);
 					if (first_result.error != lingo::error::error_code::success)
 					{
-						return first_result;
+						return { source, destination, first_result.error };
 					}
 
-					first_buffer_offset += first_result.destination_written;
+					first_destination = first_result.destination;
 				}
 
-				return { first_source.size(), first_buffer_offset, lingo::error::error_code::success };
+				return { base_result.source, first_destination, lingo::error::error_code::success };
 			}
 
-			static LINGO_CONSTEXPR14 decode_result decode_point(utility::span<const point_type> source, utility::span<unit_type> destination, decoding_state& state) noexcept
+			static LINGO_CONSTEXPR14 decode_result_type decode_one(encode_source_type, encode_destination_type, decode_state_type&) noexcept
 			{
 				return {};
 			}
@@ -76,8 +83,6 @@ namespace lingo
 		template <typename LastEncoding>
 		struct join<LastEncoding> : LastEncoding
 		{
-			//using encoding_state = typename LastEncoding::encoding_state;
-			//using decoding_state = typename LastEncoding::decoding_state;
 		};
 	}
 }

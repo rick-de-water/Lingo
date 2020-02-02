@@ -371,21 +371,22 @@ namespace lingo
 			// Encode the point into units
 			unit_type encoded_point[encoding_type::max_units];
 			// TODO: multipoint
-			const auto result = encoding_type::encode_point(utility::span<point_type>(&point, 1), encoded_point);
+			const auto result = encoding_type::encode_one(utility::span<point_type>(&point, 1), encoded_point);
 			if (result.error != error::error_code::success)
 			{
 				throw error::exception(result.error);
 			}
 
 			// Allocate memory
-			const size_type destination_size = result.destination_written * count;
+			const size_t point_size = result.destination.data() - encoded_point;
+			const size_type destination_size = point_size * count;
 			_storage.grow_discard(destination_size);
 			const pointer destination_data = data();
 
 			// Fill memory
 			for (size_type i = 0; i < count; ++i)
 			{
-				object_builder::copy_construct(destination_data + i * result.destination_written, encoded_point, result.destination_written);
+				object_builder::copy_construct(destination_data + i * point_size, encoded_point, point_size);
 			}
 
 			// Construct null terminator
@@ -506,22 +507,23 @@ namespace lingo
 			// Encode the point into units
 			unit_type encoded_point[encoding_type::max_units];
 			// TODO: multipoint
-			const auto result = encoding_type::encode_point(utility::span<point_type>(&point, 1), encoded_point);
+			const auto result = encoding_type::encode_one(utility::span<point_type>(&point, 1), encoded_point);
 			if (result.error != error::error_code::success)
 			{
 				throw error::exception(result.error);
 			}
 
 			// Allocate memory
+			const size_t point_size = result.destination.data() - encoded_point;
 			const size_type original_size = size();
-			const size_type destination_size = result.destination_written * count + original_size;
+			const size_type destination_size = point_size * count + original_size;
 			_storage.grow_append(destination_size);
 			const pointer destination_data = data();
 
 			// Fill memory
 			for (size_type i = 0; i < count; ++i)
 			{
-				object_builder::copy_construct(destination_data + original_size + i * result.destination_written, encoded_point, result.destination_written);
+				object_builder::copy_construct(destination_data + original_size + i * point_size, encoded_point, point_size);
 			}
 
 			// Construct null terminator

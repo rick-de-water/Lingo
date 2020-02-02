@@ -97,6 +97,11 @@ namespace lingo
 				return span(_data + offset, _size - offset < count ? _size - offset : count);
 			}
 
+			LINGO_CONSTEXPR11 span diff(const span& other) const noexcept
+			{
+				return span(_data, other._data - _data);
+			}
+
 			LINGO_CONSTEXPR11 reference operator [] (size_type index) const noexcept
 			{
 				assert(index < _size);

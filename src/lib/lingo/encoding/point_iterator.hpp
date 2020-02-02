@@ -4,7 +4,7 @@
 #include <lingo/platform/constexpr.hpp>
 #include <lingo/error/exception.hpp>
 
-#include <lingo/utility/span.hpp>
+#include <lingo/utility/compressed_pair.hpp>
 
 #include <iterator>
 
@@ -69,20 +69,12 @@ namespace lingo
 
 			LINGO_CONSTEXPR14 const_reference operator * () const noexcept
 			{
-				assert(_code_points.size() > 0);
-				return _code_points.front();
+				return _state.first();
 			}
 
 			LINGO_CONSTEXPR14 point_iterator& operator ++()
 			{
-				if (_code_points.size() > 0)
-				{
-					_code_points = _code_points.subspan(1);
-				}
-				else
-				{
-					parse_next();
-				}
+				parse_next();
 				return *this;
 			}
 
@@ -95,8 +87,7 @@ namespace lingo
 
 			LINGO_CONSTEXPR14 const_pointer operator -> () const noexcept
 			{
-				assert(_code_points.size() > 0);
-				return _code_points.data();
+				return &(_state.first());
 			}
 
 			LINGO_CONSTEXPR14 bool operator == (const point_iterator& right) const noexcept
@@ -121,8 +112,11 @@ namespace lingo
 					return;
 				}
 
+				const utility::span<const unit_type> source_span(_current, _end);
+				const utility::span<point_type> destination_span(&(_state.first()), 1);
+
 				// Decode the next points
-				auto result = encoding_type::decode_point(utility::span<const unit_type>(_current, _end), _code_point_buffer);
+				auto result = encoding_type::decode_one(source_span, destination_span, _state.second());
 				// TODO: configurable error handling
 				if (result.error != error::error_code::success)
 				{
@@ -131,16 +125,14 @@ namespace lingo
 
 				// Move the current pointer
 				_last = _current;
-				_current += result.source_read;
-				_code_points = utility::span<const point_type>(_code_point_buffer, result.destination_written);
+				_current += source_span.diff(result.source).size();
 				assert(_current <= _end); // _current should never go beyond _end
 			}
 
 			const unit_type* _current;
 			const unit_type* _end;
 			const unit_type* _last;
-			point_type _code_point_buffer[encoding_type::max_points];
-			utility::span<const point_type> _code_points;
+			utility::compressed_pair<point_type, typename encoding_type::decode_state_type> _state;
 		};
 
 		template <typename Encoding>

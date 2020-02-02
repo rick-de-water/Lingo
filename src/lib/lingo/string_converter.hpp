@@ -7,7 +7,6 @@
 #include <lingo/page/point_mapper.hpp>
 #include <lingo/page/unicode.hpp>
 #include <lingo/platform/warnings.hpp>
-#include <lingo/utility/span.hpp>
 
 #include <cassert>
 #include <cstddef>
@@ -30,15 +29,27 @@ namespace lingo
 		using source_page_type = SourcePage;
 		using source_unit_type = typename source_encoding_type::unit_type;
 		using source_point_type = typename source_encoding_type::point_type;
-		using source_encoding_state = typename source_encoding_type::encoding_state;
-		using source_decoding_state = typename source_encoding_type::decoding_state;
+		using source_encode_result_type = typename source_encoding_type::encode_result_type;
+		using source_decode_result_type = typename source_encoding_type::decode_result_type;
+		using source_encode_source_type = typename source_encode_result_type::source_type;
+		using source_decode_source_type = typename source_decode_result_type::source_type;
+		using source_encode_destination_type = typename source_encode_result_type::destination_type;
+		using source_decode_destination_type = typename source_decode_result_type::destination_type;
+		using source_encode_state_type = typename source_encoding_type::encode_state_type;
+		using source_decode_state_type = typename source_encoding_type::decode_state_type;
 
 		using destination_encoding_type = DestinationEncoding;
 		using destination_page_type = DestinationPage;
 		using destination_unit_type = typename destination_encoding_type::unit_type;
 		using destination_point_type = typename destination_encoding_type::point_type;
-		using destination_encoding_state = typename destination_encoding_type::encoding_state;
-		using destination_decoding_state = typename destination_encoding_type::decoding_state;
+		using destination_encode_result_type = typename destination_encoding_type::encode_result_type;
+		using destination_decode_result_type = typename destination_encoding_type::decode_result_type;
+		using destination_encode_source_type = typename destination_encode_result_type::source_type;
+		using destination_decode_source_type = typename destination_decode_result_type::source_type;
+		using destination_encode_destination_type = typename destination_encode_result_type::destination_type;
+		using destination_decode_destination_type = typename destination_decode_result_type::destination_type;
+		using destination_encode_state_type = typename destination_encoding_type::encode_state_type;
+		using destination_decode_state_type = typename destination_encoding_type::decode_state_type;
 
 		using point_mapper = page::point_mapper<source_page_type, destination_page_type>;
 
@@ -50,41 +61,40 @@ namespace lingo
 
 		LINGO_CONSTEXPR14 conversion_result convert(utility::span<const source_unit_type> source, utility::span<destination_unit_type> destination)
 		{
-			utility::span<const source_unit_type> read_buffer = source;
-			utility::span<destination_unit_type> write_buffer = destination;
+			source_decode_source_type read_buffer = source;
+			destination_encode_destination_type write_buffer = destination;
 
-			source_decoding_state read_state;
-			destination_encoding_state write_state;
+			source_decode_state_type read_state;
+			destination_encode_state_type write_state;
 			
 			while (read_buffer.size() > 0 && write_buffer.size() > 0)
 			{
-				source_point_type source_point_buffer[source_encoding_type::max_points];
+				source_point_type source_point;
+				source_decode_destination_type source_point_span(&source_point, 1);
 
 				// Try to decode a point from the source
-				const encoding::decode_result decode_result = source_encoding_type::decode_point(read_buffer, source_point_buffer, read_state);
+				auto decode_result = source_encoding_type::decode_one(read_buffer, source_point_span, read_state);
 				if (decode_result.error != error::error_code::success)
 				{
-					if (!handle_error(decode_result, read_buffer, source_point_buffer))
+					if (!handle_error(decode_result, read_buffer, source_point_span))
 					{
 						break;
 					}
 				}
 
-				// Try to map the source poinst to a destination points
-				source_point_type destination_point_buffer[source_encoding_type::max_points];
-				for (size_type i = 0; i < decode_result.source_read; ++i)
+				// Try to map the source points to a destination points
+				destination_point_type destination_point;
+				destination_encode_source_type destination_point_span(&destination_point, 1);
+				const auto map_result = point_mapper::map(source_point);
+				if (map_result.error != error::error_code::success)
 				{
-					const auto map_result = point_mapper::map(source_point_buffer[i]);
-					if (map_result.error != error::error_code::success)
-					{
-						break;
-					}
-
-					destination_point_buffer[i] = map_result.point;
+					break;
 				}
+
+				destination_point = map_result.point;
 
 				// Try to encode the point into the destination buffer
-				const encoding::encode_result encode_result = destination_encoding_type::encode_point(destination_point_buffer, write_buffer, write_state);
+				auto encode_result = destination_encoding_type::encode_one(destination_point_span, write_buffer, write_state);
 				if (encode_result.error != error::error_code::success)
 				{
 					// A destination buffer that is too small is not considered an error.
@@ -93,14 +103,14 @@ namespace lingo
 					{
 						break;
 					}
-					else if (!handle_error(encode_result, destination_point_buffer, write_buffer))
+					else if (!handle_error(encode_result, destination_point_span, write_buffer))
 					{
 						break;
 					}
 				}
 
-				read_buffer = read_buffer.subspan(decode_result.source_read);
-				write_buffer = write_buffer.subspan(encode_result.destination_written);
+				read_buffer = decode_result.source;
+				write_buffer = encode_result.destination;
 			}
 
 			return { source.size() - read_buffer.size(), destination.size() - write_buffer.size() };
@@ -144,7 +154,7 @@ namespace lingo
 
 		private:
 		LINGO_WARNINGS_PUSH_AND_DISABLE_MSVC(4702)
-		bool handle_error(encoding::decode_result result,
+		bool handle_error(source_decode_result_type& result,
 			utility::span<const source_unit_type> source,
 			utility::span<source_point_type> destination)
 		{
@@ -159,7 +169,7 @@ namespace lingo
 			return result.error == error::error_code::success;
 		}
 
-		bool handle_error(encoding::encode_result result,
+		bool handle_error(destination_encode_result_type& result,
 			utility::span<const destination_point_type> source,
 			utility::span<destination_unit_type> destination)
 		{

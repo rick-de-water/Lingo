@@ -3,6 +3,8 @@
 #include <lingo/encoding/base.hpp>
 #include <lingo/encoding/join.hpp>
 
+#include <lingo/platform/warnings.hpp>
+
 #include <lingo/string.hpp>
 
 #include <lingo/test_case.hpp>
@@ -14,6 +16,7 @@
 
 namespace
 {
+	LINGO_WARNINGS_PUSH_AND_DISABLE_CLANG(char-subscripts)
 	template <typename T>
 	void test_to_base_base64(typename T::unit_type u62, typename T::unit_type u63)
 	{
@@ -157,6 +160,7 @@ namespace
 		REQUIRE(T::table_from_base[u62] == 62);
 		REQUIRE(T::table_from_base[u63] == 63);
 	}
+	LINGO_WARNINGS_POP_CLANG
 }
 
 TEST_CASE("base64 uses the correct tables")
@@ -172,6 +176,4 @@ TEST_CASE("strings can be encoded and decoded into base64")
 	
 	const utf8_string_type utf8_string(u8"LoremЛоремसादगिالمنتصر🧥👚👕👖👔");
 	const base64_string_type base64_string(utf8_string);
-
-	bool boop = true;
 }

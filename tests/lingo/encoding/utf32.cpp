@@ -19,13 +19,15 @@ LINGO_UNIT_LEAST_32_TEST_CASE("utf32 can encode points")
 		const point_type source[1] = { static_cast<point_type>(i) };
 		unit_type destination[1];
 
-		const auto result = lingo::encoding::utf32<unit_type, point_type>::encode_point(source, destination);
+		const auto result = lingo::encoding::utf32<unit_type, point_type>::encode_one(source, destination);
 
 		if ((i >= 0 && i < 0xD800) || (i >= 0xE000 && i < 0x110000))
 		{
 			REQUIRE(result.error == lingo::error::error_code::success);
-			REQUIRE(result.source_read == 1);
-			REQUIRE(result.destination_written == 1);
+			REQUIRE(result.source.data() == source + 1);
+			REQUIRE(result.source.size() == 0);
+			REQUIRE(result.destination.data() == destination + 1);
+			REQUIRE(result.destination.size() == 0);
 			REQUIRE(destination[0] == static_cast<unit_type>(i));
 		}
 		else
@@ -47,13 +49,15 @@ LINGO_UNIT_LEAST_32_TEST_CASE("utf32 can decode points")
 		const unit_type source[1] = { static_cast<unit_type>(i) };
 		point_type destination[1];
 
-		const auto result = lingo::encoding::utf32<unit_type, point_type>::decode_point(source, destination);
+		const auto result = lingo::encoding::utf32<unit_type, point_type>::decode_one(source, destination);
 
 		if ((i >= 0 && i < 0xD800) || (i >= 0xE000 && i < 0x110000))
 		{
 			REQUIRE(result.error == lingo::error::error_code::success);
-			REQUIRE(result.source_read == 1);
-			REQUIRE(result.destination_written == 1);
+			REQUIRE(result.source.data() == source + 1);
+			REQUIRE(result.source.size() == 0);
+			REQUIRE(result.destination.data() == destination + 1);
+			REQUIRE(result.destination.size() == 0);
 			REQUIRE(destination[0] == static_cast<point_type>(i));
 		}
 		else

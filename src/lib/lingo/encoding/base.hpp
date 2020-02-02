@@ -7,8 +7,6 @@
 #include <lingo/encoding/result.hpp>
 #include <lingo/encoding/internal/bit_converter.hpp>
 
-#include <lingo/utility/span.hpp>
-
 #include <array>
 #include <climits>
 
@@ -31,55 +29,61 @@ namespace lingo
 			static LINGO_CONSTEXPR11 const unit_type padding = Padding;
 
 			static LINGO_CONSTEXPR11 const size_type max_units = 4;
-			static LINGO_CONSTEXPR11 const size_type max_points = 3;
 			static LINGO_CONSTEXPR11 const size_type min_unit_bits = BitsPerUnit;
 			static LINGO_CONSTEXPR11 const size_type min_point_bits = min_unit_bits;
 
+			using encode_result_type = encode_result<unit_type, point_type>;
+			using decode_result_type = decode_result<unit_type, point_type>;
+			using encode_source_type = typename encode_result_type::source_type;
+			using decode_source_type = typename decode_result_type::source_type;
+			using encode_destination_type = typename encode_result_type::destination_type;
+			using decode_destination_type = typename decode_result_type::destination_type;
+
+			struct encode_state_type {};
+			struct decode_state_type {};
+
 			private:
-			using bit_converter = internal::bit_converter<unit_type, min_unit_bits, point_type, min_point_bits>;
-			using unit_bits_type = typename bit_converter::unit_bits_type;
-			using point_bits_type = typename bit_converter::point_bits_type;
+			using bit_converter_type = internal::bit_converter<unit_type, min_unit_bits, point_type, min_point_bits>;
+			using unit_bits_type = typename bit_converter_type::unit_bits_type;
+			using point_bits_type = typename bit_converter_type::point_bits_type;
 
 			public:
-			struct encoding_state {};
-			struct decoding_state {};
-
-			static LINGO_CONSTEXPR14 encode_result encode_point(utility::span<const point_type> source, utility::span<unit_type> destination, encoding_state&) noexcept
+			static LINGO_CONSTEXPR14 encode_result_type encode_one(encode_source_type source, encode_destination_type destination, encode_state_type&) noexcept
 			{
 				if (source.size() < 1)
 				{
-					return { 0, 0, error::error_code::source_buffer_too_small };
+					return { source, destination, error::error_code::source_buffer_too_small };
 				}
 
 				if (destination.size() < 1)
 				{
-					return { 1, 0, error::error_code::destination_buffer_too_small };
+					return { source, destination, error::error_code::destination_buffer_too_small };
 				}
 
-				const point_bits_type point_bits = bit_converter::to_point_bits(source[0]);
+				const point_bits_type point_bits = bit_converter_type::to_point_bits(source[0]);
 				const unit_bits_type unit_bits = static_cast<unit_bits_type>(point_bits);
-				destination[0] = bit_converter::from_unit_bits(unit_bits);
+				destination[0] = bit_converter_type::from_unit_bits(unit_bits);
 
-				return { 1, 1, error::error_code::success };
+				return { source.subspan(1), destination.subspan(1), error::error_code::success };
 			}
 
-			static LINGO_CONSTEXPR14 decode_result decode_point(utility::span<const unit_type> source, utility::span<point_type> destination, decoding_state&) noexcept
+			static LINGO_CONSTEXPR14 decode_result_type decode_one(decode_source_type source, decode_destination_type destination, decode_state_type&) noexcept
 			{
 				if (source.size() < 1)
 				{
-					return { 0, 0, error::error_code::source_buffer_too_small };
+					return { source, destination, error::error_code::source_buffer_too_small };
 				}
 
 				if (destination.size() < 1)
 				{
-					return { 1, 0, error::error_code::destination_buffer_too_small };
+					return { source, destination, error::error_code::destination_buffer_too_small };
 				}
 
-				const unit_bits_type unit_bits = bit_converter::to_unit_bits(source[0]);
+				const unit_bits_type unit_bits = bit_converter_type::to_unit_bits(source[0]);
 				const point_bits_type point_bits = static_cast<point_bits_type>(unit_bits);
-				destination[0] = bit_converter::from_point_bits(point_bits);
+				destination[0] = bit_converter_type::from_point_bits(point_bits);
 
-				return { 1, 1, error::error_code::success };
+				return { source.subspan(1), destination.subspan(1), error::error_code::success };
 			}
 		};
 
