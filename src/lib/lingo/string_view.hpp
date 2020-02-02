@@ -52,7 +52,7 @@ namespace lingo
 		using difference_type = std::ptrdiff_t;
 
 		struct iterator_tag;
-		using const_iterator = utility::pointer_iterator<const unit_type, iterator_tag>;
+		using const_iterator = utility::pointer_iterator<const value_type, iterator_tag>;
 		using iterator = const_iterator;
 		using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 		using reverse_iterator = const_reverse_iterator;
@@ -95,14 +95,14 @@ namespace lingo
 		}
 
 		template <typename SourceAllocator, typename _ = int, typename std::enable_if<is_execution_set, _>::type = 0>
-		basic_string_view(const std::basic_string<unit_type, std::char_traits<unit_type>, SourceAllocator>& str):
+		basic_string_view(const std::basic_string<value_type, std::char_traits<value_type>, SourceAllocator>& str):
 			basic_string_view(str.data(), str.size(), true)
 		{
 		}
 
 		#ifdef __cpp_lib_string_view
 		template <typename _ = int, typename std::enable_if<is_execution_set, _>::type = 0>
-		basic_string_view(const std::basic_string_view<unit_type, std::char_traits<unit_type>>& str):
+		basic_string_view(const std::basic_string_view<value_type, std::char_traits<value_type>>& str):
 			basic_string_view(str.data(), str.size(), false)
 		{
 		}
@@ -311,7 +311,7 @@ namespace lingo
 		}
 
 		template <typename _ = int, typename std::enable_if<is_execution_set, _>::type = 0>
-		LINGO_CONSTEXPR14 int compare(const unit_type* other) const noexcept(noexcept(std::declval<const basic_string_view&>().compare(basic_string_view(other))))
+		LINGO_CONSTEXPR14 int compare(const value_type* other) const noexcept(noexcept(std::declval<const basic_string_view&>().compare(basic_string_view(other))))
 		{
 			return compare(basic_string_view(other));
 		}

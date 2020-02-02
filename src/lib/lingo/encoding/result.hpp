@@ -11,15 +11,15 @@ namespace lingo
 	{
 		struct encode_result
 		{
-			std::size_t size;
+			std::size_t source_read;
+			std::size_t destination_written;
 			error::error_code error;
 		};
 
-		template <typename Point>
 		struct decode_result
 		{
-			Point point;
-			std::size_t size;
+			std::size_t source_read;
+			std::size_t destination_written;
 			error::error_code error;
 		};
 	}

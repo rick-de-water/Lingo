@@ -7,8 +7,8 @@ namespace lingo
 {
 	struct conversion_result
 	{
-		std::size_t units_read;
-		std::size_t units_written;
+		std::size_t source_read;
+		std::size_t destination_written;
 	};
 }
 

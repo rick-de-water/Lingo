@@ -18,6 +18,7 @@ list(APPEND TEST_LINGO_MANUAL_SOURCES "test_types.hpp" "test_case.hpp" "test_str
 list(APPEND TEST_LINGO_MANUAL_SOURCES "platform/endian.cpp")
 
 # Encoding
+list(APPEND TEST_LINGO_MANUAL_SOURCES "encoding/base.cpp")
 list(APPEND TEST_LINGO_MANUAL_SOURCES "encoding/endian.cpp")
 list(APPEND TEST_LINGO_MANUAL_SOURCES "encoding/utf8.cpp")
 list(APPEND TEST_LINGO_MANUAL_SOURCES "encoding/utf16.cpp")

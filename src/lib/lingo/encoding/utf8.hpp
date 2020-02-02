@@ -6,6 +6,8 @@
 #include <lingo/encoding/result.hpp>
 #include <lingo/encoding/internal/bit_converter.hpp>
 
+#include <lingo/utility/span.hpp>
+
 #include <cassert>
 #include <climits>
 #include <limits>
@@ -18,6 +20,7 @@ namespace lingo
 		template <typename Unit, typename Point>
 		struct utf8
 		{
+			public:
 			using unit_type = Unit;
 			using point_type = Point;
 
@@ -25,9 +28,14 @@ namespace lingo
 			using difference_type = std::ptrdiff_t;
 
 			static LINGO_CONSTEXPR11 size_type max_units = 4;
+			static LINGO_CONSTEXPR11 size_type max_points = 1;
 			static LINGO_CONSTEXPR11 size_type min_unit_bits = 8;
 			static LINGO_CONSTEXPR11 size_type min_point_bits = 21;
 
+			struct encoding_state {};
+			struct decoding_state {};
+
+			private:
 			using bit_converter = internal::bit_converter<unit_type, min_unit_bits, point_type, min_point_bits>;
 			using unit_bits_type = typename bit_converter::unit_bits_type;
 			using point_bits_type = typename bit_converter::point_bits_type;
@@ -54,6 +62,7 @@ namespace lingo
 			static LINGO_CONSTEXPR11 unit_bits_type continuation_unit_prefix_mask = 0xC0;
 			static LINGO_CONSTEXPR11 unit_bits_type continuation_unit_data_mask = 0x3F;
 
+			public:
 			static LINGO_CONSTEXPR14 size_type point_size(point_type point) noexcept
 			{
 				// Reject values below zero when there are enough magnitude bits
@@ -156,65 +165,87 @@ namespace lingo
 				return sizes[unit_bits];
 			}
 
-			static LINGO_CONSTEXPR14 encode_result encode_point(point_type point, unit_type* buffer, size_type buffer_size) noexcept
+			static LINGO_CONSTEXPR14 encode_result encode_point(utility::span<const point_type> source, utility::span<unit_type> destination, encoding_state&) noexcept
 			{
+				return encode_point(source, destination);
+			}
+
+			static LINGO_CONSTEXPR14 encode_result encode_point(utility::span<const point_type> source, utility::span<unit_type> destination) noexcept
+			{
+				// Check if there is at least 1 point
+				if (source.size() > 0)
+				{
+					return { 0, 0, error::error_code::source_buffer_too_small };
+				}
+
 				// Calculate the number of units needed to encode this point
-				const size_type required_size = point_size(point);
+				const size_type required_size = point_size(source[0]);
 				if (required_size == 0)
 				{
-					return { 0, error::error_code::invalid_point };
+					return { 0, 0, error::error_code::invalid_point };
 				}
 				assert(required_size <= max_units);
 
-				// Check if the buffer is large enough to fit the encoded point
-				if (required_size > buffer_size)
+				// Check if the destination buffer is large enough to fit the encoded point
+				if (required_size > destination.size())
 				{
-					return { 0, error::error_code::buffer_too_small };
+					return { 1, 0, error::error_code::destination_buffer_too_small };
 				}
 
 				// Encode the first unit
-				point_bits_type point_bits = bit_converter::to_point_bits(point);
+				point_bits_type point_bits = bit_converter::to_point_bits(source[0]);
 				const size_type last_index = required_size - 1;
 				const unit_bits_type first_unit_bits = first_unit_prefix_markers[required_size] | static_cast<unit_bits_type>(point_bits >> (6 * last_index));
-				buffer[0] = bit_converter::from_unit_bits(first_unit_bits);
+				destination[0] = bit_converter::from_unit_bits(first_unit_bits);
 
 				// Encode the subsequent units
 				for (size_t i = 1; i < required_size; ++i)
 				{
-					const unit_bits_type continuation_unit_bits = continuation_unit_prefix_marker | static_cast<unit_bits_type>((point >> (6 * (last_index - i))) & continuation_unit_data_mask);
-					buffer[i] = bit_converter::from_unit_bits(continuation_unit_bits);
+					const unit_bits_type continuation_unit_bits = continuation_unit_prefix_marker | static_cast<unit_bits_type>((point_bits >> (6 * (last_index - i))) & continuation_unit_data_mask);
+					destination[i] = bit_converter::from_unit_bits(continuation_unit_bits);
 				}
 
 				// Return the result
-				return { required_size, error::error_code::success };
+				return { 1, required_size, error::error_code::success };
 			}
 
-			static LINGO_CONSTEXPR14 decode_result<point_type> decode_point(const unit_type* buffer, size_type buffer_size) noexcept
+			static LINGO_CONSTEXPR14 decode_result decode_point(utility::span<const unit_type> source, utility::span<point_type> destination, decoding_state&) noexcept
+			{
+				return decode_point(source, destination);
+			}
+
+			static LINGO_CONSTEXPR14 decode_result decode_point(utility::span<const unit_type> source, utility::span<point_type> destination) noexcept
 			{
 				// Check if there is at least one unit
-				if (buffer_size == 0)
+				if (source.size() == 0)
 				{
-					return { {}, 0, error::error_code::buffer_too_small };
+					return { 0, 0, error::error_code::source_buffer_too_small };
 				}
 
 				// Calculate the size of the code point
-				const std::size_t required_size = unit_size(*buffer);
+				const std::size_t required_size = unit_size(source[0]);
 
 				// Check if the first code unit is valid
 				if (required_size == 0)
 				{
-					return { {}, 0, error::error_code::invalid_unit };
+					return { 0, 0, error::error_code::invalid_unit };
 				}
 				assert(required_size <= max_units);
 
 				// Check if there are enough code units left for the code point
-				if (buffer_size < required_size)
+				if (source.size() < required_size)
 				{
-					return { {}, required_size, error::error_code::buffer_too_small };
+					return { 0, 0, error::error_code::source_buffer_too_small };
+				}
+
+				// Check if there is room for at least 1 point
+				if (destination.size() > 0)
+				{
+					return { required_size, 0, error::error_code::destination_buffer_too_small };
 				}
 
 				// Get the bits from the first unit
-				const unit_bits_type first_unit_bits = bit_converter::to_unit_bits(buffer[0]);
+				const unit_bits_type first_unit_bits = bit_converter::to_unit_bits(source[0]);
 				point_bits_type point_bits = first_unit_bits & first_unit_data_masks[required_size];
 
 				// Get the bits from all the continuation bytes
@@ -224,18 +255,21 @@ namespace lingo
 					point_bits <<= 6;
 
 					// Check if this is a valid continuation byte
-					const unit_bits_type continuation_unit_bits = bit_converter::to_unit_bits(buffer[i]);
+					const unit_bits_type continuation_unit_bits = bit_converter::to_unit_bits(source[i]);
 					if ((continuation_unit_bits & continuation_unit_prefix_mask) != continuation_unit_prefix_marker)
 					{
-						return { {}, required_size, error::error_code::invalid_unit };
+						return { i, 0, error::error_code::invalid_unit };
 					}
 
 					// Add the bits to the code point
 					point_bits |= continuation_unit_bits & continuation_unit_data_mask;
 				}
 
+				// Store the point
+				destination[0] = bit_converter::from_point_bits(point_bits);
+
 				// Return the result
-				return { bit_converter::from_point_bits(point_bits), required_size, error::error_code::success };
+				return { required_size, 1, error::error_code::success };
 			}
 		};
 

@@ -7,21 +7,31 @@
 #include <lingo/error/error_code.hpp>
 #include <lingo/error/exception.hpp>
 
+#include <lingo/utility/span.hpp>
+
 #include <cstddef>
 
 namespace lingo
 {
 	namespace error
 	{
-		template <typename SourceEncoding, typename SourcePage, typename DestinationEncoding, typename DestinationPage>
+		template <typename Encoding, typename Page>
 		struct strict
 		{
-			static LINGO_CONSTEXPR14 conversion_result handle(
-				const typename SourceEncoding::unit_type*, std::size_t,
-				typename DestinationEncoding::unit_type*, std::size_t,
-				error_code err)
+			static LINGO_CONSTEXPR11 encoding::encode_result handle(
+				const encoding::encode_result& result,
+				utility::span<const typename Encoding::point_type>,
+				utility::span<typename Encoding::unit_type>)
 			{
-				return false ? conversion_result{} : throw exception(err);
+				return result.error == error::error_code::success ? result : throw exception(result.error);
+			}
+
+			static LINGO_CONSTEXPR11 encoding::decode_result handle(
+				const encoding::decode_result& result,
+				utility::span<const typename Encoding::unit_type>,
+				utility::span<typename Encoding::point_type>)
+			{
+				return result.error == error::error_code::success ? result : throw exception(result.error);
 			}
 		};
 	}

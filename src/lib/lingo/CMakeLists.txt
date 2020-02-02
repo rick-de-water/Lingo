@@ -35,6 +35,8 @@ list(APPEND LINGO_MANUAL_HEADERS "platform/warnings.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "platform/wchar.hpp")
 
 # Encoding
+list(APPEND LINGO_MANUAL_HEADERS "encoding/base.hpp")
+list(APPEND LINGO_MANUAL_HEADERS "encoding/join.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "encoding/none.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "encoding/utf8.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "encoding/utf16.hpp")
@@ -80,6 +82,7 @@ list(APPEND LINGO_MANUAL_HEADERS "error/strict.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "utility/compressed_pair.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "utility/integer_sequence.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "utility/pointer_iterator.hpp")
+list(APPEND LINGO_MANUAL_HEADERS "utility/span.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "utility/type_traits.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "utility/object_builder.hpp")
 

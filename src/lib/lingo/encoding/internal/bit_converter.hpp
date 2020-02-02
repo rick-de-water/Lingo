@@ -37,7 +37,7 @@ namespace lingo
 				static_assert(sizeof(unit_type) * CHAR_BIT >= min_unit_bits, "unit_type has the minimum amount of required bits");
 				static_assert(sizeof(point_type) * CHAR_BIT >= min_point_bits, "point_bits_type has the minimum amount of required bits");
 
-				static LINGO_CONSTEXPR14 point_bits_type to_point_bits(point_type point)
+				static LINGO_CONSTEXPR14 point_bits_type to_point_bits(point_type point) noexcept
 				{
 					// Memcpy when less than the minimum required amount of the bits are part of the magnitude
 					LINGO_IF_CONSTEXPR(std::numeric_limits<point_type>::digits < min_point_bits)
@@ -54,7 +54,7 @@ namespace lingo
 					}
 				}
 
-				static LINGO_CONSTEXPR14 unit_bits_type to_unit_bits(unit_type unit)
+				static LINGO_CONSTEXPR14 unit_bits_type to_unit_bits(unit_type unit) noexcept
 				{
 					// Memcpy when less than the minimum required amount of the bits are part of the magnitude
 					LINGO_IF_CONSTEXPR(std::numeric_limits<unit_type>::digits < min_unit_bits)
@@ -71,7 +71,7 @@ namespace lingo
 					}
 				}
 
-				static LINGO_CONSTEXPR14 point_type from_point_bits(point_bits_type point_bits)
+				static LINGO_CONSTEXPR14 point_type from_point_bits(point_bits_type point_bits) noexcept
 				{
 					// Memcpy when less than the minimum required amount of the bits are part of the magnitude
 					LINGO_IF_CONSTEXPR(std::numeric_limits<point_type>::digits < min_point_bits)
@@ -87,7 +87,7 @@ namespace lingo
 					}
 				}
 
-				static LINGO_CONSTEXPR14 unit_type from_unit_bits(unit_bits_type unit_bits)
+				static LINGO_CONSTEXPR14 unit_type from_unit_bits(unit_bits_type unit_bits) noexcept
 				{
 					// Memcpy when less than the minimum required amount of the bits are part of the magnitude
 					LINGO_IF_CONSTEXPR(std::numeric_limits<unit_type>::digits < min_unit_bits)

@@ -9,7 +9,8 @@ namespace lingo
 		{
 			success,
 
-			buffer_too_small,
+			source_buffer_too_small,
+			destination_buffer_too_small,
 			invalid_point,
 			invalid_unit,
 

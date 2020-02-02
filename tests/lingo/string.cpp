@@ -277,23 +277,6 @@ LINGO_UNIT_TEST_CASE("A string can be copy constructed with a position offset an
 	}
 }
 
-LINGO_UNIT_TEST_CASE("push_back can add code points to a string")
-{
-	LINGO_UNIT_TEST_TYPEDEFS;
-
-	string_type test_string;
-	string_view_type source_string(lingo::test::test_string<unit_type>::value);
-
-	for (point_type point : point_iterator_type(source_string))
-	{
-		test_string.push_back(point);
-
-		REQUIRE(string_view_type(test_string) == string_view_type(lingo::test::test_string<unit_type>::value, test_string.size()));
-	}
-
-	REQUIRE(test_string == source_string);
-}
-
 namespace
 {
 	template <typename T, typename U, typename std::enable_if<!std::is_pointer<typename std::decay<T>::type>::value, int>::type = 0>
@@ -377,7 +360,11 @@ LINGO_UNIT_TEST_CASE("strings can be compared")
 	};
 
 	const string_view_type source = lingo::test::test_string<unit_type>::value;
-	const auto first_point = encoding_type::decode_point(source.data(), source.size()).point;
+	const lingo::utility::span<const unit_type> source_span(source.data(), source.size());
+	point_type first_points_buffer[encoding_type::max_points];
+	const auto first_points_result = encoding_type::decode_point(source_span, first_points_buffer);
+	const lingo::utility::span<const point_type> first_points_span(first_points_buffer, first_points_result.destination_written);
+	const point_type first_point = first_points_span[0];
 
 	for (char32_t point : point_iterator_type(source))
 	{
@@ -397,7 +384,7 @@ LINGO_UNIT_TEST_CASE("strings can be compared")
 		}
 
 		// string 10 is the string iterated up till now
-		test_strings[10].push_back(point);
+		test_strings[10].append(1, point);
 
 		// string 1-9 are point +/- 1 repeated 1, 2 or 3 times
 		for (size_type i = 1; i <= 9; ++i)
