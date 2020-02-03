@@ -59,7 +59,7 @@ namespace lingo
 
 				const auto first_source = base_destination.diff(base_result.destination);
 				auto first_destination = destination;
-				for (size_type i = 0; i < base_destination.size(); ++i)
+				for (size_type i = 0; i < first_source.size(); ++i)
 				{
 					utility::span<const typename first_encoding::point_type> first_subspan = first_source.subspan(i, 1);
 					const auto first_result = first_encoding::encode_one(first_subspan, first_destination, state.first_state);

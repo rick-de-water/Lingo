@@ -159,7 +159,7 @@ namespace lingo
 			static LINGO_CONSTEXPR14 encode_result_type encode_one(encode_source_type source, encode_destination_type destination) noexcept
 			{
 				// Check if there is at least 1 point
-				if (source.size() > 0)
+				if (source.size() < 1)
 				{
 					return { source, destination, error::error_code::source_buffer_too_small };
 				}
@@ -225,7 +225,7 @@ namespace lingo
 				}
 
 				// Check if there is room for at least 1 point
-				if (destination.size() > 0)
+				if (destination.size() < 1)
 				{
 					return { source, destination, error::error_code::destination_buffer_too_small };
 				}

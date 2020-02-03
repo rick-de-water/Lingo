@@ -49,7 +49,6 @@ namespace lingo
 					// Cast point to bits
 					else
 					{
-						assert(point >= 0);
 						return static_cast<point_bits_type>(point);
 					}
 				}
@@ -66,7 +65,6 @@ namespace lingo
 					// Cast unit to bits
 					else
 					{
-						assert(unit >= 0);
 						return static_cast<unit_bits_type>(unit);
 					}
 				}

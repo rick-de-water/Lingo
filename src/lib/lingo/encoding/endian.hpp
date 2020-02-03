@@ -43,7 +43,7 @@ namespace lingo
 				}
 
 				// Return result
-				return { intermediate_result.source, intermediate_result.destination, error::error_code::success };
+				return { intermediate_result.source, destination.subspan(written.size()), error::error_code::success };
 			}
 
 			static LINGO_CONSTEXPR14 typename Encoding::decode_result_type decode_one(
@@ -53,6 +53,7 @@ namespace lingo
 			{
 				// Copy and swap data from destination buffer to intermediate buffer
 				typename Encoding::unit_type intermediate_buffer[Encoding::max_units] = {};
+				utility::span<const typename Encoding::unit_type> intermediate_span(intermediate_buffer);
 				const size_t size = std::min(source.size(), Encoding::max_units);
 				for (typename Encoding::size_type i = 0; i < size; ++i)
 				{
@@ -60,7 +61,11 @@ namespace lingo
 				}
 
 				// Decode point into intermediate buffer
-				return Encoding::decode_one(intermediate_buffer, destination, state);
+				const auto intermediate_result = Encoding::decode_one(intermediate_span, destination, state);
+				auto read = intermediate_span.diff(intermediate_result.source);
+
+				// Return result
+				return { source.subspan(read.size()), intermediate_result.destination, error::error_code::success };
 			}
 		};
 	}

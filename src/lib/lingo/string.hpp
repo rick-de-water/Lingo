@@ -371,7 +371,7 @@ namespace lingo
 			// Encode the point into units
 			unit_type encoded_point[encoding_type::max_units];
 			// TODO: multipoint
-			const auto result = encoding_type::encode_one(utility::span<point_type>(&point, 1), encoded_point);
+			const auto result = encoding_type::encode_one(utility::span<const point_type>(&point, 1), encoded_point);
 			if (result.error != error::error_code::success)
 			{
 				throw error::exception(result.error);
@@ -686,10 +686,7 @@ namespace lingo
 
 		basic_string& operator += (point_type other)
 		{
-			// Append point
 			append(1, other);
-
-			// Return this
 			return *this;
 		}
 		
