@@ -51,6 +51,9 @@ namespace lingo
 				_data(first),
 				_size(last - first)
 			{
+				#ifdef LINGO_HAS_CONSTEXPR14
+				assert(last > first);
+				#endif
 			}
 
 			template <size_type N>
@@ -79,11 +82,17 @@ namespace lingo
 
 			LINGO_CONSTEXPR11 reference front() const noexcept
 			{
+				#ifdef LINGO_HAS_CONSTEXPR14
+				assert(_size > 0);
+				#endif
 				return _data[0];
 			}
 
 			LINGO_CONSTEXPR11 reference back() const noexcept
 			{
+				#ifdef LINGO_HAS_CONSTEXPR14
+				assert(_size > 0);
+				#endif
 				return _data[_size - 1];
 			}
 
@@ -94,17 +103,25 @@ namespace lingo
 
 			LINGO_CONSTEXPR11 span subspan(size_type offset, size_type count) const noexcept
 			{
+				#ifdef LINGO_HAS_CONSTEXPR14
+				assert(offset <= _size);
+				#endif
 				return span(_data + offset, _size - offset < count ? _size - offset : count);
 			}
 
 			LINGO_CONSTEXPR11 span diff(const span& other) const noexcept
 			{
+				#ifdef LINGO_HAS_CONSTEXPR14
+				assert(other._data >= _data && other._data <= _data + _size);
+				#endif
 				return span(_data, other._data - _data);
 			}
 
 			LINGO_CONSTEXPR11 reference operator [] (size_type index) const noexcept
 			{
+				#ifdef LINGO_HAS_CONSTEXPR14
 				assert(index < _size);
+				#endif
 				return _data[index];
 			}
 
