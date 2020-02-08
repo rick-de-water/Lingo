@@ -4,6 +4,7 @@
 #include <lingo/platform/constexpr.hpp>
 
 #include <lingo/encoding/endian.hpp>
+#include <lingo/encoding/join.hpp>
 #include <lingo/encoding/result.hpp>
 #include <lingo/encoding/internal/bit_converter.hpp>
 
@@ -93,14 +94,17 @@ namespace lingo
 			}
 		};
 
+		template <typename Unit, typename Point>
+		using none_se = join<swap_endian<Unit>, none<Unit, Point>>;
+
 		#if LINGO_ARCHITECTURE_ENDIANNESS == LINGO_ARCHITECTURE_LITTLE_ENDIAN
 		template <typename Unit, typename Point>
 		using none_le = none<Unit, Point>;
 		template <typename Unit, typename Point>
-		using none_be = swap_endian<none<Unit, Point>>;
+		using none_be = none_se<Unit, Point>;
 		#else
 		template <typename Unit, typename Point>
-		using none_le = swap_endian<none<Unit, Point>>;
+		using none_le = none_se<Unit, Point>;
 		template <typename Unit, typename Point>
 		using none_be = none<Unit, Point>;
 		#endif

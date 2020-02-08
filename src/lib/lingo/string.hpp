@@ -1181,6 +1181,10 @@ namespace lingo
 	// Fixed encoding typedefs
 	template <typename Unit, typename Allocator = internal::default_allocator<encoding::utf8<Unit, char32_t>>>
 	using basic_utf8_string = basic_unicode_string<encoding::utf8<Unit, char32_t>, Allocator>;
+	template <typename Unit, typename Allocator = internal::default_allocator<encoding::utf8<Unit, char32_t>>>
+	using basic_utf8_le_string = basic_unicode_string<encoding::utf8_le<Unit, char32_t>, Allocator>;
+	template <typename Unit, typename Allocator = internal::default_allocator<encoding::utf8<Unit, char32_t>>>
+	using basic_utf8_be_string = basic_unicode_string<encoding::utf8_be<Unit, char32_t>, Allocator>;
 
 	template <typename Unit, typename Allocator = internal::default_allocator<encoding::utf8<Unit, char32_t>>>
 	using basic_utf16_string = basic_unicode_string<encoding::utf16<Unit, char32_t>, Allocator>;

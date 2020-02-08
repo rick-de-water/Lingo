@@ -4,6 +4,7 @@
 #include <lingo/platform/constexpr.hpp>
 
 #include <lingo/encoding/endian.hpp>
+#include <lingo/encoding/join.hpp>
 #include <lingo/encoding/result.hpp>
 #include <lingo/encoding/internal/bit_converter.hpp>
 
@@ -240,14 +241,18 @@ namespace lingo
 		template <typename Unit, typename Point>
 		LINGO_CONSTEXPR11 typename utf16<Unit, Point>::size_type utf16<Unit, Point>::min_point_bits;
 
+
+		template <typename Unit, typename Point>
+		using utf16_se = join<swap_endian<Unit>, utf16<Unit, Point>>;
+
 		#if LINGO_ARCHITECTURE_ENDIANNESS == LINGO_ARCHITECTURE_LITTLE_ENDIAN
 		template <typename Unit, typename Point>
 		using utf16_le = utf16<Unit, Point>;
 		template <typename Unit, typename Point>
-		using utf16_be = swap_endian<utf16<Unit, Point>>;
+		using utf16_be = utf16_se<Unit, Point>;
 		#else
 		template <typename Unit, typename Point>
-		using utf16_le = swap_endian<utf16<Unit, Point>>;
+		using utf16_le = utf16_se<Unit, Point>;
 		template <typename Unit, typename Point>
 		using utf16_be = utf16<Unit, Point>;
 		#endif

@@ -3,6 +3,8 @@
 
 #include <lingo/platform/constexpr.hpp>
 
+#include <lingo/encoding/endian.hpp>
+#include <lingo/encoding/join.hpp>
 #include <lingo/encoding/result.hpp>
 #include <lingo/encoding/internal/bit_converter.hpp>
 
@@ -263,7 +265,23 @@ namespace lingo
 		LINGO_CONSTEXPR11 typename utf8<Unit, Point>::unit_bits_type utf8<Unit, Point>::first_unit_prefix_markers[5];
 		template <typename Unit, typename Point>
 		LINGO_CONSTEXPR11 typename utf8<Unit, Point>::unit_bits_type utf8<Unit, Point>::first_unit_data_masks[5];
+
+		template <typename Unit, typename Point>
+		using utf8_se = join<swap_endian<Unit>, utf8<Unit, Point>>;
+
+		#if LINGO_ARCHITECTURE_ENDIANNESS == LINGO_ARCHITECTURE_LITTLE_ENDIAN
+		template <typename Unit, typename Point>
+		using utf8_le = utf8<Unit, Point>;
+		template <typename Unit, typename Point>
+		using utf8_be = utf8_se<Unit, Point>;
+		#else
+		template <typename Unit, typename Point>
+		using utf8_le = utf8_se<Unit, Point>;
+		template <typename Unit, typename Point>
+		using utf8_be = utf8<Unit, Point>;
+		#endif
 	}
+
 }
 
 #endif

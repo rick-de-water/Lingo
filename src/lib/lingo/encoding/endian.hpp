@@ -12,60 +12,69 @@ namespace lingo
 {
 	namespace encoding
 	{
-		template <typename Encoding>
-		struct swap_endian : public Encoding
+		template <typename Unit>
+		struct swap_endian
 		{
-			static LINGO_CONSTEXPR14 typename Encoding::encode_result_type encode_one(
-				utility::span<const typename Encoding::point_type> source,
-				utility::span<typename Encoding::unit_type> destination,
-				typename Encoding::encode_state_type& state, bool final) noexcept
-			{
-				// Encode point into intermediate buffer
-				typename Encoding::unit_type intermediate_buffer[Encoding::max_units] = {};
-				utility::span<typename Encoding::unit_type> intermediate_span(intermediate_buffer);
-				const auto intermediate_result = Encoding::encode_one(source, intermediate_span, state, final);
+			using unit_type = Unit;
+			using point_type = unit_type;
 
-				// Check for errors
-				if (intermediate_result.error != error::error_code::success)
+			using size_type = std::size_t;
+			using difference_type = std::ptrdiff_t;
+
+			static LINGO_CONSTEXPR11 size_type max_units = 1;
+			static LINGO_CONSTEXPR11 size_type min_unit_bits = sizeof(unit_type) * CHAR_BIT;
+			static LINGO_CONSTEXPR11 size_type min_point_bits = min_unit_bits;
+
+			using encode_result_type = encode_result<unit_type, point_type>;
+			using decode_result_type = decode_result<unit_type, point_type>;
+			using encode_source_type = typename encode_result_type::source_type;
+			using decode_source_type = typename decode_result_type::source_type;
+			using encode_destination_type = typename encode_result_type::destination_type;
+			using decode_destination_type = typename decode_result_type::destination_type;
+
+			struct encode_state_type {};
+			struct decode_state_type {};
+
+			static LINGO_CONSTEXPR14 encode_result_type encode_one(encode_source_type source, encode_destination_type destination, encode_state_type&, bool) noexcept
+			{
+				return encode_one(source, destination);
+			}
+
+			static LINGO_CONSTEXPR14 encode_result_type encode_one(encode_source_type source, encode_destination_type destination) noexcept
+			{
+				if (source.size() < 1)
 				{
-					return intermediate_result;
+					return { source, destination, error::error_code::source_buffer_too_small };
 				}
-				auto written = intermediate_span.diff(intermediate_result.destination);
-				if (destination.size() < written.size())
+
+				if (destination.size() < 1)
 				{
 					return { source, destination, error::error_code::destination_buffer_too_small };
 				}
 
-				// Copy and swap data from intermediate buffer to destination buffer
-				for (typename Encoding::size_type i = 0; i < written.size(); ++i)
-				{
-					destination[i] = platform::swap_endian(intermediate_buffer[i]);
-				}
-
-				// Return result
-				return { intermediate_result.source, destination.subspan(written.size()), error::error_code::success };
+				destination[0] = platform::swap_endian(source[0]);
+				return { source.subspan(1), destination.subspan(1), error::error_code::success };
 			}
 
-			static LINGO_CONSTEXPR14 typename Encoding::decode_result_type decode_one(
-				utility::span<const typename Encoding::unit_type> source,
-				utility::span<typename Encoding::point_type> destination,
-				typename Encoding::decode_state_type& state, bool final) noexcept
+			static LINGO_CONSTEXPR14 decode_result_type decode_one(decode_source_type source, decode_destination_type destination, decode_state_type&, bool) noexcept
 			{
-				// Copy and swap data from destination buffer to intermediate buffer
-				typename Encoding::unit_type intermediate_buffer[Encoding::max_units] = {};
-				utility::span<const typename Encoding::unit_type> intermediate_span(intermediate_buffer);
-				const size_t size = std::min(source.size(), Encoding::max_units);
-				for (typename Encoding::size_type i = 0; i < size; ++i)
+				return decode_one(source, destination);
+			}
+
+			static LINGO_CONSTEXPR14 decode_result_type decode_one(decode_source_type source, decode_destination_type destination) noexcept
+			{
+				if (source.size() < 1)
 				{
-					intermediate_buffer[i] = platform::swap_endian(source[i]);
+					return { source, destination, error::error_code::source_buffer_too_small };
 				}
 
-				// Decode point into intermediate buffer
-				const auto intermediate_result = Encoding::decode_one(intermediate_span, destination, state, final);
-				auto read = intermediate_span.diff(intermediate_result.source);
+				if (destination.size() < 1)
+				{
+					return { source, destination, error::error_code::destination_buffer_too_small };
+				}
 
-				// Return result
-				return { source.subspan(read.size()), intermediate_result.destination, error::error_code::success };
+				destination[0] = platform::swap_endian(source[0]);
+				return { source.subspan(1), destination.subspan(1), error::error_code::success };
 			}
 		};
 	}

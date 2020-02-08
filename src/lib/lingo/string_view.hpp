@@ -628,6 +628,10 @@ namespace lingo
 	// Fixed encoding typedefs
 	template <typename Unit>
 	using basic_utf8_string_view = basic_unicode_string_view<encoding::utf8<Unit, char32_t>>;
+	template <typename Unit>
+	using basic_utf8_le_string_view = basic_unicode_string_view<encoding::utf8_le<Unit, char32_t>>;
+	template <typename Unit>
+	using basic_utf8_be_string_view = basic_unicode_string_view<encoding::utf8_be<Unit, char32_t>>;
 
 	template <typename Unit>
 	using basic_utf16_string_view = basic_unicode_string_view<encoding::utf16<Unit, char32_t>>;

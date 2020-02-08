@@ -193,7 +193,7 @@ namespace lingo
 
 						unit_type last_unit = unit_buffer[0];
 						assert(last_unit != padding);
-						unit_bits = bit_converter_type::to_unit_bits(table_from_base[last_unit]);
+						unit_bits = bit_converter_type::to_unit_bits(table_from_base[bit_converter_type::to_unit_bits(last_unit)]);
 						unit_bit_count = bits_per_unit;
 						unit_buffer = unit_buffer.subspan(1);
 						++unit_count;

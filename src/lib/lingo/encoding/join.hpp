@@ -2,10 +2,12 @@
 #define H_LINGO_ENCODING_JOIN
 
 #include <lingo/platform/constexpr.hpp>
+#include <lingo/platform/warnings.hpp>
 
 #include <lingo/encoding/result.hpp>
 
 #include <climits>
+#include <exception>
 #include <type_traits>
 
 namespace lingo
@@ -115,6 +117,7 @@ namespace lingo
 				// Should never be able to reach this.
 				// Either the code point is decoded successfully or an error occurs within base_encoding::max_units cycles
 				assert(false);
+				std::terminate();
 			}
 		};
 
