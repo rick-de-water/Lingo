@@ -171,9 +171,29 @@ TEST_CASE("base64 uses the correct tables")
 
 TEST_CASE("strings can be encoded and decoded into base64")
 {
-	using base64_string_type = lingo::basic_string<lingo::encoding::join<lingo::encoding::base64<char, char>, lingo::encoding::utf8<char, char32_t>>, lingo::page::unicode>;
+	using base64_utf8_string_type = lingo::basic_string<lingo::encoding::join<lingo::encoding::base64<char, char>, lingo::encoding::utf8<char, char32_t>>, lingo::page::unicode>;
+	using base64_utf8_string_view_type = lingo::basic_string_view<lingo::encoding::join<lingo::encoding::base64<char, char>, lingo::encoding::utf8<char, char32_t>>, lingo::page::unicode>;
+	using base64_utf16_string_type = lingo::basic_string<lingo::encoding::join<lingo::encoding::base64<char, char16_t>, lingo::encoding::utf16<char16_t, char32_t>>, lingo::page::unicode>;
+	using base64_utf16_string_view_type = lingo::basic_string_view<lingo::encoding::join<lingo::encoding::base64<char, char16_t>, lingo::encoding::utf16<char16_t, char32_t>>, lingo::page::unicode>;
+
 	using utf8_string_type = lingo::utf8_string;
-	
+	using utf16_string_type = lingo::utf16_string;
+
 	const utf8_string_type utf8_string(u8"LoremЛоремसादगिالمنتصر🧥👚👕👖👔");
-	const base64_string_type base64_string(utf8_string);
+	const utf16_string_type utf16_string(u"LoremЛоремसादगिالمنتصر🧥👚👕👖👔");
+
+	const base64_utf8_string_type base64_utf8_string(utf8_string);
+	const base64_utf16_string_type base64_utf16_string(utf16_string);
+
+	const utf8_string_type utf8_string_again(base64_utf8_string);
+	const utf16_string_type utf16_string_again(base64_utf16_string);
+
+	REQUIRE(utf8_string == utf8_string_again);
+	REQUIRE(utf16_string == utf16_string_again);
+
+	const base64_utf8_string_view_type expected_utf8_string_view("TG9yZW3Qm9C+0YDQtdC84KS44KS+4KSm4KSX4KS/2KfZhNmF2YbYqti12LHwn6el8J+RmvCfkZXwn5GW8J+RlA==");
+	const base64_utf16_string_view_type expected_utf16_string_view("AEwAbwByAGUAbQQbBD4EQAQ1BDwJOAk+CSYJFwk/BicGRAZFBkYGKgY1BjHYPt3l2D3cWtg93FXYPdxW2D3cVA==");
+
+	REQUIRE(base64_utf8_string == expected_utf8_string_view);
+	REQUIRE(base64_utf16_string == expected_utf16_string_view);
 }

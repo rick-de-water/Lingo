@@ -44,7 +44,7 @@ namespace lingo
 			using point_bits_type = typename bit_converter_type::point_bits_type;
 
 			public:
-			static LINGO_CONSTEXPR14 encode_result_type encode_one(encode_source_type source, encode_destination_type destination, encode_state_type&) noexcept
+			static LINGO_CONSTEXPR14 encode_result_type encode_one(encode_source_type source, encode_destination_type destination, encode_state_type&, bool) noexcept
 			{
 				return encode_one(source, destination);
 			}
@@ -88,7 +88,7 @@ namespace lingo
 				return { source.subspan(1), destination.subspan(1), error::error_code::success };
 			}
 
-			static LINGO_CONSTEXPR14 decode_result_type decode_one(decode_source_type source, decode_destination_type destination, decode_state_type&) noexcept
+			static LINGO_CONSTEXPR14 decode_result_type decode_one(decode_source_type source, decode_destination_type destination, decode_state_type&, bool) noexcept
 			{
 				return decode_one(source, destination);
 			}

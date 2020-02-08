@@ -47,36 +47,74 @@ namespace lingo
 
 			static_assert(std::is_same<typename first_encoding::point_type, typename base_encoding::unit_type>::value, "The point_type of an encoding must match the unit_type of the next encoding");
 
-			static LINGO_CONSTEXPR14 encode_result_type encode_one(encode_source_type source, encode_destination_type destination, encode_state_type& state) noexcept
+			static LINGO_CONSTEXPR14 encode_result_type encode_one(encode_source_type source, encode_destination_type destination, encode_state_type& state, bool final) noexcept
 			{
+				// Encode to base encoding
 				typename base_encoding::unit_type base_destination_buffer[base_encoding::max_units];
 				utility::span<typename base_encoding::unit_type> base_destination(base_destination_buffer);
-				const auto base_result = base_encoding::encode_one(source, base_destination, state.base_state);
+				const auto base_result = base_encoding::encode_one(source, base_destination, state.base_state, final);
 				if (base_result.error != lingo::error::error_code::success)
 				{
-					return base_result;
+					return { source, destination, base_result.error };
 				}
 
-				const auto first_source = base_destination.diff(base_result.destination);
+				// Encode base units to first encoding
+				utility::span<const typename first_encoding::point_type> first_source = base_destination.diff(base_result.destination);
 				auto first_destination = destination;
-				for (size_type i = 0; i < first_source.size(); ++i)
+				while (first_source.size() > 0)
 				{
-					utility::span<const typename first_encoding::point_type> first_subspan = first_source.subspan(i, 1);
-					const auto first_result = first_encoding::encode_one(first_subspan, first_destination, state.first_state);
+					const auto first_result = first_encoding::encode_one(first_source, first_destination, state.first_state, final && base_result.source.size() == 0);
 					if (first_result.error != lingo::error::error_code::success)
 					{
 						return { source, destination, first_result.error };
 					}
 
+					first_source = first_result.source;
 					first_destination = first_result.destination;
 				}
 
 				return { base_result.source, first_destination, lingo::error::error_code::success };
 			}
 
-			static LINGO_CONSTEXPR14 decode_result_type decode_one(encode_source_type, encode_destination_type, decode_state_type&) noexcept
+			static LINGO_CONSTEXPR14 decode_result_type decode_one(decode_source_type source, decode_destination_type destination, decode_state_type& state, bool final) noexcept
 			{
-				return {};
+				auto first_source = source;
+				typename base_encoding::unit_type first_destination_buffer[base_encoding::max_units];
+				utility::span<typename base_encoding::unit_type> first_destination(first_destination_buffer);
+				for (size_type i = 0; i < base_encoding::max_units; ++i)
+				{
+					// Decode from first encoding
+					const auto first_result = first_encoding::decode_one(first_source, first_destination, state.first_state, final);
+					if (first_result.error != lingo::error::error_code::success)
+					{
+						return { source, destination, first_result.error };
+					}
+
+					first_source = first_result.source;
+					first_destination = first_result.destination;
+
+					// Try to decode to base encoding
+					const auto base_result = base_encoding::decode_one(
+						utility::span<typename base_encoding::unit_type>(first_destination_buffer).diff(first_destination),
+						destination, state.base_state, final && first_source.size() == 0);
+					if (base_result.error != lingo::error::error_code::success)
+					{
+						if (base_result.error == lingo::error::error_code::source_buffer_too_small)
+						{
+							continue;
+						}
+						else
+						{
+							return { source, destination, base_result.error };
+						}
+					}
+					
+					// Return result
+					return { first_source, base_result.destination, lingo::error::error_code::success };
+				}
+				// Should never be able to reach this.
+				// Either the code point is decoded successfully or an error occurs within base_encoding::max_units cycles
+				assert(false);
 			}
 		};
 

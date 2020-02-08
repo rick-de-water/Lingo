@@ -116,7 +116,7 @@ namespace lingo
 				const utility::span<point_type> destination_span(&(_state.first()), 1);
 
 				// Decode the next points
-				auto result = encoding_type::decode_one(source_span, destination_span, _state.second());
+				auto result = encoding_type::decode_one(source_span, destination_span, _state.second(), true);
 				// TODO: configurable error handling
 				if (result.error != error::error_code::success)
 				{

@@ -18,12 +18,12 @@ namespace lingo
 			static LINGO_CONSTEXPR14 typename Encoding::encode_result_type encode_one(
 				utility::span<const typename Encoding::point_type> source,
 				utility::span<typename Encoding::unit_type> destination,
-				typename Encoding::encode_state_type& state) noexcept
+				typename Encoding::encode_state_type& state, bool final) noexcept
 			{
 				// Encode point into intermediate buffer
 				typename Encoding::unit_type intermediate_buffer[Encoding::max_units] = {};
 				utility::span<typename Encoding::unit_type> intermediate_span(intermediate_buffer);
-				const auto intermediate_result = Encoding::encode_one(source, intermediate_span, state);
+				const auto intermediate_result = Encoding::encode_one(source, intermediate_span, state, final);
 
 				// Check for errors
 				if (intermediate_result.error != error::error_code::success)
@@ -49,7 +49,7 @@ namespace lingo
 			static LINGO_CONSTEXPR14 typename Encoding::decode_result_type decode_one(
 				utility::span<const typename Encoding::unit_type> source,
 				utility::span<typename Encoding::point_type> destination,
-				typename Encoding::decode_state_type& state) noexcept
+				typename Encoding::decode_state_type& state, bool final) noexcept
 			{
 				// Copy and swap data from destination buffer to intermediate buffer
 				typename Encoding::unit_type intermediate_buffer[Encoding::max_units] = {};
@@ -61,7 +61,7 @@ namespace lingo
 				}
 
 				// Decode point into intermediate buffer
-				const auto intermediate_result = Encoding::decode_one(intermediate_span, destination, state);
+				const auto intermediate_result = Encoding::decode_one(intermediate_span, destination, state, final);
 				auto read = intermediate_span.diff(intermediate_result.source);
 
 				// Return result

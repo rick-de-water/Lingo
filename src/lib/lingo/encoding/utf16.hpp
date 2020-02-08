@@ -114,7 +114,7 @@ namespace lingo
 				}
 			}
 
-			static LINGO_CONSTEXPR14 encode_result_type encode_one(encode_source_type source, encode_destination_type destination, encode_state_type&) noexcept
+			static LINGO_CONSTEXPR14 encode_result_type encode_one(encode_source_type source, encode_destination_type destination, encode_state_type&, bool) noexcept
 			{
 				return encode_one(source, destination);
 			}
@@ -167,7 +167,7 @@ namespace lingo
 				}
 			}
 
-			static LINGO_CONSTEXPR14 decode_result_type decode_one(decode_source_type source, decode_destination_type destination, decode_state_type&) noexcept
+			static LINGO_CONSTEXPR14 decode_result_type decode_one(decode_source_type source, decode_destination_type destination, decode_state_type&, bool) noexcept
 			{
 				return decode_one(source, destination);
 			}

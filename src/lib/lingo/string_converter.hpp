@@ -59,7 +59,7 @@ namespace lingo
 		static_assert(std::is_same<typename source_page_type::point_type, typename source_encoding_type::point_type>::value, "source_page_type::point_type must be the same type as source_encoding_type::point_type");
 		static_assert(std::is_same<typename destination_page_type::point_type, typename destination_encoding_type::point_type>::value, "destination_page_type::point_type must be the same type as destination_encoding_type::point_type");
 
-		LINGO_CONSTEXPR14 conversion_result convert(utility::span<const source_unit_type> source, utility::span<destination_unit_type> destination)
+		LINGO_CONSTEXPR14 conversion_result convert(utility::span<const source_unit_type> source, utility::span<destination_unit_type> destination, bool final)
 		{
 			source_decode_source_type read_buffer = source;
 			destination_encode_destination_type write_buffer = destination;
@@ -73,7 +73,7 @@ namespace lingo
 				source_decode_destination_type source_point_span(&source_point, 1);
 
 				// Try to decode a point from the source
-				auto decode_result = source_encoding_type::decode_one(read_buffer, source_point_span, read_state);
+				auto decode_result = source_encoding_type::decode_one(read_buffer, source_point_span, read_state, final);
 				if (decode_result.error != error::error_code::success)
 				{
 					if (!handle_error(decode_result, read_buffer, source_point_span))
@@ -94,7 +94,7 @@ namespace lingo
 				destination_point = map_result.point;
 
 				// Try to encode the point into the destination buffer
-				auto encode_result = destination_encoding_type::encode_one(destination_point_span, write_buffer, write_state);
+				auto encode_result = destination_encoding_type::encode_one(destination_point_span, write_buffer, write_state, decode_result.source.size() == 0 && final);
 				if (encode_result.error != error::error_code::success)
 				{
 					// A destination buffer that is too small is not considered an error.
@@ -137,7 +137,8 @@ namespace lingo
 			{
 				auto result = convert(
 					utility::span<const source_unit_type>(source.data() + total_units_read, source.size() - total_units_read),
-					utility::span<destination_unit_type>(string.data() + total_units_written, string.size() - total_units_written));
+					utility::span<destination_unit_type>(string.data() + total_units_written, string.size() - total_units_written),
+					true);
 
 				total_units_read += result.source_read;
 				total_units_written += result.destination_written;
