@@ -183,14 +183,14 @@ namespace lingo
 		}
 
 		template <typename SourceAllocator, typename _ = int, typename std::enable_if<is_execution_set, _>::type = 0>
-		basic_string(const std::basic_string<unit_type, std::char_traits<unit_type>, SourceAllocator>& str, const allocator_type& allocator = allocator_type()):
+		basic_string(const std::basic_string<value_type, std::char_traits<value_type>, SourceAllocator>& str, const allocator_type& allocator = allocator_type()):
 			basic_string(basic_string_view(str.data(), str.size(), true), allocator)
 		{
 		}
 
 		#ifdef __cpp_lib_string_view
 		template <typename _ = int, typename std::enable_if<is_execution_set, _>::type = 0>
-		basic_string(const std::basic_string_view<unit_type, std::char_traits<unit_type>>& str, const allocator_type& allocator = allocator_type()):
+		basic_string(const std::basic_string_view<value_type, std::char_traits<value_type>>& str, const allocator_type& allocator = allocator_type()):
 			basic_string(basic_string_view(str.data(), str.size(), false), allocator)
 		{
 		}
@@ -370,21 +370,23 @@ namespace lingo
 		{
 			// Encode the point into units
 			unit_type encoded_point[encoding_type::max_units];
-			const auto result = encoding_type::encode_point(point, encoded_point, encoding_type::max_units);
+			// TODO: multipoint
+			const auto result = encoding_type::encode_one(utility::span<const point_type>(&point, 1), encoded_point);
 			if (result.error != error::error_code::success)
 			{
 				throw error::exception(result.error);
 			}
 
 			// Allocate memory
-			const size_type destination_size = result.size * count;
+			const size_t point_size = result.destination.data() - encoded_point;
+			const size_type destination_size = point_size * count;
 			_storage.grow_discard(destination_size);
 			const pointer destination_data = data();
 
 			// Fill memory
 			for (size_type i = 0; i < count; ++i)
 			{
-				object_builder::copy_construct(destination_data + i * result.size, encoded_point, result.size);
+				object_builder::copy_construct(destination_data + i * point_size, encoded_point, point_size);
 			}
 
 			// Construct null terminator
@@ -504,22 +506,24 @@ namespace lingo
 		{
 			// Encode the point into units
 			unit_type encoded_point[encoding_type::max_units];
-			const auto result = encoding_type::encode_point(point, encoded_point, encoding_type::max_units);
+			// TODO: multipoint
+			const auto result = encoding_type::encode_one(utility::span<point_type>(&point, 1), encoded_point);
 			if (result.error != error::error_code::success)
 			{
 				throw error::exception(result.error);
 			}
 
 			// Allocate memory
+			const size_t point_size = result.destination.data() - encoded_point;
 			const size_type original_size = size();
-			const size_type destination_size = result.size * count + original_size;
+			const size_type destination_size = point_size * count + original_size;
 			_storage.grow_append(destination_size);
 			const pointer destination_data = data();
 
 			// Fill memory
 			for (size_type i = 0; i < count; ++i)
 			{
-				object_builder::copy_construct(destination_data + original_size + i * result.size, encoded_point, result.size);
+				object_builder::copy_construct(destination_data + original_size + i * point_size, encoded_point, point_size);
 			}
 
 			// Construct null terminator
@@ -619,20 +623,6 @@ namespace lingo
 			append(basic_string_view(str), pos, count);
 		}
 
-		void push_back(point_type point)
-		{
-			// Encode the point into units
-			unit_type encoded_point[encoding_type::max_units];
-			const auto result = encoding_type::encode_point(point, encoded_point, encoding_type::max_units);
-			if (result.error != error::error_code::success)
-			{
-				throw error::exception(result.error);
-			}
-
-			// Append data
-			append(basic_string_view(encoded_point, result.size));
-		}
-
 		void insert(size_type index, basic_string_view string, size_type count) noexcept(noexcept(std::declval<storage_type&>().grow(std::declval<size_t>())))
 		{
 			// Make sure that the index is valid
@@ -696,16 +686,13 @@ namespace lingo
 
 		basic_string& operator += (point_type other)
 		{
-			// Append point
-			push_back(other);
-
-			// Return this
+			append(1, other);
 			return *this;
 		}
 		
 		template <typename _ = int,
 			typename std::enable_if<is_execution_set, _>::type = 0>
-		basic_string& operator += (const unit_type* other)
+		basic_string& operator += (const value_type* other)
 		{
 			return (*this) += basic_string_view(other);
 		}
@@ -939,7 +926,7 @@ namespace lingo
 		basic_string<Encoding, Page, ResultAllocator> result;
 		result.reserve(left.size() + Encoding::max_units);
 		result = left;
-		result.push_back(right);
+		result.append(1, right);
 		return result;
 	}
 
@@ -948,7 +935,7 @@ namespace lingo
 	{
 		basic_string<Encoding, Page, ResultAllocator> result;
 		result.reserve(right.size() + Encoding::max_units);
-		result.push_back(left);
+		result.append(1, left);
 		result.append(right);
 		return result;
 	}
@@ -1194,6 +1181,10 @@ namespace lingo
 	// Fixed encoding typedefs
 	template <typename Unit, typename Allocator = internal::default_allocator<encoding::utf8<Unit, char32_t>>>
 	using basic_utf8_string = basic_unicode_string<encoding::utf8<Unit, char32_t>, Allocator>;
+	template <typename Unit, typename Allocator = internal::default_allocator<encoding::utf8<Unit, char32_t>>>
+	using basic_utf8_le_string = basic_unicode_string<encoding::utf8_le<Unit, char32_t>, Allocator>;
+	template <typename Unit, typename Allocator = internal::default_allocator<encoding::utf8<Unit, char32_t>>>
+	using basic_utf8_be_string = basic_unicode_string<encoding::utf8_be<Unit, char32_t>, Allocator>;
 
 	template <typename Unit, typename Allocator = internal::default_allocator<encoding::utf8<Unit, char32_t>>>
 	using basic_utf16_string = basic_unicode_string<encoding::utf16<Unit, char32_t>, Allocator>;

@@ -2,7 +2,6 @@
 #define H_LINGO_ENCODING_ENDIAN
 
 #include <lingo/platform/constexpr.hpp>
-
 #include <lingo/platform/endian.hpp>
 
 #include <lingo/encoding/result.hpp>
@@ -13,52 +12,69 @@ namespace lingo
 {
 	namespace encoding
 	{
-		template <typename Encoding>
-		struct swap_endian : public Encoding
+		template <typename Unit>
+		struct swap_endian
 		{
-			static LINGO_CONSTEXPR14 encode_result encode_point(
-				typename Encoding::point_type point,
-				typename Encoding::unit_type* buffer,
-				typename Encoding::size_type buffer_size) noexcept
+			using unit_type = Unit;
+			using point_type = unit_type;
+
+			using size_type = std::size_t;
+			using difference_type = std::ptrdiff_t;
+
+			static LINGO_CONSTEXPR11 size_type max_units = 1;
+			static LINGO_CONSTEXPR11 size_type min_unit_bits = sizeof(unit_type) * CHAR_BIT;
+			static LINGO_CONSTEXPR11 size_type min_point_bits = min_unit_bits;
+
+			using encode_result_type = encode_result<unit_type, point_type>;
+			using decode_result_type = decode_result<unit_type, point_type>;
+			using encode_source_type = typename encode_result_type::source_type;
+			using decode_source_type = typename decode_result_type::source_type;
+			using encode_destination_type = typename encode_result_type::destination_type;
+			using decode_destination_type = typename decode_result_type::destination_type;
+
+			struct encode_state_type {};
+			struct decode_state_type {};
+
+			static LINGO_CONSTEXPR14 encode_result_type encode_one(encode_source_type source, encode_destination_type destination, encode_state_type&, bool) noexcept
 			{
-				// Encode point into intermediate buffer
-				typename Encoding::unit_type intermediate_buffer[Encoding::max_units] = {};
-				const auto intermediate_result = Encoding::encode_point(point, intermediate_buffer, Encoding::max_units);
-
-				// Check for errors
-				if (intermediate_result.error != error::error_code::success)
-				{
-					return intermediate_result;
-				}
-				if (buffer_size < intermediate_result.size)
-				{
-					return { intermediate_result.size, error::error_code::buffer_too_small };
-				}
-
-				// Copy and swap data from intermediate buffer to output buffer
-				for (typename Encoding::size_type i = 0; i < intermediate_result.size; ++i)
-				{
-					buffer[i] = platform::swap_endian(intermediate_buffer[i]);
-				}
-
-				// Return result
-				return { intermediate_result.size, error::error_code::success };
+				return encode_one(source, destination);
 			}
 
-			static LINGO_CONSTEXPR14 decode_result<typename Encoding::point_type> decode_point(
-				const typename Encoding::unit_type* buffer, 
-				typename Encoding::size_type buffer_size) noexcept
+			static LINGO_CONSTEXPR14 encode_result_type encode_one(encode_source_type source, encode_destination_type destination) noexcept
 			{
-				// Copy and swap data from output buffer to intermediate buffer
-				typename Encoding::unit_type intermediate_buffer[Encoding::max_units] = {};
-				const size_t size = std::min(buffer_size, Encoding::max_units);
-				for (typename Encoding::size_type i = 0; i < size; ++i)
+				if (source.size() < 1)
 				{
-					intermediate_buffer[i] = platform::swap_endian(buffer[i]);
+					return { source, destination, error::error_code::source_buffer_too_small };
 				}
 
-				// Decode point into intermediate buffer
-				return Encoding::decode_point(intermediate_buffer, size);
+				if (destination.size() < 1)
+				{
+					return { source, destination, error::error_code::destination_buffer_too_small };
+				}
+
+				destination[0] = platform::swap_endian(source[0]);
+				return { source.subspan(1), destination.subspan(1), error::error_code::success };
+			}
+
+			static LINGO_CONSTEXPR14 decode_result_type decode_one(decode_source_type source, decode_destination_type destination, decode_state_type&, bool) noexcept
+			{
+				return decode_one(source, destination);
+			}
+
+			static LINGO_CONSTEXPR14 decode_result_type decode_one(decode_source_type source, decode_destination_type destination) noexcept
+			{
+				if (source.size() < 1)
+				{
+					return { source, destination, error::error_code::source_buffer_too_small };
+				}
+
+				if (destination.size() < 1)
+				{
+					return { source, destination, error::error_code::destination_buffer_too_small };
+				}
+
+				destination[0] = platform::swap_endian(source[0]);
+				return { source.subspan(1), destination.subspan(1), error::error_code::success };
 			}
 		};
 	}

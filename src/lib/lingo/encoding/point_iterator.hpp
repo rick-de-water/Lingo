@@ -4,6 +4,8 @@
 #include <lingo/platform/constexpr.hpp>
 #include <lingo/error/exception.hpp>
 
+#include <lingo/utility/compressed_pair.hpp>
+
 #include <iterator>
 
 namespace lingo
@@ -38,8 +40,7 @@ namespace lingo
 			LINGO_CONSTEXPR14 point_iterator() noexcept:
 				_current(nullptr),
 				_end(nullptr),
-				_last(nullptr),
-				_code_point(0)
+				_last(nullptr)
 			{
 			}
 
@@ -47,18 +48,18 @@ namespace lingo
 			point_iterator(const basic_string<encoding_type, Page, Allocator>& str):
 				_current(str.data()),
 				_end(str.data() + str.size()),
-				_last(str.data()),
-				_code_point(parse())
+				_last(str.data())
 			{
+				parse_next();
 			}
 
 			template <typename Page>
 			LINGO_CONSTEXPR14 point_iterator(basic_string_view<encoding_type, Page> str):
 				_current(str.data()),
 				_end(str.data() + str.size()),
-				_last(str.data()),
-				_code_point(parse())
+				_last(str.data())
 			{
+				parse_next();
 			}
 
 			LINGO_CONSTEXPR14 const unit_type* read_ptr() const noexcept
@@ -68,12 +69,12 @@ namespace lingo
 
 			LINGO_CONSTEXPR14 const_reference operator * () const noexcept
 			{
-				return _code_point;
+				return _state.first();
 			}
 
 			LINGO_CONSTEXPR14 point_iterator& operator ++()
 			{
-				_code_point = parse();
+				parse_next();
 				return *this;
 			}
 
@@ -86,7 +87,7 @@ namespace lingo
 
 			LINGO_CONSTEXPR14 const_pointer operator -> () const noexcept
 			{
-				return &_code_point;
+				return &(_state.first());
 			}
 
 			LINGO_CONSTEXPR14 bool operator == (const point_iterator& right) const noexcept
@@ -100,7 +101,7 @@ namespace lingo
 			}
 
 			private:
-			LINGO_CONSTEXPR14 point_type parse()
+			LINGO_CONSTEXPR14 void parse_next()
 			{
 				// End of string reached
 				if (_current == _end)
@@ -108,11 +109,14 @@ namespace lingo
 					_current = nullptr;
 					_end = nullptr;
 					_last = nullptr;
-					return {};
+					return;
 				}
 
-				// Decode the next point
-				auto result = encoding_type::decode_point(_current, _end - _current);
+				const utility::span<const unit_type> source_span(_current, _end);
+				const utility::span<point_type> destination_span(&(_state.first()), 1);
+
+				// Decode the next points
+				auto result = encoding_type::decode_one(source_span, destination_span, _state.second(), true);
 				// TODO: configurable error handling
 				if (result.error != error::error_code::success)
 				{
@@ -121,17 +125,14 @@ namespace lingo
 
 				// Move the current pointer
 				_last = _current;
-				_current += result.size;
+				_current += source_span.diff(result.source).size();
 				assert(_current <= _end); // _current should never go beyond _end
-
-				// Return the result
-				return result.point;
 			}
 
 			const unit_type* _current;
 			const unit_type* _end;
 			const unit_type* _last;
-			point_type _code_point;
+			utility::compressed_pair<point_type, typename encoding_type::decode_state_type> _state;
 		};
 
 		template <typename Encoding>

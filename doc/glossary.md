@@ -32,8 +32,13 @@ Here are a few implementation examples:
 
 * `lingo::page::ascii`, based on the [ASCII](https://en.wikipedia.org/wiki/ASCII) standard.
 * `lingo::page::iso_8859_1`, based on the [ISO/IEC 8859-1](https://en.wikipedia.org/wiki/ISO/IEC_8859-1) standard.
-* `lingo::page::unicode_12_1_0`, based on version 12.1.0 of the [Unicode](https://en.wikipedia.org/wiki/Unicode) standard.
+* `lingo::page::unicode`, based on the latest version of the [Unicode](https://en.wikipedia.org/wiki/Unicode) standard.
 
+## Source encoding
+Source encoding is the encoding of a source file. This is only used by the compiler to parse the source code, and should have no influence on the actual behaviour of your program.
+
+## Execution encoding
+The execution encoding is the encoding of string literals, specifically for the wide (`L` prefix) and narrow (no prefix) string literals. These literals may be encoded differently based on compiler settings or even the system locale. Since this behaviour can differ between compilers, platforms, and even users on the same computer, it is recommended to manually set it to the same fixed encoding with a compiler switch where possible.
 
 ## TODO
 * Character

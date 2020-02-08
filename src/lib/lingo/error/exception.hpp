@@ -30,11 +30,12 @@ namespace lingo
 			{
 				switch (error_code)
 				{
-					case error_code::success:                 return "success";
-					case error_code::buffer_too_small:        return "buffer too small";
-					case error_code::invalid_point:           return "invalid point";
-					case error_code::invalid_unit:            return "invalid unit";
-					default:                                  return "unknown error code";
+					case error_code::success:                      return "success";
+					case error_code::source_buffer_too_small:      return "source buffer too small";
+					case error_code::destination_buffer_too_small: return "destination buffer too small";
+					case error_code::invalid_point:                return "invalid point";
+					case error_code::invalid_unit:                 return "invalid unit";
+					default:                                       return "unknown error code";
 				}
 			}
 		};
