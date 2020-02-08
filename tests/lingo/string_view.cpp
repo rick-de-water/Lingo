@@ -447,4 +447,49 @@ TEST_CASE("string_view can be searched")
 	rfind("agaa", { 2125, 2043, 1797, 1668, 1624, 1543, 818, 620, 275 });
 	rfind("tttttt", { 1209, 1208, 1207, 1182, 598, 438, 437, 436, 435, 434, 433, 432, 431, 430, 429, 428, 427, 426, 425, 424, 423 });
 	rfind("ctga", { 2266, 2194, 2072, 2033, 1766, 1431, 1319, 1112, 1023, 808, 691, 418 });
+
+	REQUIRE(text.starts_with("c"));
+	REQUIRE_FALSE(text.starts_with("t"));
+	REQUIRE_FALSE(text.starts_with("a"));
+	REQUIRE_FALSE(text.starts_with("g"));
+
+	REQUIRE_FALSE(text.starts_with("cc"));
+	REQUIRE(text.starts_with("ct"));
+	REQUIRE_FALSE(text.starts_with("ca"));
+	REQUIRE_FALSE(text.starts_with("cg"));
+
+	REQUIRE_FALSE(text.starts_with("ctc"));
+	REQUIRE_FALSE(text.starts_with("ctt"));
+	REQUIRE(text.starts_with("cta"));
+	REQUIRE_FALSE(text.starts_with("ctg"));
+
+	REQUIRE(text.starts_with("ctataatcccagcttgttgggaggccaaggcaggaggatcacttgaagcc"));
+	REQUIRE_FALSE(text.starts_with("ctataatcccagcttgttgggaggccaaggccggaggatcacttgaagcc"));
+
+	REQUIRE(text.starts_with(string_view_type("ctataatcccagcttgttgggaggccaaggcaggaggatcacttgaagcc")));
+	REQUIRE_FALSE(text.starts_with(string_view_type("ctataatcccagcttgttgggaggccaaggccggaggatcacttgaagcc")));
+
+
+	REQUIRE_FALSE(text.ends_with("c"));
+	REQUIRE_FALSE(text.ends_with("t"));
+	REQUIRE(text.ends_with("a"));
+	REQUIRE_FALSE(text.ends_with("g"));
+
+	REQUIRE_FALSE(text.ends_with("ca"));
+	REQUIRE(text.ends_with("ta"));
+	REQUIRE_FALSE(text.ends_with("aa"));
+	REQUIRE_FALSE(text.ends_with("ga"));
+
+	REQUIRE(text.ends_with("cta"));
+	REQUIRE_FALSE(text.ends_with("tta"));
+	REQUIRE_FALSE(text.ends_with("ata"));
+	REQUIRE_FALSE(text.ends_with("gta"));
+
+	REQUIRE(text.ends_with("aatacaaaaaattagccaggcatggtggcgggtggctatagtcccagcta"));
+	REQUIRE_FALSE(text.ends_with("aatacaaaaaattagccaggcatggtggctggtggctatagtcccagcta"));
+
+	REQUIRE(text.ends_with(string_view_type("aatacaaaaaattagccaggcatggtggcgggtggctatagtcccagcta")));
+	REQUIRE_FALSE(text.ends_with(string_view_type("aatacaaaaaattagccaggcatggtggctggtggctatagtcccagcta")));
+
+
 }

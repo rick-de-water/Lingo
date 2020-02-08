@@ -455,6 +455,54 @@ namespace lingo
 			return rfind(basic_string_view(str), pos);
 		}
 
+		LINGO_CONSTEXPR14 bool starts_with(basic_string_view str) const noexcept
+		{
+			if (size() < str.size())
+			{
+				return false;
+			}
+
+			for (auto this_it = begin(), other_it = str.begin(); other_it != str.end(); ++this_it, ++other_it)
+			{
+				if (*this_it != *other_it)
+				{
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+		template <typename _ = int, typename std::enable_if<is_execution_set, _>::type = 0>
+		LINGO_CONSTEXPR14 bool starts_with(const_pointer str) const noexcept
+		{
+			return starts_with(basic_string_view(str));
+		}
+
+		LINGO_CONSTEXPR14 bool ends_with(basic_string_view str) const noexcept
+		{
+			if (size() < str.size())
+			{
+				return false;
+			}
+
+			for (auto this_it = rbegin(), other_it = str.rbegin(); other_it != str.rend(); ++this_it, ++other_it)
+			{
+				if (*this_it != *other_it)
+				{
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+		template <typename _ = int, typename std::enable_if<is_execution_set, _>::type = 0>
+		LINGO_CONSTEXPR14 bool ends_with(const_pointer str) const noexcept
+		{
+			return ends_with(basic_string_view(str));
+		}
+
 		LINGO_CONSTEXPR14 basic_string_view& operator = (const basic_string_view&) noexcept = default;
 		LINGO_CONSTEXPR14 basic_string_view& operator = (basic_string_view&&) noexcept = default;
 		

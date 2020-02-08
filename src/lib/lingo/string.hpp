@@ -871,6 +871,38 @@ namespace lingo
 			return rfind(basic_string_view(str), pos);
 		}
 
+		LINGO_CONSTEXPR14 bool starts_with(basic_string_view str) const noexcept
+		{
+			return view().starts_with(str);
+		}
+
+		LINGO_CONSTEXPR14 bool starts_with(const basic_string& str) const noexcept
+		{
+			return starts_with(str.view());
+		}
+
+		template <typename _ = int, typename std::enable_if<is_execution_set, _>::type = 0>
+		LINGO_CONSTEXPR14 bool starts_with(const_pointer str) const noexcept
+		{
+			return starts_with(basic_string_view(str));
+		}
+
+		LINGO_CONSTEXPR14 bool ends_with(basic_string_view str) const noexcept
+		{
+			return view().ends_with(str);
+		}
+
+		LINGO_CONSTEXPR14 bool ends_with(const basic_string& str) const noexcept
+		{
+			return ends_with(str.view());
+		}
+
+		template <typename _ = int, typename std::enable_if<is_execution_set, _>::type = 0>
+		LINGO_CONSTEXPR14 bool ends_with(const_pointer str) const noexcept
+		{
+			return ends_with(basic_string_view(str));
+		}
+
 		private:
 		storage_type _storage;
 	};
