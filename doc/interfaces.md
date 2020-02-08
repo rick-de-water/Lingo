@@ -3,7 +3,7 @@
 ## Encoding
 ```c++
 template <typename UnitT, typename PointT>
-struct <my_encoding>
+struct my_encoding
 {
 	// The type of a code unit and a code point
 	// When used in a string, unit_type must match the value_type of the allocator.
@@ -23,21 +23,37 @@ struct <my_encoding>
 	// - none::max_units = 1;
 	static constexpr size_type max_units;
 
-	// Encode a point and store the resulting units in the provided buffer
-	static constexpr encode_result encode_point(point_type point, unit_type buffer. size_type buffer_size) noexcept;
+	// Input and output types for the encoding and decoding functions
+	using encode_result_type = encode_result<unit_type, point_type>;
+	using decode_result_type = decode_result<unit_type, point_type>;
+	using encode_source_type = typename encode_result_type::source_type;
+	using decode_source_type = typename decode_result_type::source_type;
+	using encode_destination_type = typename encode_result_type::destination_type;
+	using decode_destination_type = typename decode_result_type::destination_type;
+	
+	// Objects that keep track of the parse state between encode/decode calls
+	using encode_state_type = /* implementation defined */
+	using decode_state_type = /* implementation defined */
 
-	// Decode a single point from the units in the provided buffer
-	static constexpr decode_result<point_type> decode_point(const unit_type* buffer, buffer_size) noexcept;
+	// Encode exactly one point from the source buffer and 
+	// store the resulting units in the destination buffer
+	// The final parameter is used to indicate that there will be no more source data after this
+	static constexpr encode_result_type encode_one(encode_source_type source, encode_destination_type destination, encode_state_type& state, bool final) noexcept;
+
+	// Decode exactly one point from the source buffer and 
+	// store the resulting point in the destination buffer
+	// The final parameter is used to indicate that there will be no more source data after this
+	static constexpr decode_result_type decode_one(decode_source_type source, decode_destination_type destination, decode_state_type& state, bool final) noexcept;
 }
 ```
 
 ## Code page
 ```c++
-struct <my_code_page>
+struct my_code_page
 {
 	// The type of a code point, usually some type of integer
 	// TODO: describe constraints
-	using point_type = <my_code_point>;
+	using point_type = /* implementation defined */;
 
 	// Some extra common typedefs
 	using size_type = std::size_t;

@@ -77,25 +77,33 @@ It is indeed possible to use `lingo::encoding::none` instead, and still have a f
 * `lingo::encoding::utf8`
 * `lingo::encoding::utf16`
 * `lingo::encoding::utf32`
+* `lingo::encoding::base64`
+
+### Meta encodings
+* `lingo::encoding::swap_endian`: Swaps the endianness of the code units.
+* `lingo::encoding::join`: Chains multiple encodings together (e.g. `join<swap_edian, utf16>` to create `utf16_be`).
 
 ## Code pages
 * `lingo::page::ascii`
 * `lingo::page::unicode`
-* `lingo::page::iso_8859_n` with n = [1, 16] except 12
+* `lingo::page::iso_8859_n` with n = [1, 16] except 12.
 
 ## Error handlers
-* `lingo::error::strict` Throws an exception on error
+* `lingo::error::strict` Throws an exception on error.
 
 ## Algorithms
 #### Will be added in a future version.
 
 ## How to build
 
-Lingo is a header only library, but some of the header files do have to be generated first. You can check the latest releases for a package that has all headers already generated.
+Lingo is a header only library, but some of the header files do have to be generated first. You can check the latest releases for a package that has all headers generated for you.
 
-If you want to develop and/or run the test suite, you will have to build the CMake project. All you need is CMake 3.12 or higher and a C++11 compatible compiler. The tests are written using [Catch](https://github.com/catchorg/Catch2) and can be run with `ctest`.
+If you want the library yourself, you will have to build the CMake project. All you need is CMake 3.12 or higher and a C++11 compatible compiler. The tests are written using [Catch](https://github.com/catchorg/Catch2) and can be run with `ctest`.
 
-There is also one thing that you need to look out for, which is the execution character set. This library assumes by default that `char` is UTF-8, and that `wchar_t` is UTF-16 or UTF-32, depending on the size of `wchar_t`.
+## How to include in your project
+Since Lingo is a header only library, all you need to do is copy the header files and add it as an include directory. 
+
+There is one thing that you do need to look out for, which is the execution character set. This library assumes by default that `char` is UTF-8, and that `wchar_t` is UTF-16 or UTF-32, depending on the size of `wchar_t`.
 
 This matches the default settings of GCC and Clang, but not of Visual Studio. If your compiler's execution set does not match the defaults, you have two options:
 
@@ -117,9 +125,9 @@ So for example, if you want to use ISO/IEC 8859-1 for `char`s, you will have to 
 * `-DLINGO_CHAR_PAGE=iso_8859_1`
 
 This method is not recommended.
-Compiler flags are a much more reliable way to set the correct encoding.
+Compiler flags are a much more reliable way to set the correct execution encoding.
 
-## More reading material
+## More documentation
  * [Glossary](doc/glossary.md)
  * [Interfaces](doc/interfaces.md)
  * [TODO](doc/TODO.md) (A very poorly written list of features to come)
