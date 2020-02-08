@@ -5,6 +5,7 @@
 
 #include <cstddef>
 #include <memory>
+#include <cstring>
 #include <type_traits>
 
 namespace lingo
