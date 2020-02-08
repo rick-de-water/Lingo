@@ -33,6 +33,7 @@ list(APPEND TEST_LINGO_MANUAL_SOURCES "page/unicode.cpp")
 list(APPEND TEST_LINGO_MANUAL_SOURCES "utility/pointer_iterator.cpp")
 
 # Strings
+list(APPEND TEST_LINGO_MANUAL_SOURCES "null_terminated_string.cpp")
 list(APPEND TEST_LINGO_MANUAL_SOURCES "string.cpp")
 list(APPEND TEST_LINGO_MANUAL_SOURCES "string_view.cpp")
 list(APPEND TEST_LINGO_MANUAL_SOURCES "string_converter.cpp")

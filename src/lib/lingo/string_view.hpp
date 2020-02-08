@@ -2,6 +2,8 @@
 #define H_LINGO_STRING_VIEW
 
 #include <lingo/platform/constexpr.hpp>
+
+#include <lingo/null_terminated_string.hpp>
 #include <lingo/string_view_storage.hpp>
 #include <lingo/strlen.hpp>
 

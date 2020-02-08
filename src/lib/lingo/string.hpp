@@ -2,6 +2,8 @@
 #define H_LINGO_STRING
 
 #include <lingo/platform/constexpr.hpp>
+
+#include <lingo/null_terminated_string.hpp>
 #include <lingo/string_converter.hpp>
 #include <lingo/string_storage.hpp>
 #include <lingo/string_view.hpp>
@@ -39,12 +41,6 @@
 
 namespace lingo
 {
-	namespace internal
-	{
-		template <typename Encoding>
-		using default_allocator = std::allocator<typename Encoding::unit_type>;
-	}
-
 	template <typename Encoding, typename Page, typename Allocator = internal::default_allocator<Encoding>>
 	class basic_string
 	{

@@ -7,10 +7,17 @@
 #include <lingo/platform/constexpr.hpp>
 
 #include <iterator>
+#include <memory>
 #include <type_traits>
 
 namespace lingo
 {
+	namespace internal
+	{
+		template <typename Encoding>
+		using default_allocator = std::allocator<typename Encoding::unit_type>;
+	}
+
 	namespace utility
 	{
 		template <typename ...>
@@ -99,6 +106,25 @@ namespace lingo
 		LINGO_CONSTEXPR14 bool is_contiguous_iterator_v = is_contiguous_iterator<Iterator>::value;
 		#endif
 		#endif
+
+		template <typename StringObject>
+		struct string_traits
+		{
+			using encoding_type = typename StringObject::encoding_type;
+			using page_type = typename StringObject::page_type;
+
+			using unit_type = typename encoding_type::unit_type;
+			using point_type = typename page_type::point_type;
+		};
+
+		template <typename T>
+		struct string_traits<T*>
+		{
+			using unit_type = typename std::remove_cv<T>::type;
+			using encoding_type = lingo::encoding::execution_encoding_t<unit_type>;
+			using page_type = lingo::page::execution_page_t<unit_type>;
+			using point_type = typename page_type::point_type;
+		};
 	}
 }
 

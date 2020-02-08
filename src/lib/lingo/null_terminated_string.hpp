@@ -1,15 +1,19 @@
 #ifndef H_LINGO_NULL_TERMINATED_STRING
 #define H_LINGO_NULL_TERMINATED_STRING
 
-#include <lingo/string.hpp>
-#include <lingo/string_view.hpp>
-
 #include <lingo/utility/object_builder.hpp>
+#include <lingo/utility/type_traits.hpp>
 
 #include <memory>
 
 namespace lingo
 {
+	template <typename Encoding, typename Page, typename Allocator>
+	class basic_string;
+
+	template <typename Encoding, typename Page>
+	class basic_string_view;
+
 	// Turns a string object into a null terminated string while trying to avoid copying data.
 	// Only meant to be used when using an API that does not have a length parameter. 
 	template <typename Encoding, typename Page, typename Allocator = internal::default_allocator<Encoding>>
@@ -64,12 +68,21 @@ namespace lingo
 				_allocation = std::unique_ptr<unit_type[]>(new unit_type[str.size() + 1]);
 				_data = _allocation.get();
 
-				// TODO: use string_view::copy instead
-				object_builder::copy_construct(_allocation.get(), str.data(), _size);
+				str.copy(_allocation.get(), str.size());
 
 				LINGO_CONSTEXPR11 const unit_type null_terminator = {};
 				object_builder::copy_construct(_allocation.get() + _size, &null_terminator, 1);
 			}
+		}
+
+		const_pointer data() const noexcept
+		{
+			return _data;
+		}
+
+		size_type size() const noexcept
+		{
+			return _size;
 		}
 
 		const_pointer c_str() const noexcept
@@ -77,9 +90,14 @@ namespace lingo
 			return _data;
 		}
 
-		operator string_view() const noexcept
+		string_view view() const noexcept
 		{
 			return string_view(_data, _size, true);
+		}
+
+		operator string_view() const noexcept
+		{
+			return view();
 		}
 
 		private:
@@ -87,6 +105,29 @@ namespace lingo
 		const_pointer _data;
 		size_type _size;
 	};
+
+	namespace internal
+	{
+		template <typename T, typename Allocator>
+		struct string_object_to_null_terminated_string
+		{
+			using type = basic_null_terminated_string<
+				typename utility::string_traits<T>::encoding_type,
+				typename utility::string_traits<T>::page_type,
+				Allocator>;
+		};
+
+		template <typename T, typename Allocator>
+		using string_object_to_null_terminated_string_t = typename string_object_to_null_terminated_string<T, Allocator>::type;
+	}
+
+	template <typename T,
+		typename Allocator = internal::default_allocator<typename utility::string_traits<T>::encoding_type>,
+		typename std::enable_if<std::is_constructible<internal::string_object_to_null_terminated_string_t<T, Allocator>, const T&>::value, int>::type = 0>
+	internal::string_object_to_null_terminated_string_t<T, Allocator> make_null_terminated(const T& string_object)
+	{
+		return internal::string_object_to_null_terminated_string_t<T, Allocator>(string_object);
+	}
 
 	// Fixed page typedefs
 	template <typename Encoding, typename Allocator = internal::default_allocator<Encoding>>
@@ -97,6 +138,10 @@ namespace lingo
 	// Fixed encoding typedefs
 	template <typename Unit, typename Allocator = internal::default_allocator<encoding::utf8<Unit, char32_t>>>
 	using basic_utf8_null_terminated_string = basic_unicode_null_terminated_string<encoding::utf8<Unit, char32_t>, Allocator>;
+	template <typename Unit, typename Allocator = internal::default_allocator<encoding::utf8<Unit, char32_t>>>
+	using basic_utf8_le_null_terminated_string = basic_unicode_null_terminated_string<encoding::utf8_le<Unit, char32_t>, Allocator>;
+	template <typename Unit, typename Allocator = internal::default_allocator<encoding::utf8<Unit, char32_t>>>
+	using basic_utf8_be_null_terminated_string = basic_unicode_null_terminated_string<encoding::utf8_be<Unit, char32_t>, Allocator>;
 
 	template <typename Unit, typename Allocator = internal::default_allocator<encoding::utf8<Unit, char32_t>>>
 	using basic_utf16_null_terminated_string = basic_unicode_null_terminated_string<encoding::utf16<Unit, char32_t>, Allocator>;

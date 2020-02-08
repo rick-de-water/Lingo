@@ -17,7 +17,7 @@
     <Intrinsic Name="data" Expression="_storage.data()" />
     <Intrinsic Name="size" Expression="_storage.size()" />
     <Intrinsic Name="null_terminated" Expression="_storage.null_terminated()" />
-    <DisplayString>{_storage.data(),[_storage.size()]na}</DisplayString>
+    <DisplayString>{data(),[size()]na}</DisplayString>
     <Expand>
       <Item Name="[size]" ExcludeView="simple">size()</Item>
       <Item Name="[null_terminated]" ExcludeView="simple">null_terminated()</Item>
@@ -48,12 +48,28 @@
     <Intrinsic Name="size" Expression="_storage.size()"/>
     <Intrinsic Name="capacity" Expression="_storage.capacity()"/>
     <Intrinsic Name="get_allocator" Expression="_storage.get_allocator()"/>
-    <DisplayString>{data(),na}</DisplayString>
+    <DisplayString>{data(),[size()]na}</DisplayString>
     <StringView>data()</StringView>
     <Expand>
       <Item Name="[size]" ExcludeView="simple">size()</Item>
       <Item Name="[capacity]" ExcludeView="simple">capacity()</Item>
       <Item Name="[allocator]" ExcludeView="simple">get_allocator()</Item>
+      <ArrayItems>
+        <Size>size()</Size>
+        <ValuePointer>data()</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+
+  <Type Name="lingo::basic_null_terminated_string&lt;*,*,*&gt;">
+    <Intrinsic Name="data" Expression="_data"/>
+    <Intrinsic Name="size" Expression="_size"/>
+    <Intrinsic Name="is_copy" Expression="_allocation._Mypair._Myval2 != nullptr"/>
+    <DisplayString>{data(),[size()]na}</DisplayString>
+    <StringView>data()</StringView>
+    <Expand>
+      <Item Name="[size]" ExcludeView="simple">size()</Item>
+      <Item Name="[is_copy]" ExcludeView="simple">is_copy()</Item>
       <ArrayItems>
         <Size>size()</Size>
         <ValuePointer>data()</ValuePointer>
