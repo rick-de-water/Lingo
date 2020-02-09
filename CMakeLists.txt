@@ -14,6 +14,7 @@ set(LINGO_SPEC_DIRECTORY "${CMAKE_SOURCE_DIR}/spec" CACHE PATH "The location of 
 set(LINGO_TEST_CXX_VERSION 11 CACHE STRING "The version of C++ to test with")
 option(LINGO_WARNINGS_AS_ERRORS "Treat warnings as errors" OFF)
 option(LINGO_SANITIZE "Run santizers" OFF)
+option(LINGO_COVERAGE "Use code coverage" OFF)
 
 # Add module paths
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")

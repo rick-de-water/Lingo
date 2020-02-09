@@ -40,7 +40,8 @@ namespace lingo
 			LINGO_CONSTEXPR14 point_iterator() noexcept:
 				_current(nullptr),
 				_end(nullptr),
-				_last(nullptr)
+				_last(nullptr),
+				_state{}
 			{
 			}
 
@@ -48,7 +49,8 @@ namespace lingo
 			point_iterator(const basic_string<encoding_type, Page, Allocator>& str):
 				_current(str.data()),
 				_end(str.data() + str.size()),
-				_last(str.data())
+				_last(str.data()),
+				_state{}
 			{
 				parse_next();
 			}
@@ -57,7 +59,8 @@ namespace lingo
 			LINGO_CONSTEXPR14 point_iterator(basic_string_view<encoding_type, Page> str):
 				_current(str.data()),
 				_end(str.data() + str.size()),
-				_last(str.data())
+				_last(str.data()),
+				_state{}
 			{
 				parse_next();
 			}

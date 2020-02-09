@@ -1,6 +1,12 @@
 # Lingo
 
-![](https://github.com/rick-de-water/lingo/workflows/lingo/badge.svg)
+|        | Github Actions |
+| :----: | :------------: |
+| Master | ![][master]    |
+| Latest | ![][latest]    |
+
+[master]: https://github.com/rick-de-water/lingo/workflows/lingo/badge.svg?branch=master
+[latest]: https://github.com/rick-de-water/lingo/workflows/lingo/badge.svg
 
 Lingo is an encoding aware string library for C++11 and up. It tries to be a drop in replacement for the standard library strings by mirroring its interface as much as possible, while also adding new functionally by utilizing the encoding definitions.
 

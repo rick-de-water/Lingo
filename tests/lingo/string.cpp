@@ -361,7 +361,7 @@ LINGO_UNIT_TEST_CASE("strings can be compared")
 
 	const string_view_type source = lingo::test::test_string<unit_type>::value;
 	const lingo::utility::span<const unit_type> source_span(source.data(), source.size());
-	point_type first_point;
+	point_type first_point = 0;
 	const lingo::utility::span<point_type> destination_span(&first_point, 1);
 	encoding_type::decode_one(source_span, destination_span);
 
