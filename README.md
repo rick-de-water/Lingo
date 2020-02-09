@@ -1,6 +1,6 @@
 # Lingo
 
-||Github Actions|Codecov|Coverals|
+||Github Actions|Codecov|Coveralls|
 |:-:|:-:|:-:|:-:|
 | Master | [![ga-build][ga-master]][ga-master-link] | [![ccov-coverage][ccov-master]][ccov-master-link] | [![cvrl-coverage][cvrl-master]][cvrl-master-link] |
 | Latest | [![ga-build][ga-latest]][ga-latest-link] | [![ccov-coverage][ccov-latest]][ccov-latest-link] | [![cvrl-coverage][cvrl-latest]][cvrl-latest-link]
