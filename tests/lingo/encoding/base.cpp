@@ -157,8 +157,8 @@ namespace
 		REQUIRE(T::table_from_base['8'] == 60);
 		REQUIRE(T::table_from_base['9'] == 61);
 
-		REQUIRE(T::table_from_base[u62] == 62);
-		REQUIRE(T::table_from_base[u63] == 63);
+		REQUIRE(T::table_from_base[static_cast<std::size_t>(u62)] == 62);
+		REQUIRE(T::table_from_base[static_cast<std::size_t>(u63)] == 63);
 	}
 	LINGO_WARNINGS_POP_CLANG
 }
