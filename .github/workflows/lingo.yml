@@ -44,10 +44,15 @@ jobs:
           lcov --remove coverage.info '**/src/lib/catch/**' --output-file coverage.info
           lcov --remove coverage.info '**/tests/**' --output-file coverage.info
           lcov --list coverage.info
-      - name: Upload coverage report
+      - name: Upload coverage report to CodeCov
         uses: codecov/codecov-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           name: Lingo
           file: coverage.info
           fail_ci_if_error: true
+      - name: Upload coverage report to Coveralls
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: coverage.info
