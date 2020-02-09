@@ -1,12 +1,19 @@
 # Lingo
 
-|        | Github Actions |
-| :----: | :------------: |
-| Master | ![][master]    |
-| Latest | ![][latest]    |
+||Github Actions|Codecov|
+|:-:|:-:|:-:|
+| Master | [![ga-build][ga-master]][ga-master-link] | [![ccov-coverage][ccov-master]][ccov-master-link] |
+| Latest | [![ga-build][ga-latest]][ga-latest-link] | [![ccov-coverage][ccov-latest]][ccov-latest-link] |
 
-[master]: https://github.com/rick-de-water/lingo/workflows/lingo/badge.svg?branch=master
-[latest]: https://github.com/rick-de-water/lingo/workflows/lingo/badge.svg
+[ga-master]: https://img.shields.io/github/workflow/status/rick-de-water/Lingo/lingo/master
+[ga-master-link]: https://github.com/rick-de-water/Lingo
+[ga-latest]: https://img.shields.io/github/workflow/status/rick-de-water/Lingo/lingo
+[ga-latest-link]: https://github.com/rick-de-water/Lingo
+
+[ccov-master]: https://img.shields.io/codecov/c/gh/rick-de-water/Lingo/master
+[ccov-master-link]: https://codecov.io/gh/rick-de-water/Lingo/branch/master
+[ccov-latest]: https://img.shields.io/codecov/c/gh/rick-de-water/Lingo
+[ccov-latest-link]: https://codecov.io/gh/rick-de-water/Lingo
 
 Lingo is an encoding aware string library for C++11 and up. It tries to be a drop in replacement for the standard library strings by mirroring its interface as much as possible, while also adding new functionally by utilizing the encoding definitions.
 
