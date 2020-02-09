@@ -27,11 +27,8 @@ jobs:
   coverage:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: codecov/codecov-action@v1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          fail_ci_if_error: true
+      - name: Clone
+        uses: actions/checkout@v2
       - name: Configure
         run: cmake -DCMAKE_BUILD_TYPE=Debug -DLINGO_TEST_CXX_VERSION=17 -DLINGO_COVERAGE=ON
       - name: Build
@@ -42,3 +39,9 @@ jobs:
         run: |
           lcov --directory . --capture --output-file coverage.info
           lcov --list coverage.info
+      - name: Upload coverage report
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: coverage.info
+          fail_ci_if_error: true
