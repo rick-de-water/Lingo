@@ -27,6 +27,8 @@ jobs:
   coverage:
     runs-on: ubuntu-latest
     steps:
+      - name: Install lcov
+        run: sudo apt-get install lcov
       - name: Clone
         uses: actions/checkout@v2
       - name: Configure
