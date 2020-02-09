@@ -15,6 +15,9 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES GCC)
 	if (LINGO_WARNINGS_AS_ERRORS)
 		target_compile_options(test_main PUBLIC -Werror)
 	endif()
+	if (LINGO_CONVERAGE)
+		target_compile_options(test_main PUBLIC -fprofile-arcs -ftest-coverage)
+	endif()
 elseif(CMAKE_CXX_COMPILER_ID MATCHES Clang)
 	target_compile_options(test_main PUBLIC -Wall -Wextra -pedantic
 		-Wno-unknown-warning-option
