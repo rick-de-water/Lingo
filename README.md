@@ -1,5 +1,10 @@
 # Lingo
 
+Lingo is an encoding aware string library for C++11 and up. It aims to be a drop in replacement for the standard library strings by defining new string classes that mirror the standard library as much as possible, while also extending them with new functionality made possible by its encoding and code page aware design.
+
+[![latest-release](https://img.shields.io/github/v/release/rick-de-water/Lingo)](https://github.com/rick-de-water/Lingo/releases)
+
+
 ||Github Actions|Codecov|Coveralls|
 |:-:|:-:|:-:|:-:|
 | Master | [![ga-build][ga-master]][ga-master-link] | [![ccov-coverage][ccov-master]][ccov-master-link] | [![cvrl-coverage][cvrl-master]][cvrl-master-link] |
@@ -20,24 +25,19 @@
 [cvrl-latest]: https://img.shields.io/coveralls/github/rick-de-water/Lingo/master
 [cvrl-latest-link]: https://coveralls.io/github/rick-de-water/Lingo
 
-[![latest-release](https://img.shields.io/github/v/release/rick-de-water/Lingo)](https://github.com/rick-de-water/Lingo/releases)
-
-Lingo is an encoding aware string library for C++11 and up. It tries to be a drop in replacement for the standard library strings by mirroring its interface as much as possible, while also adding new functionally by utilizing the encoding definitions.
-
 # Features
-* Encoding and code page aware `lingo::string` and `lingo::string_view`, almost fully compatible with `std::string` and `std::string_view`.
-* Null terminator aware `lingo::string_view`.
-* `lingo::make_null_terminated` helper function for APIs that only support C strings, which ensures that a string is null terminated with minimal copying.
-* Explicit conversion constructors between `lingo::string`s of different encodings and code pages.
-* Support for endianness conversion.
+* Encoding and code page aware `lingo::string` and `lingo::string_view` classes, almost fully compatible with `std::string` and `std::string_view`.
+* Conversion constructors between `lingo::string`s of different encodings and code pages.
 * `lingo::encoding::*` for low level encoding and decoding of code points.
 * `lingo::page::*` for additional code point information and conversion between different code pages.
 * `lingo::error::*` for different error handling behaviours.
 * `lingo::encoding::point_iterator` and `lingo::page::point_mapper` helpers to manually iterate or convert points individually.
 * `lingo::string_converter` to manually convert entire strings.
+* Null terminator aware `lingo::string_view`.
+* `lingo::make_null_terminated` helper function for APIs that only support C strings, which ensures that a string is null terminated with minimal copying.
 
 # How it works
-The string class from the standard library is defined like this:
+The string class in the C++ the standard library is defined like this:
 ```c++
 namespace std
 {
@@ -46,11 +46,11 @@ namespace std
 }
 ```
 
-All code unit information is stored in a `Traits` type. This works well for ascii strings, but starts to run into issues when dealing with encodings that go beyond ascii.
- * It assumes that every `CharT` is a code point, making it very difficult to work with multibyte/multiunit code points.
- * It generally has no information about the code page used. `char` could be ascii, utf8, iso 8859-7, or anything really. And while the standard is adding `char8_t`, `char16_t` and `char32_t` for unicode, it really only knows that it is a form of UTF, but has no idea how actually encode, decode or transform the data.
+`CharT` is the code point type, and `Traits` contains all operations to work with the code units. This setup works fine for simple ASCII strings, but runs into problems when working with more complicated encodings.
+ * It assumes that every `CharT` is a code point, while in reality most strings use some kind of multibyte encoding. Encodings such as UTF-8 and UTF-16 can be difficult to work with.
+ * It has no information about the code page used. `char` could be ascii, utf8, iso 8859-1, or anything really. And while the standard is adding `char8_t`, `char16_t` and `char32_t` for unicode, it really only knows that it is a form of Unicode, but has no idea how actually encode, decode or transform the data.
 
-To solve this problem, Lingo adds a new string type:
+To solve this problem, Lingo defines a new string type:
 ```c++
 namespace lingo
 {
@@ -85,9 +85,7 @@ using iso_8895_1_string = lingo::basic_string<
     lingo::page::iso_8895_1>;
 ```
 
-You might wonder why there is a `lingo::encoding::utf32` encoding, since there is no difference between UTF-32 and decoded Unicode.
-
-It is indeed possible to use `lingo::encoding::none` instead, and still have a fully functional UTF-32 string. However, `lingo::encoding::utf32` does add some extra validation, such as detecting surrogate code units, making it better at dealing with invalid inputs.
+You may wonder why there is a `lingo::encoding::utf32` encoding, since there is no difference between UTF-32 and decoded Unicode. It is indeed possible to use `lingo::encoding::none` instead, and still have a fully functional UTF-32 string. However, `lingo::encoding::utf32` does add some extra validation, such as detecting surrogate code units, making it better at dealing with invalid inputs.
 
 
 # Currently implemented
@@ -147,7 +145,7 @@ So for example, if you want to use ISO/IEC 8859-1 for `char`s, you will have to 
 This method is not recommended.
 Compiler flags are a much more reliable way to set the correct execution encoding.
 
-## More documentation
+## Other documentation
  * [Glossary](doc/glossary.md)
  * [Interfaces](doc/interfaces.md)
  * [TODO](doc/TODO.md) (A very poorly written list of features to come)
