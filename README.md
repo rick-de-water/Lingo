@@ -2,28 +2,10 @@
 
 Lingo is an encoding aware string library for C++11 and up. It aims to be a drop in replacement for the standard library strings by defining new string classes that mirror the standard library as much as possible, while also extending them with new functionality made possible by its encoding and code page aware design.
 
-[![latest-release](https://img.shields.io/github/v/release/rick-de-water/Lingo)](https://github.com/rick-de-water/Lingo/releases)
-
-
-||Github Actions|Codecov|Coveralls|
-|:-:|:-:|:-:|:-:|
-| Master | [![ga-build][ga-master]][ga-master-link] | [![ccov-coverage][ccov-master]][ccov-master-link] | [![cvrl-coverage][cvrl-master]][cvrl-master-link] |
-| Latest | [![ga-build][ga-latest]][ga-latest-link] | [![ccov-coverage][ccov-latest]][ccov-latest-link] | [![cvrl-coverage][cvrl-latest]][cvrl-latest-link]
-
-[ga-master]: https://img.shields.io/github/workflow/status/rick-de-water/Lingo/lingo/master
-[ga-master-link]: https://github.com/rick-de-water/Lingo
-[ga-latest]: https://img.shields.io/github/workflow/status/rick-de-water/Lingo/lingo
-[ga-latest-link]: https://github.com/rick-de-water/Lingo
-
-[ccov-master]: https://img.shields.io/codecov/c/gh/rick-de-water/Lingo/master
-[ccov-master-link]: https://codecov.io/gh/rick-de-water/Lingo/branch/master
-[ccov-latest]: https://img.shields.io/codecov/c/gh/rick-de-water/Lingo
-[ccov-latest-link]: https://codecov.io/gh/rick-de-water/Lingo
-
-[cvrl-master]: https://img.shields.io/coveralls/github/rick-de-water/Lingo
-[cvrl-master-link]: https://coveralls.io/github/rick-de-water/Lingo
-[cvrl-latest]: https://img.shields.io/coveralls/github/rick-de-water/Lingo/master
-[cvrl-latest-link]: https://coveralls.io/github/rick-de-water/Lingo
+||Github Actions|Codecov|Coveralls|Releases|
+|:-:|:-:|:-:|:-:|:-:|
+| Master | [![ga-build][ga-master]][ga-master-link] | [![ccov-coverage][ccov-master]][ccov-master-link] | [![cvrl-coverage][cvrl-master]][cvrl-master-link] | [![release][release-latest]][release-latest-link] |
+| Latest | [![ga-build][ga-latest]][ga-latest-link] | [![ccov-coverage][ccov-latest]][ccov-latest-link] | [![cvrl-coverage][cvrl-latest]][cvrl-latest-link] | |
 
 # Features
 * Encoding and code page aware `lingo::string` and `lingo::string_view` classes, almost fully compatible with `std::string` and `std::string_view`.
@@ -149,3 +131,21 @@ Compiler flags are a much more reliable way to set the correct execution encodin
  * [Glossary](doc/glossary.md)
  * [Interfaces](doc/interfaces.md)
  * [TODO](doc/TODO.md) (A very poorly written list of features to come)
+
+[release-latest]: https://img.shields.io/github/v/release/rick-de-water/Lingo
+[release-latest-link]: https://github.com/rick-de-water/Lingo/releases
+
+[ga-master]: https://img.shields.io/github/workflow/status/rick-de-water/Lingo/lingo/master
+[ga-master-link]: https://github.com/rick-de-water/Lingo
+[ga-latest]: https://img.shields.io/github/workflow/status/rick-de-water/Lingo/lingo
+[ga-latest-link]: https://github.com/rick-de-water/Lingo
+
+[ccov-master]: https://img.shields.io/codecov/c/gh/rick-de-water/Lingo/master
+[ccov-master-link]: https://codecov.io/gh/rick-de-water/Lingo/branch/master
+[ccov-latest]: https://img.shields.io/codecov/c/gh/rick-de-water/Lingo
+[ccov-latest-link]: https://codecov.io/gh/rick-de-water/Lingo
+
+[cvrl-master]: https://img.shields.io/coveralls/github/rick-de-water/Lingo
+[cvrl-master-link]: https://coveralls.io/github/rick-de-water/Lingo
+[cvrl-latest]: https://img.shields.io/coveralls/github/rick-de-water/Lingo/master
+[cvrl-latest-link]: https://coveralls.io/github/rick-de-water/Lingo
