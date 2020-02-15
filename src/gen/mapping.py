@@ -30,6 +30,10 @@ namespace lingo
 
                 static constexpr const point_type* major_table[{8}] {{ {9} }};
             }};
+
+			template <typename Point> constexpr Point {1}<Point>::minor_table_empty[256];
+			{10}
+			template <typename Point> constexpr const Point* {1}<Point>::major_table[{8}];
         }}
     }}
 }}
@@ -85,14 +89,20 @@ def generate_header(mappings: typing.List[Mapping], output: typing.TextIO, name:
         if minor_tables[minor_table_index] is minor_table_empty:
             minor_tables[minor_table_index] = minor_table_empty.copy()
         minor_tables[minor_table_index][mapping.source - minor_table_index * 256] = mapping.destination
+
+    point_end_index += 1
+    minor_table_end_index += 1
+
         
     minor_table_string = ""
+    minor_table_definition_string = ""
     major_table_list = []
     for i in range(0, len(minor_tables)):
         if minor_tables[i] is minor_table_empty:
             major_table_list.append("minor_table_empty")
         else:
             minor_table_string += "static constexpr point_type minor_table_{}[256] = {{ {} }};\n\t\t\t\t".format(i, ", ".join(("0x{:X}".format(x) for x in minor_tables[i])))
+            minor_table_definition_string += "template <typename Point> constexpr Point {}<Point>::minor_table_{}[256];\n\t\t\t".format(name, i)
             major_table_list.append("minor_table_{}".format(i))
 
     output.write(header_format.format(
@@ -104,8 +114,9 @@ def generate_header(mappings: typing.List[Mapping], output: typing.TextIO, name:
         point_end_index,
         minor_table_start_index,
         minor_table_end_index,
-        minor_table_end_index - minor_table_start_index + 1,
-        ", ".join(major_table_list)
+        minor_table_end_index - minor_table_start_index,
+        ", ".join(major_table_list),
+        minor_table_definition_string
     ))
 
 def main(argv) -> None:
