@@ -1,0 +1,41 @@
+find_package(Python3 REQUIRED)
+
+set(LINGO_SPEC_UNICODE_DIRECTORY "${LINGO_SPEC_DIRECTORY}/unicode")
+set(LINGO_SPEC_UNICODE_MAPPING_DIRECTORY "${LINGO_SPEC_UNICODE_DIRECTORY}/MAPPINGS")
+set(LINGO_SPEC_UNICODE_MAPPING_ISO8859_DIRECTORY "${LINGO_SPEC_UNICODE_MAPPING_DIRECTORY}/ISO8859")
+
+set(LINGO_LINGO_DIR "${CMAKE_CURRENT_BINARY_DIR}/../lib/lingo")
+set(LINGO_GEN_PAGE_OUTPUT_DIR "${LINGO_LINGO_DIR}/page/internal")
+set(LINGO_GEN_ENCODING_OUTPUT_DIR "${LINGO_LINGO_DIR}/encoding/internal")
+
+set(LINGO_GENERATED_HEADERS)
+
+foreach(ISO_8859_PART RANGE 1 16)
+    if (NOT ISO_8859_PART EQUAL 12)
+        set(MAPPING_FILE "${LINGO_SPEC_UNICODE_MAPPING_ISO8859_DIRECTORY}/8859-${ISO_8859_PART}.TXT")
+        set(PART_NAME "iso_8859_${ISO_8859_PART}")
+
+		add_custom_command(
+			OUTPUT
+				"${LINGO_GEN_PAGE_OUTPUT_DIR}/${PART_NAME}_unicode_mapping.hpp"
+				"${LINGO_GEN_PAGE_OUTPUT_DIR}/unicode_${PART_NAME}_mapping.hpp"
+			COMMAND
+				"${Python3_EXECUTABLE}"
+				"${CMAKE_CURRENT_SOURCE_DIR}/mapping.py"
+				"${MAPPING_FILE}"
+				"${LINGO_GEN_PAGE_OUTPUT_DIR}/"
+				"${PART_NAME}_unicode_mapping"
+				"unicode_${PART_NAME}_mapping"
+			DEPENDS
+				"${CMAKE_CURRENT_SOURCE_DIR}/mapping.py"
+			COMMENT
+				"Generating ISO/IEC 8859-${ISO_8859_PART} mappings..."
+		)
+
+		list(APPEND LINGO_GENERATED_HEADERS "${LINGO_GEN_PAGE_OUTPUT_DIR}/${PART_NAME}_unicode_mapping.hpp")
+		list(APPEND LINGO_GENERATED_HEADERS "${LINGO_GEN_PAGE_OUTPUT_DIR}/unicode_${PART_NAME}_mapping.hpp")
+	endif()
+endforeach()
+
+add_custom_target(lingo_gen ALL DEPENDS "${LINGO_GENERATED_HEADERS}")
+set_target_properties(lingo_gen PROPERTIES FOLDER Libraries)

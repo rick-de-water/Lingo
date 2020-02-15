@@ -98,7 +98,7 @@ You may wonder why there is a `lingo::encoding::utf32` encoding, since there is 
 
 Lingo is a header only library, but some of the header files do have to be generated first. You can check the latest releases for a package that has all headers generated for you.
 
-If you want the library yourself, you will have to build the CMake project. All you need is CMake 3.12 or higher and a C++11 compatible compiler. The tests are written using [Catch](https://github.com/catchorg/Catch2) and can be run with `ctest`.
+If you want the library yourself, you will have to build the CMake project. All you need is CMake 3.12 or higher, Python 3 (for the code gen) and a C++11 compatible compiler. The tests are written using [Catch](https://github.com/catchorg/Catch2) and can be run with `ctest`.
 
 ## How to include in your project
 Since Lingo is a header only library, all you need to do is copy the header files and add it as an include directory. 
