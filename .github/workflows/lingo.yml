@@ -9,13 +9,11 @@ jobs:
         os: [windows-latest, macos-latest, ubuntu-latest]
         cxx-version: [11, 14, 17, 20]
         config: [Debug, Release]
+        exclude:
+          - os: ubuntu-latest
+            cxx-version: 20
     runs-on: ${{ matrix.os }}
     steps:
-      - name: Setup cmake
-        uses: jwlawson/actions-setup-cmake@v1.0
-        with:
-          cmake-version: '3.16.x'
-          github-api-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Clone
         uses: actions/checkout@v2
         with:
@@ -34,17 +32,12 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
     steps:
-      - name: Setup cmake
-        uses: jwlawson/actions-setup-cmake@v1.0
-        with:
-          cmake-version: '3.16.x'
-          github-api-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Install lcov
         run: sudo apt-get install lcov
       - name: Clone
         uses: actions/checkout@v2
       - name: Configure
-        run: cmake -DCMAKE_BUILD_TYPE=Debug -DLINGO_TEST_CXX_VERSION=20 -DLINGO_COVERAGE=ON
+        run: cmake -DCMAKE_BUILD_TYPE=Debug -DLINGO_TEST_CXX_VERSION=17 -DLINGO_COVERAGE=ON
       - name: Build
         run: cmake --build . --config DEBUG
       - name: Test
