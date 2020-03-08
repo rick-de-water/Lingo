@@ -37,8 +37,9 @@ namespace lingo
 
 		#ifdef __cpp_variable_templates
 		template <typename Encoding>
-		LINGO_CONSTEXPR14 bool is_execution_encoding_v = is_execution_encoding<Encoding>::value;
+		LINGO_CONSTEXPR14 const bool is_execution_encoding_v = is_execution_encoding<Encoding>::value;
 		#endif
+
 
 		template <typename Encoding, typename Page, typename = void>
 		struct is_execution_set : std::false_type
@@ -53,10 +54,45 @@ namespace lingo
 		{
 		};
 
+		#ifdef __cpp_variable_templates
+		template <typename Encoding, typename Page>
+		LINGO_CONSTEXPR14 const bool is_execution_set_v = is_execution_set<Encoding, Page>::value;
+		#endif
+
+
+		template <typename Encoding1, typename Encoding2>
+		struct is_same_encoding : std::false_type
+		{
+		};
+
+		template <template <typename...> class Encoding, typename... Ts1, typename... Ts2>
+		struct is_same_encoding<Encoding<Ts1...>, Encoding<Ts2...>> : std::true_type
+		{
+		};
+
+		#ifdef __cpp_variable_templates
+		template <typename Encoding1, typename Encoding2>
+		LINGO_CONSTEXPR14 const bool is_same_encoding_v = is_same_encoding<Encoding1, Encoding2>::value;
+		#endif
+
+		template <typename Encoding, typename Page, typename = void>
+		struct is_char_compatible : std::false_type
+		{
+		};
+
+		template <typename Encoding, typename Page>
+		struct is_char_compatible<Encoding, Page,
+			typename std::enable_if<
+				!std::is_same<typename Encoding::unit_type, char>::value &&
+				(sizeof(typename Encoding::unit_type) == sizeof(char)) &&
+				utility::is_same_encoding<Encoding, typename encoding::execution_encoding<char>::type>::value &&
+				std::is_same<Page, typename page::execution_page<char>::type>::value>::type> : std::true_type
+		{
+		};
 
 		#ifdef __cpp_variable_templates
 		template <typename Encoding, typename Page>
-		LINGO_CONSTEXPR14 bool is_execution_set_v = is_execution_set<Encoding, Page>::value;
+		LINGO_CONSTEXPR14 const bool is_char_compatible_v = is_char_compatible<Encoding, Page>::value;
 		#endif
 
 		template <typename Iterator, typename Catagory, typename = void>
@@ -72,8 +108,9 @@ namespace lingo
 
 		#ifdef __cpp_variable_templates
 		template <typename Iterator, typename Catagory>
-		LINGO_CONSTEXPR14 bool is_catagory_iterator_v = is_catagory_iterator<Iterator, Catagory>::value;
+		LINGO_CONSTEXPR14 const bool is_catagory_iterator_v = is_catagory_iterator<Iterator, Catagory>::value;
 		#endif
+
 
 		template <typename Iterator>
 		using is_input_iterator = is_catagory_iterator<Iterator, std::input_iterator_tag>;

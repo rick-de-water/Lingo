@@ -7,11 +7,15 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
-        cxx-version: [11, 14, 17]
+        cxx-version: [11, 14, 17, 20]
         config: [Debug, Release]
+        exclude:
+          - os: ubuntu-latest
+            cxx-version: 20
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
+      - name: Clone
+        uses: actions/checkout@v2
         with:
           path: "source"
       - run: mkdir build

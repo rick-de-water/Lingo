@@ -15,7 +15,7 @@ namespace lingo
 	class basic_string_view;
 
 	// Turns a string object into a null terminated string while trying to avoid copying data.
-	// Only meant to be used when using an API that does not have a length parameter. 
+	// Only meant to be used when calling an API that does not have a length parameter. 
 	template <typename Encoding, typename Page, typename Allocator = internal::default_allocator<Encoding>>
 	class basic_null_terminated_string
 	{
@@ -55,7 +55,7 @@ namespace lingo
 		{
 		}
 
-		basic_null_terminated_string(string_view str) noexcept
+		basic_null_terminated_string(string_view str)
 		{
 			_size = str.size();
 
