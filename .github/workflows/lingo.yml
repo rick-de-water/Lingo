@@ -36,7 +36,14 @@ jobs:
       CXX: /usr/bin/g++-9
     steps:
       - name: Install lcov
-        run: sudo apt-get install lcov
+        run: |
+          VERSION="1.14"
+          mkdir Iconv
+          cd Iconv
+          wget "https://github.com/linux-test-project/lcov/releases/download/v$VERSION/lcov-$VERSION.tar.gz"
+          tar -xzf "lcov-$VERSION.tar.gz"
+          cd "lcov-$VERSION"
+          sudo make install
       - name: Clone
         uses: actions/checkout@v2
       - name: Configure
