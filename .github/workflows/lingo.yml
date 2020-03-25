@@ -2,35 +2,35 @@ name: lingo
 on: [push, pull_request]
 
 jobs:
-  test:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
-        cxx-version: [11, 14, 17, 20]
-        config: [Debug, Release]
-        exclude:
-          - os: ubuntu-latest
-            cxx-version: 20
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Clone
-        uses: actions/checkout@v2
-        with:
-          path: "source"
-      - run: mkdir build
-      - name: Configure
-        working-directory: ./build
-        run: cmake -DCMAKE_BUILD_TYPE=${{ matrix.config }} -DLINGO_TEST_CXX_VERSION=${{ matrix.cxx-version }} -DLINGO_WARNINGS_AS_ERRORS=ON -DLINGO_SANITIZE=ON ../source
-      - name: Build
-        working-directory: ./build
-        run: cmake --build . --config ${{ matrix.config }}
-      - name: Test
-        working-directory: ./build
-        run: ctest --build-config ${{ matrix.config }}
+#  test:
+#    strategy:
+#      fail-fast: false
+#      matrix:
+#        os: [windows-latest, macos-latest, ubuntu-latest]
+#        cxx-version: [11, 14, 17, 20]
+#        config: [Debug, Release]
+#        exclude:
+#          - os: ubuntu-latest
+#            cxx-version: 20
+#    runs-on: ${{ matrix.os }}
+#    steps:
+#      - name: Clone
+#        uses: actions/checkout@v2
+#        with:
+#          path: "source"
+#      - run: mkdir build
+#      - name: Configure
+#        working-directory: ./build
+#        run: cmake -DCMAKE_BUILD_TYPE=${{ matrix.config }} -DLINGO_TEST_CXX_VERSION=${{ matrix.cxx-version }} -DLINGO_WARNINGS_AS_ERRORS=ON -DLINGO_SANITIZE=ON ../source
+#      - name: Build
+#        working-directory: ./build
+#        run: cmake --build . --config ${{ matrix.config }}
+#      - name: Test
+#        working-directory: ./build
+#        run: ctest --build-config ${{ matrix.config }}
   coverage:
     runs-on: ubuntu-latest
-    needs: test
+    #needs: test
     env:
       CC: /usr/bin/gcc-9
       CXX: /usr/bin/g++-9
@@ -44,6 +44,8 @@ jobs:
           tar -xzf "lcov-$VERSION.tar.gz"
           cd "lcov-$VERSION"
           sudo make install
+      - name: lcov version
+        run: lcov --version
       - name: Clone
         uses: actions/checkout@v2
       - name: Configure
