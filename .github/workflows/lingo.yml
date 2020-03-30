@@ -37,15 +37,11 @@ jobs:
     steps:
       - name: Install lcov
         run: |
-          VERSION="1.14"
-          mkdir Iconv
-          cd Iconv
-          wget "https://github.com/linux-test-project/lcov/releases/download/v$VERSION/lcov-$VERSION.tar.gz"
-          tar -xzf "lcov-$VERSION.tar.gz"
-          cd "lcov-$VERSION"
+          wget "https://github.com/linux-test-project/lcov/archive/master.zip"
+          unzip "master.zip"
+          cd "lcov-master"
           sudo make install
-      - name: lcov version
-        run: lcov --version
+          lcov --version
       - name: Clone
         uses: actions/checkout@v2
       - name: Configure
