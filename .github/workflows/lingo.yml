@@ -69,3 +69,25 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path-to-lcov: coverage.info
+  artifacts:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Clone
+        uses: actions/checkout@v2
+      - name: Build
+        run: |
+          mkdir -p build
+          cd build
+          cmake ..
+          cmake --build . --target install
+      - name: Store multiple headers artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: multiple-headers
+          path: install
+      - name: Store single header artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: single-header
+          path: build/src/lib/lingo/lingo.hpp
