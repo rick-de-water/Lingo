@@ -3,7 +3,7 @@
 
 #include <lingo/encoding/execution.hpp>
 #include <lingo/page/execution.hpp>
-
+#include <lingo/page/unicode.hpp>
 #include <lingo/platform/constexpr.hpp>
 
 #include <iterator>
@@ -58,7 +58,6 @@ namespace lingo
 		template <typename Encoding, typename Page>
 		LINGO_CONSTEXPR14 const bool is_execution_set_v = is_execution_set<Encoding, Page>::value;
 		#endif
-
 
 		template <typename Encoding1, typename Encoding2>
 		struct is_same_encoding : std::false_type

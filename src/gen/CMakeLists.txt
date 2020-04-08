@@ -4,6 +4,13 @@ set(LINGO_SPEC_UNICODE_DIRECTORY "${LINGO_SPEC_DIRECTORY}/unicode")
 set(LINGO_SPEC_UNICODE_MAPPING_DIRECTORY "${LINGO_SPEC_UNICODE_DIRECTORY}/MAPPINGS")
 set(LINGO_SPEC_UNICODE_MAPPING_ISO8859_DIRECTORY "${LINGO_SPEC_UNICODE_MAPPING_DIRECTORY}/ISO8859")
 
+file(GLOB LINGO_SPEC_UNICODE_VERSIONS RELATIVE "${LINGO_SPEC_UNICODE_DIRECTORY}" "${LINGO_SPEC_UNICODE_DIRECTORY}/*")
+list(FILTER LINGO_SPEC_UNICODE_VERSIONS INCLUDE REGEX "[0-9]+\\.[0-9]+")
+
+
+set(LINGO_GEN_UNICODE_MAPPING_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/unicode_mapping.py")
+set(LINGO_GEN_UNICODE_DATA_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/unicode_data.py")
+
 set(LINGO_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/../lib/lingo")
 set(LINGO_GEN_PAGE_OUTPUT_DIR "${LINGO_OUTPUT_DIR}/page/internal")
 set(LINGO_GEN_ENCODING_OUTPUT_DIR "${LINGO_OUTPUT_DIR}/encoding/internal")
@@ -13,7 +20,7 @@ file(MAKE_DIRECTORY "${LINGO_GEN_ENCODING_OUTPUT_DIR}")
 
 set(LINGO_GENERATED_HEADERS)
 
-# ISO/IEC 8859
+# Generate ISO/IEC 8859 to unicode mapping headers
 foreach(ISO_8859_PART RANGE 1 16)
     if (NOT ISO_8859_PART EQUAL 12)
         set(MAPPING_FILE "${LINGO_SPEC_UNICODE_MAPPING_ISO8859_DIRECTORY}/8859-${ISO_8859_PART}.TXT")
@@ -25,15 +32,15 @@ foreach(ISO_8859_PART RANGE 1 16)
 				"${LINGO_GEN_PAGE_OUTPUT_DIR}/unicode_${PART_NAME}_mapping.hpp"
 			COMMAND
 				"${Python3_EXECUTABLE}"
-				"${CMAKE_CURRENT_SOURCE_DIR}/mapping.py"
+				"${LINGO_GEN_UNICODE_MAPPING_SCRIPT}"
 				"${MAPPING_FILE}"
 				"${LINGO_GEN_PAGE_OUTPUT_DIR}/"
 				"${PART_NAME}_unicode_mapping"
 				"unicode_${PART_NAME}_mapping"
 			DEPENDS
-				"${CMAKE_CURRENT_SOURCE_DIR}/mapping.py"
+				"${LINGO_GEN_UNICODE_MAPPING_SCRIPT}"
 			COMMENT
-				"Generating ISO/IEC 8859-${ISO_8859_PART} mappings..."
+				"Generating ISO/IEC 8859-${ISO_8859_PART} mapping headers..."
 		)
 
 		list(APPEND LINGO_GENERATED_HEADERS "${LINGO_GEN_PAGE_OUTPUT_DIR}/${PART_NAME}_unicode_mapping.hpp")
@@ -41,7 +48,31 @@ foreach(ISO_8859_PART RANGE 1 16)
 	endif()
 endforeach()
 
-# Single header
+# Generate unicode property headers
+foreach(UNICODE_VERSION ${LINGO_SPEC_UNICODE_VERSIONS})
+	set(UNICODE_DATA_FILENAME "${LINGO_SPEC_UNICODE_DIRECTORY}/${UNICODE_VERSION}/UnicodeData.txt")
+	set(OUTPUT_FILENAME "${LINGO_GEN_PAGE_OUTPUT_DIR}/unicode_data_${UNICODE_VERSION}.hpp")
+	string(REGEX REPLACE "([0-9]+)\\.([0-9]+)\\.hpp" "\\1_\\2.hpp" OUTPUT_FILENAME "${OUTPUT_FILENAME}")
+
+	add_custom_command(
+		OUTPUT
+			"${OUTPUT_FILENAME}"
+		COMMAND
+			"${Python3_EXECUTABLE}"
+			"${LINGO_GEN_UNICODE_DATA_SCRIPT}"
+			"${UNICODE_DATA_FILENAME}"
+			"${OUTPUT_FILENAME}"
+			"${UNICODE_VERSION}"
+		DEPENDS
+			"${LINGO_GEN_UNICODE_DATA_SCRIPT}"
+		COMMENT
+			"Generating Unicode ${UNICODE_VERSION} data headers..."
+	)
+	
+	list(APPEND LINGO_GENERATED_HEADERS "${OUTPUT_FILENAME}")
+endforeach()
+
+# Generate a single header file that contains all of lingo
 add_custom_command(
 	OUTPUT
 		"${LINGO_OUTPUT_DIR}/lingo.hpp"
@@ -58,5 +89,6 @@ add_custom_command(
 		
 list(APPEND LINGO_GENERATED_HEADERS "${LINGO_OUTPUT_DIR}/lingo.hpp")
 
+# Create a custom target that depends on all the generated files
 add_custom_target(lingo_gen ALL DEPENDS "${LINGO_GENERATED_HEADERS}")
-set_target_properties(lingo_gen PROPERTIES FOLDER Libraries)
+set_target_properties(lingo_gen PROPERTIES FOLDER Libraries LINGO_GENERATED_HEADERS "${LINGO_GENERATED_HEADERS}")

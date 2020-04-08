@@ -53,7 +53,10 @@ list(APPEND LINGO_MANUAL_HEADERS "encoding/internal/bit_converter.hpp")
 # Code pages
 list(APPEND LINGO_MANUAL_HEADERS "page/ascii.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "page/iso_8859.hpp")
+
 list(APPEND LINGO_MANUAL_HEADERS "page/unicode.hpp")
+list(APPEND LINGO_MANUAL_HEADERS "page/unicode_general_catagory.hpp")
+list(APPEND LINGO_MANUAL_HEADERS "page/unicode_version.hpp")
 
 list(APPEND LINGO_MANUAL_HEADERS "page/execution.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "page/intermediate.hpp")
@@ -82,6 +85,11 @@ list(APPEND LINGO_MANUAL_HEADERS "string.hpp" "string_storage.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "string_view.hpp" "string_view_storage.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "string_converter.hpp" "conversion_result.hpp")
 
+# Get the generated headers
+get_target_property(LINGO_GENERATED_HEADERS lingo_gen LINGO_GENERATED_HEADERS)
+foreach(LINGO_GENERATED_HEADER ${LINGO_GENERATED_HEADERS})
+	set_property(SOURCE "${LINGO_GENERATED_HEADER}" PROPERTY GENERATED 1)
+endforeach()
 
 set(LINGO_HEADERS ${LINGO_MANUAL_HEADERS} ${LINGO_GENERATED_HEADERS})
 

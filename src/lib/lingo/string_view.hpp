@@ -867,7 +867,7 @@ namespace lingo
 	template <typename Encoding>
 	using basic_ascii_string_view = basic_string_view<Encoding, page::ascii>;
 	template <typename Encoding>
-	using basic_unicode_string_view = basic_string_view<Encoding, page::unicode>;
+	using basic_unicode_string_view = basic_string_view<Encoding, page::unicode_default>;
 
 	// Fixed encoding typedefs
 	template <typename Unit>

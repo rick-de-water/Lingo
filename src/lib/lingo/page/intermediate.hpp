@@ -11,7 +11,7 @@ namespace lingo
 		template <typename SourcePage, typename DestinationPage, typename Enable = void>
 		struct intermediate
 		{
-			using type = unicode;
+			using type = unicode_default;
 		};
 
 		template <typename SourcePage, typename DestinationPage>

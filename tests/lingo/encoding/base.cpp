@@ -171,10 +171,10 @@ TEST_CASE("base64 uses the correct tables")
 
 TEST_CASE("strings can be encoded and decoded into base64")
 {
-	using base64_utf8_string_type = lingo::basic_string<lingo::encoding::join<lingo::encoding::base64<char, char>, lingo::encoding::utf8<char, char32_t>>, lingo::page::unicode>;
-	using base64_utf8_string_view_type = lingo::basic_string_view<lingo::encoding::join<lingo::encoding::base64<char, char>, lingo::encoding::utf8<char, char32_t>>, lingo::page::unicode>;
-	using base64_utf16_string_type = lingo::basic_string<lingo::encoding::join<lingo::encoding::base64<char, char16_t>, lingo::encoding::utf16<char16_t, char32_t>>, lingo::page::unicode>;
-	using base64_utf16_string_view_type = lingo::basic_string_view<lingo::encoding::join<lingo::encoding::base64<char, char16_t>, lingo::encoding::utf16<char16_t, char32_t>>, lingo::page::unicode>;
+	using base64_utf8_string_type = lingo::basic_string<lingo::encoding::join<lingo::encoding::base64<char, char>, lingo::encoding::utf8<char, char32_t>>, lingo::page::unicode_default>;
+	using base64_utf8_string_view_type = lingo::basic_string_view<lingo::encoding::join<lingo::encoding::base64<char, char>, lingo::encoding::utf8<char, char32_t>>, lingo::page::unicode_default>;
+	using base64_utf16_string_type = lingo::basic_string<lingo::encoding::join<lingo::encoding::base64<char, char16_t>, lingo::encoding::utf16<char16_t, char32_t>>, lingo::page::unicode_default>;
+	using base64_utf16_string_view_type = lingo::basic_string_view<lingo::encoding::join<lingo::encoding::base64<char, char16_t>, lingo::encoding::utf16<char16_t, char32_t>>, lingo::page::unicode_default>;
 
 	using utf8_string_type = lingo::utf8_string;
 	using utf16_string_type = lingo::utf16_string;

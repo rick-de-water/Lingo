@@ -79,7 +79,7 @@ TEMPLATE_LIST_TEST_CASE("iso_8859 types are correctly defined", "", test_pages)
 TEMPLATE_LIST_TEST_CASE("iso_8859 can be mapped to and from unicode", "", test_pages)
 {
 	using iso_page_type = TestType;
-	using unicode_page_type = lingo::page::unicode;
+	using unicode_page_type = lingo::page::unicode_default;
 
 	using iso_point_type = typename iso_page_type::point_type;
 	using unicode_point_type = typename unicode_page_type::point_type;

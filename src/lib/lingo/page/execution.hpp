@@ -12,7 +12,7 @@ namespace lingo
 		template <typename Unit>
 		struct execution_page
 		{
-			using type = unicode;
+			using type = unicode_default;
 		};
 
 		#ifdef LINGO_CHAR_PAGE

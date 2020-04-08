@@ -1445,7 +1445,7 @@ namespace lingo
 	template <typename Encoding, typename Allocator = internal::default_allocator<Encoding>>
 	using basic_ascii_string = basic_string<Encoding, page::ascii, Allocator>;
 	template <typename Encoding, typename Allocator = internal::default_allocator<Encoding>>
-	using basic_unicode_string = basic_string<Encoding, page::unicode, Allocator>;
+	using basic_unicode_string = basic_string<Encoding, page::unicode_default, Allocator>;
 
 	// Fixed encoding typedefs
 	template <typename Unit, typename Allocator = internal::default_allocator<encoding::utf8<Unit, char32_t>>>

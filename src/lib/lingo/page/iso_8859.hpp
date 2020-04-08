@@ -3,6 +3,7 @@
 
 #include <lingo/platform/constexpr.hpp>
 #include <lingo/page/unicode.hpp>
+#include <lingo/utility/type_traits.hpp>
 
 #include <lingo/page/internal/iso_8859_1_unicode_mapping.hpp>
 #include <lingo/page/internal/iso_8859_2_unicode_mapping.hpp>
@@ -63,7 +64,7 @@ namespace lingo
 				template <typename DestinationPage>
 				static LINGO_CONSTEXPR14 auto map_to(point_type point) noexcept ->
 					typename std::enable_if<
-					std::is_same<DestinationPage, unicode>::value,
+					utility::is_unicode<DestinationPage>::value,
 					map_result<typename DestinationPage::point_type>>::type
 				{
 					const to_unicode_point_type mapped_point = map<to_unicode_mapping_type>(static_cast<to_unicode_point_type>(point));
@@ -80,7 +81,7 @@ namespace lingo
 				template <typename SourcePage>
 				static LINGO_CONSTEXPR14 auto map_from(typename SourcePage::point_type point) noexcept ->
 					typename std::enable_if<
-						std::is_same<SourcePage, unicode>::value,
+						utility::is_unicode<SourcePage>::value,
 						map_result<point_type>>::type
 				{
 					const from_unicode_point_type mapped_point = map<from_unicode_mapping_type>(static_cast<from_unicode_point_type>(point));
@@ -125,120 +126,120 @@ namespace lingo
 
 		template <typename _>
 		struct iso_8859<1, _> : public internal::iso_8859_impl<
-			internal::iso_8859_1_unicode_mapping<unicode::point_type>,
-			internal::unicode_iso_8859_1_mapping<unicode::point_type>>
+			internal::iso_8859_1_unicode_mapping<unicode_default::point_type>,
+			internal::unicode_iso_8859_1_mapping<unicode_default::point_type>>
 		{
 			static LINGO_CONSTEXPR11 std::size_t part_index = 1;
 		};
 
 		template <typename _>
 		struct iso_8859<2, _> : public internal::iso_8859_impl<
-			internal::iso_8859_2_unicode_mapping<unicode::point_type>,
-			internal::unicode_iso_8859_2_mapping<unicode::point_type>>
+			internal::iso_8859_2_unicode_mapping<unicode_default::point_type>,
+			internal::unicode_iso_8859_2_mapping<unicode_default::point_type>>
 		{
 			static LINGO_CONSTEXPR11 std::size_t part_index = 2;
 		};
 
 		template <typename _>
 		struct iso_8859<3, _> : public internal::iso_8859_impl<
-			internal::iso_8859_3_unicode_mapping<unicode::point_type>,
-			internal::unicode_iso_8859_3_mapping<unicode::point_type>>
+			internal::iso_8859_3_unicode_mapping<unicode_default::point_type>,
+			internal::unicode_iso_8859_3_mapping<unicode_default::point_type>>
 		{
 			static LINGO_CONSTEXPR11 std::size_t part_index = 3;
 		};
 
 		template <typename _>
 		struct iso_8859<4, _> : public internal::iso_8859_impl<
-			internal::iso_8859_4_unicode_mapping<unicode::point_type>,
-			internal::unicode_iso_8859_4_mapping<unicode::point_type>>
+			internal::iso_8859_4_unicode_mapping<unicode_default::point_type>,
+			internal::unicode_iso_8859_4_mapping<unicode_default::point_type>>
 		{
 			static LINGO_CONSTEXPR11 std::size_t part_index = 4;
 		};
 
 		template <typename _>
 		struct iso_8859<5, _> : public internal::iso_8859_impl<
-			internal::iso_8859_5_unicode_mapping<unicode::point_type>,
-			internal::unicode_iso_8859_5_mapping<unicode::point_type>>
+			internal::iso_8859_5_unicode_mapping<unicode_default::point_type>,
+			internal::unicode_iso_8859_5_mapping<unicode_default::point_type>>
 		{
 			static LINGO_CONSTEXPR11 std::size_t part_index = 5;
 		};
 
 		template <typename _>
 		struct iso_8859<6, _> : public internal::iso_8859_impl<
-			internal::iso_8859_6_unicode_mapping<unicode::point_type>,
-			internal::unicode_iso_8859_6_mapping<unicode::point_type>>
+			internal::iso_8859_6_unicode_mapping<unicode_default::point_type>,
+			internal::unicode_iso_8859_6_mapping<unicode_default::point_type>>
 		{
 			static LINGO_CONSTEXPR11 std::size_t part_index = 6;
 		};
 
 		template <typename _>
 		struct iso_8859<7, _> : public internal::iso_8859_impl<
-			internal::iso_8859_7_unicode_mapping<unicode::point_type>,
-			internal::unicode_iso_8859_7_mapping<unicode::point_type>>
+			internal::iso_8859_7_unicode_mapping<unicode_default::point_type>,
+			internal::unicode_iso_8859_7_mapping<unicode_default::point_type>>
 		{
 			static LINGO_CONSTEXPR11 std::size_t part_index = 7;
 		};
 
 		template <typename _>
 		struct iso_8859<8, _> : public internal::iso_8859_impl<
-			internal::iso_8859_8_unicode_mapping<unicode::point_type>,
-			internal::unicode_iso_8859_8_mapping<unicode::point_type>>
+			internal::iso_8859_8_unicode_mapping<unicode_default::point_type>,
+			internal::unicode_iso_8859_8_mapping<unicode_default::point_type>>
 		{
 			static LINGO_CONSTEXPR11 std::size_t part_index = 8;
 		};
 
 		template <typename _>
 		struct iso_8859<9, _> : public internal::iso_8859_impl<
-			internal::iso_8859_9_unicode_mapping<unicode::point_type>,
-			internal::unicode_iso_8859_9_mapping<unicode::point_type>>
+			internal::iso_8859_9_unicode_mapping<unicode_default::point_type>,
+			internal::unicode_iso_8859_9_mapping<unicode_default::point_type>>
 		{
 			static LINGO_CONSTEXPR11 std::size_t part_index = 9;
 		};
 
 		template <typename _>
 		struct iso_8859<10, _> : public internal::iso_8859_impl<
-			internal::iso_8859_10_unicode_mapping<unicode::point_type>,
-			internal::unicode_iso_8859_10_mapping<unicode::point_type>>
+			internal::iso_8859_10_unicode_mapping<unicode_default::point_type>,
+			internal::unicode_iso_8859_10_mapping<unicode_default::point_type>>
 		{
 			static LINGO_CONSTEXPR11 std::size_t part_index = 10;
 		};
 
 		template <typename _>
 		struct iso_8859<11, _> : public internal::iso_8859_impl<
-			internal::iso_8859_11_unicode_mapping<unicode::point_type>,
-			internal::unicode_iso_8859_11_mapping<unicode::point_type>>
+			internal::iso_8859_11_unicode_mapping<unicode_default::point_type>,
+			internal::unicode_iso_8859_11_mapping<unicode_default::point_type>>
 		{
 			static LINGO_CONSTEXPR11 std::size_t part_index = 11;
 		};
 
 		template <typename _>
 		struct iso_8859<13, _> : public internal::iso_8859_impl<
-			internal::iso_8859_13_unicode_mapping<unicode::point_type>,
-			internal::unicode_iso_8859_13_mapping<unicode::point_type>>
+			internal::iso_8859_13_unicode_mapping<unicode_default::point_type>,
+			internal::unicode_iso_8859_13_mapping<unicode_default::point_type>>
 		{
 			static LINGO_CONSTEXPR11 std::size_t part_index = 13;
 		};
 
 		template <typename _>
 		struct iso_8859<14, _> : public internal::iso_8859_impl<
-			internal::iso_8859_14_unicode_mapping<unicode::point_type>,
-			internal::unicode_iso_8859_14_mapping<unicode::point_type>>
+			internal::iso_8859_14_unicode_mapping<unicode_default::point_type>,
+			internal::unicode_iso_8859_14_mapping<unicode_default::point_type>>
 		{
 			static LINGO_CONSTEXPR11 std::size_t part_index = 14;
 		};
 
 		template <typename _>
 		struct iso_8859<15, _> : public internal::iso_8859_impl<
-			internal::iso_8859_15_unicode_mapping<unicode::point_type>,
-			internal::unicode_iso_8859_15_mapping<unicode::point_type>>
+			internal::iso_8859_15_unicode_mapping<unicode_default::point_type>,
+			internal::unicode_iso_8859_15_mapping<unicode_default::point_type>>
 		{
 			static LINGO_CONSTEXPR11 std::size_t part_index = 15;
 		};
 
 		template <typename _>
 		struct iso_8859<16, _> : public internal::iso_8859_impl<
-			internal::iso_8859_16_unicode_mapping<unicode::point_type>,
-			internal::unicode_iso_8859_16_mapping<unicode::point_type>>
+			internal::iso_8859_16_unicode_mapping<unicode_default::point_type>,
+			internal::unicode_iso_8859_16_mapping<unicode_default::point_type>>
 		{
 			static LINGO_CONSTEXPR11 std::size_t part_index = 16;
 		};

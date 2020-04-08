@@ -11,11 +11,11 @@
 
 TEST_CASE("ascii can be mapped to and from unicode")
 {
-	REQUIRE(std::is_same<typename lingo::page::intermediate<lingo::page::ascii, lingo::page::unicode>::type, lingo::page::unicode>::value);
-	REQUIRE(std::is_same<typename lingo::page::intermediate<lingo::page::unicode, lingo::page::ascii>::type, lingo::page::unicode>::value);
+	REQUIRE(std::is_same<typename lingo::page::intermediate<lingo::page::ascii, lingo::page::unicode_default>::type, lingo::page::unicode_default>::value);
+	REQUIRE(std::is_same<typename lingo::page::intermediate<lingo::page::unicode_default, lingo::page::ascii>::type, lingo::page::unicode_default>::value);
 
 	using source_page_type = lingo::page::ascii;
-	using destination_page_type = lingo::page::unicode;
+	using destination_page_type = lingo::page::unicode_default;
 
 	using source_point_type = typename source_page_type::point_type;
 	using destination_point_type = typename destination_page_type::point_type;

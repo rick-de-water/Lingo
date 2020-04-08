@@ -4,9 +4,10 @@ import re
 import sys
 import typing
 
-
 header_format = """#ifndef H_LINGO_PAGE_INTERNAL_{0}
 #define H_LINGO_PAGE_INTERNAL_{0}
+
+#include <cstddef>
 
 namespace lingo
 {{
@@ -21,12 +22,12 @@ namespace lingo
 
                 static constexpr point_type minor_table_empty[256] = {{ {2} }};
                 {3}
-                static constexpr point_type point_start_index = {4};
-                static constexpr point_type point_end_index = {5};
+                static constexpr std::size_t point_start_index = {4};
+                static constexpr std::size_t point_end_index = {5};
 
-				static constexpr point_type minor_table_start_index = {6};
-				static constexpr point_type minor_table_end_index = {7};
-				static constexpr point_type minor_table_count = {8};
+				static constexpr std::size_t minor_table_start_index = {6};
+				static constexpr std::size_t minor_table_end_index = {7};
+				static constexpr std::size_t minor_table_count = {8};
 
                 static constexpr const point_type* major_table[{8}] {{ {9} }};
             }};
