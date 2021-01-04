@@ -19,15 +19,14 @@ def main(argv) -> None:
     parser.add_argument("include_directories", nargs="+")
 
     args = parser.parse_args(argv)
+
     # Find all header files
     headers = []
     for include_directory in args.include_directories:
         for filename in glob.glob(os.path.join(include_directory, "lingo", "**", "*.hpp"), recursive=True):
             headers.append(Header(filename, include_directory))
-    print(reduce(lambda output, header: output + "\n" + header, map(lambda h: h.relpath, headers)))
 
-    print(argv)
-
+    # Write the content of all headers to a single header
     with open(args.output, "w") as output:
         for header in headers:
             write_header(header, output, headers)
