@@ -26,7 +26,9 @@ namespace lingo
 					map_result<typename DestinationPage::point_type>>::type
 			{
 				LINGO_WARNINGS_PUSH_AND_DISABLE_CLANG(tautological-constant-out-of-range-compare)
+				LINGO_WARNINGS_PUSH_AND_DISABLE_GCC(type-limits)
 				if (point >= 0 && point < 128)
+				LINGO_WARNINGS_POP_GCC
 				LINGO_WARNINGS_POP_CLANG
 				{
 					return { static_cast<typename DestinationPage::point_type>(point), error::error_code::success };
@@ -44,7 +46,9 @@ namespace lingo
 					map_result<point_type>>::type
 			{
 				LINGO_WARNINGS_PUSH_AND_DISABLE_CLANG(tautological-constant-out-of-range-compare)
+				LINGO_WARNINGS_PUSH_AND_DISABLE_GCC(type-limits)
 				if (point >= 0 && point < 128)
+				LINGO_WARNINGS_POP_GCC
 				LINGO_WARNINGS_POP_CLANG
 				{
 					return { static_cast<point_type>(point), error::error_code::success };
@@ -57,7 +61,11 @@ namespace lingo
 
 			static LINGO_CONSTEXPR11 bool is_valid(point_type point) noexcept
 			{
+				LINGO_WARNINGS_PUSH_AND_DISABLE_CLANG(tautological-constant-out-of-range-compare)
+				LINGO_WARNINGS_PUSH_AND_DISABLE_GCC(type-limits)
 				return point >= 0 && point < 128;
+				LINGO_WARNINGS_POP_GCC
+				LINGO_WARNINGS_POP_CLANG
 			}
 		};
 	}

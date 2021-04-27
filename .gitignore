@@ -5,3 +5,5 @@
 /logs
 
 __pycache__/
+
+.actrc

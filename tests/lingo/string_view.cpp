@@ -144,16 +144,24 @@ LINGO_UNIT_TEST_CASE("string_view can be constructed from a cstring")
 	REQUIRE(test_string_view5.null_terminated());
 }
 
-TEST_CASE("lingo::string_view can be constructed from a std::string")
+LINGO_UNIT_TEST_CASE("lingo::string_view can be constructed from a std::string")
 {
-	auto str1 = std::basic_string<char>("foo");
-	auto str2 = std::basic_string<char8_t>(u8"bar");
-	auto str_view1 = lingo::string_view(str1);
-	auto str_view2 = lingo::string_view(str2);
+	LINGO_UNIT_TEST_TYPEDEFS;
+	auto str = std::basic_string<unit_type>(lingo::test::test_string<unit_type>::value);
+	auto str_view = string_view_type(str);
 
-	REQUIRE(str_view1 == "foo");
-	REQUIRE(str_view2 == "bar");
+	REQUIRE(str_view == lingo::test::test_string<unit_type>::value);
 }
+
+#ifdef __cpp_char8_t
+TEST_CASE("lingo::string_view can be constructed from a char8_t std::string")
+{
+	auto str = std::basic_string<char8_t>(u8"foo");
+	auto str_view = lingo::string_view(str);
+
+	REQUIRE(str_view == "foo");
+}
+#endif
 
 LINGO_UNIT_TEST_CASE("string_view can be copied")
 {

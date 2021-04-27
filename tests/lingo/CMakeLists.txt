@@ -55,6 +55,14 @@ function(lingo_create_test_executable TARGET_NAME TEST_PREFIX)
 endfunction()
 
 # Discover tests
-lingo_create_test_executable(test_lingo_split "[split]" LINGO_TEST_SPLIT)
-lingo_create_test_executable(test_lingo_single "[single]" LINGO_TEST_SINGLE)
-#lingo_create_test_executable(test_lingo_module "[module]" LINGO_TEST_MODULE)
+if (LINGO_TEST_SPLIT)
+	lingo_create_test_executable(test_lingo_split "[split]" LINGO_TEST_SPLIT)
+endif()
+
+if (LINGO_TEST_SINGLE)
+	lingo_create_test_executable(test_lingo_single "[single]" LINGO_TEST_SINGLE)
+endif()
+
+if (LINGO_TEST_MODULE)
+	#lingo_create_test_executable(test_lingo_module "[module]" LINGO_TEST_MODULE)
+endif()
