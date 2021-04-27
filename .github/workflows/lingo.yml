@@ -91,3 +91,8 @@ jobs:
         with:
           name: single-header
           path: build/src/lib/lingo/lingo.hpp
+      - name: Store module artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: module
+          path: build/src/lib/lingo/module.ixx

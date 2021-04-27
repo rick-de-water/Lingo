@@ -1,15 +1,19 @@
 ﻿#include <catch/catch.hpp>
 
+#if LINGO_TEST_SPLIT
 #include <lingo/encoding/base.hpp>
 #include <lingo/encoding/join.hpp>
 
 #include <lingo/platform/warnings.hpp>
 
 #include <lingo/string.hpp>
+#else
+#include <lingo/test/include_all.hpp>
+#endif
 
-#include <lingo/test_case.hpp>
-#include <lingo/test_types.hpp>
-#include <lingo/test_strings.hpp>
+#include <lingo/test/test_case.hpp>
+#include <lingo/test/test_types.hpp>
+#include <lingo/test/test_strings.hpp>
 
 #include <limits>
 #include <type_traits>

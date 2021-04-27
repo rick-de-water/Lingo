@@ -3,7 +3,6 @@
 
 #include <lingo/platform/constexpr.hpp>
 
-#include <lingo/encoding/endian.hpp>
 #include <lingo/encoding/result.hpp>
 #include <lingo/encoding/internal/bit_converter.hpp>
 

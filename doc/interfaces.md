@@ -55,6 +55,11 @@ struct my_code_page
 	// TODO: describe constraints
 	using point_type = /* implementation defined */;
 
+	// A class that contains information about a code point.
+	// Available information may be differ between code pages.
+	// TODO: Add mandatory info and interface coding standard.
+	using point_info_type = /* implementation defined */
+
 	// Some extra common typedefs
 	using size_type = std::size_t;
 	using difference_type = std::ptrdiff_t;
@@ -76,5 +81,12 @@ struct my_code_page
 	// Only unicode is required to be supported, the rest is optional.
 	template <typename SourcePage>
 	static constexpr map_result<typename DestinationPage::point_type> map_to(point_type point) noexcept;
+
+	// Checks if a code point is a valid one.
+	static bool is_valid(point_type point) noexcept;
+
+	// Returns information about a code point.
+	// Throws std::out_of_range if the code point is not a valid one. 
+	static const point_info_type& info(point_type point);
 }
 ```

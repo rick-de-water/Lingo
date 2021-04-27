@@ -397,8 +397,6 @@ namespace lingo
 			return *this;
 		}
 
-		
-
 		allocation allocate(size_type requested_capacity) noexcept(noexcept(std::declval<allocator_type&>().allocate(requested_capacity)))
 		{
 			assert(requested_capacity <= max_size());

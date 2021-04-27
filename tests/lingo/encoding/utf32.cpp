@@ -1,9 +1,13 @@
 #include <catch/catch.hpp>
 
+#if LINGO_TEST_SPLIT
 #include <lingo/encoding/utf32.hpp>
+#else
+#include <lingo/test/include_all.hpp>
+#endif
 
-#include <lingo/test_case.hpp>
-#include <lingo/test_types.hpp>
+#include <lingo/test/test_case.hpp>
+#include <lingo/test/test_types.hpp>
 
 #include <limits>
 

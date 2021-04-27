@@ -7,16 +7,10 @@
 #include <lingo/string_view_storage.hpp>
 #include <lingo/strlen.hpp>
 
-#include <lingo/page/ascii.hpp>
 #include <lingo/page/execution.hpp>
-#include <lingo/page/unicode.hpp>
 
 #include <lingo/encoding/execution.hpp>
-#include <lingo/encoding/none.hpp>
 #include <lingo/encoding/point_iterator.hpp>
-#include <lingo/encoding/utf8.hpp>
-#include <lingo/encoding/utf16.hpp>
-#include <lingo/encoding/utf32.hpp>
 
 #include <lingo/utility/object_builder.hpp>
 #include <lingo/utility/pointer_iterator.hpp>
@@ -77,36 +71,36 @@ namespace lingo
 		LINGO_CONSTEXPR11 basic_string_view(basic_string_view&&) noexcept = default;
 
 		#ifdef __cpp_conditional_explicit
-		explicit(!is_execution_set) LINGO_CONSTEXPR14 basic_string_view(const_pointer str) noexcept:
+		explicit(!is_execution_set) LINGO_CONSTEXPR14 basic_string_view(const_pointer str) noexcept :
 			basic_string_view(str, strlen(str), true)
 		{
 		}
 		#else
 		template <typename _ = int, typename std::enable_if<is_execution_set, _>::type = 0>
-		LINGO_CONSTEXPR14 basic_string_view(const_pointer str) noexcept:
+		LINGO_CONSTEXPR14 basic_string_view(const_pointer str) noexcept :
 			basic_string_view(str, strlen(str), true)
 		{
 		}
 
 		template <typename _ = int, typename std::enable_if<!is_execution_set, _>::type = 0>
-		explicit LINGO_CONSTEXPR14 basic_string_view(const_pointer str) noexcept:
+		explicit LINGO_CONSTEXPR14 basic_string_view(const_pointer str) noexcept :
 			basic_string_view(str, strlen(str), true)
 		{
 		}
 		#endif
 
-		LINGO_CONSTEXPR11 basic_string_view(const_pointer str, size_type size) noexcept:
+		LINGO_CONSTEXPR11 basic_string_view(const_pointer str, size_type size) noexcept :
 			basic_string_view(str, size, false)
 		{
 		}
 
-		LINGO_CONSTEXPR11 basic_string_view(const_pointer str, size_type size, bool null_terminated) noexcept:
+		LINGO_CONSTEXPR11 basic_string_view(const_pointer str, size_type size, bool null_terminated) noexcept :
 			_storage(str, size, null_terminated)
 		{
 		}
 
 		template <typename SourceAllocator, typename _ = int, typename std::enable_if<is_execution_set, _>::type = 0>
-		basic_string_view(const std::basic_string<value_type, std::char_traits<value_type>, SourceAllocator>& str):
+		basic_string_view(const std::basic_string<value_type, std::char_traits<value_type>, SourceAllocator>& str) noexcept :
 			basic_string_view(str.data(), str.size(), true)
 		{
 		}
@@ -114,32 +108,38 @@ namespace lingo
 		#if !defined(LINGO_DISABLE_CHAR_COMPATIBILITY)
 		#ifdef __cpp_conditional_explicit
 		template <typename _ = int, typename std::enable_if<is_char_compatible, _>::type = 0>
-		explicit(!is_execution_set) basic_string_view(const char* str) noexcept:
+		explicit(!is_execution_set) basic_string_view(const char* str) noexcept :
 			basic_string_view(reinterpret_cast<const_pointer>(str))
+		{
+		}
+
+		template <typename SourceAllocator, typename _ = int, typename std::enable_if<is_char_compatible, _>::type = 0, typename = void>
+		explicit(!is_execution_set) basic_string_view(const std::basic_string<char, std::char_traits<char>, SourceAllocator>& str) noexcept :
+			basic_string_view(str.data(), str.size(), true)
 		{
 		}
 		#else
 		template <typename _ = int, typename std::enable_if<is_char_compatible && is_execution_set, _>::type = 0, typename = void>
-		basic_string_view(const char* str) noexcept:
+		basic_string_view(const char* str) noexcept :
 			basic_string_view(reinterpret_cast<const_pointer>(str))
 		{
 		}
 
 		template <typename _ = int, typename std::enable_if<is_char_compatible && !is_execution_set, _>::type = 0, typename = void, typename = void>
-		explicit basic_string_view(const char* str) noexcept:
+		explicit basic_string_view(const char* str) noexcept :
 			basic_string_view(reinterpret_cast<const_pointer>(str))
 		{
 		}
 		#endif
 
 		template <typename _ = int, typename Char = char, typename std::enable_if<is_char_compatible, _>::type = 0>
-		basic_string_view(const Char* str, size_type size) noexcept:
+		basic_string_view(const Char* str, size_type size) noexcept :
 			basic_string_view(reinterpret_cast<const_pointer>(str), size)
 		{
 		}
 
 		template <typename _ = int, typename Char = char, typename std::enable_if<is_char_compatible, _>::type = 0>
-		explicit basic_string_view(const Char* str, size_type size, bool null_terminated) noexcept:
+		explicit basic_string_view(const Char* str, size_type size, bool null_terminated) noexcept :
 			basic_string_view(reinterpret_cast<const_pointer>(str), size, null_terminated)
 		{
 		}
@@ -147,7 +147,7 @@ namespace lingo
 
 		#ifdef __cpp_lib_string_view
 		template <typename _ = int, typename std::enable_if<is_execution_set, _>::type = 0>
-		basic_string_view(const std::basic_string_view<value_type, std::char_traits<value_type>>& str):
+		basic_string_view(const std::basic_string_view<value_type, std::char_traits<value_type>>& str) :
 			basic_string_view(str.data(), str.size(), false)
 		{
 		}
@@ -192,7 +192,7 @@ namespace lingo
 		{
 			return const_reverse_iterator(cbegin());
 		}
-		
+
 		LINGO_CONSTEXPR11 const_reference operator [] (size_type pos) const noexcept
 		{
 			return data()[pos];
@@ -362,7 +362,7 @@ namespace lingo
 		}
 
 		#if !defined(LINGO_DISABLE_CHAR_COMPATIBILITY)
-		template <typename _ = int, typename std::enable_if<is_char_compatible && is_execution_set, _>::type = 0, typename = void>
+		template <typename _ = int, typename std::enable_if<is_char_compatible&& is_execution_set, _>::type = 0, typename = void>
 		int compare(const char* str) const noexcept(noexcept(find(basic_string_view(str))))
 		{
 			return compare(basic_string_view(str));
@@ -388,19 +388,19 @@ namespace lingo
 		}
 
 		#if !defined(LINGO_DISABLE_CHAR_COMPATIBILITY)
-		template <typename _ = int, typename std::enable_if<is_char_compatible && is_execution_set, _>::type = 0, typename = void>
+		template <typename _ = int, typename std::enable_if<is_char_compatible&& is_execution_set, _>::type = 0, typename = void>
 		size_type find(const char* str) const noexcept
 		{
 			return find(basic_string_view(str));
 		}
 
-		template <typename _ = int, typename std::enable_if<is_char_compatible && is_execution_set, _>::type = 0, typename = void>
+		template <typename _ = int, typename std::enable_if<is_char_compatible&& is_execution_set, _>::type = 0, typename = void>
 		size_type find(const char* str, size_type pos) const noexcept
 		{
 			return find(basic_string_view(str), pos);
 		}
 
-		template <typename _ = int, typename std::enable_if<is_char_compatible && is_execution_set, _>::type = 0, typename = void>
+		template <typename _ = int, typename std::enable_if<is_char_compatible&& is_execution_set, _>::type = 0, typename = void>
 		size_type find(const char* str, size_type pos, size_type count) const noexcept
 		{
 			return find(basic_string_view(str, count, false), pos);
@@ -437,22 +437,22 @@ namespace lingo
 
 		template <typename T,
 			typename std::enable_if<
-				!std::is_same<T, basic_string_view>::value &&
-				!std::is_convertible<const T&, const_pointer>::value &&
-				std::is_convertible<const T&, basic_string_view>::value
-			>::type = 0>
-		LINGO_CONSTEXPR14 size_type find(const T& str) const noexcept
+			!std::is_same<T, basic_string_view>::value &&
+			!std::is_convertible<const T&, const_pointer>::value&&
+			std::is_convertible<const T&, basic_string_view>::value
+		>::type = 0>
+			LINGO_CONSTEXPR14 size_type find(const T& str) const noexcept
 		{
 			return find(basic_string_view(str), 0);
 		}
 
 		template <typename T,
 			typename std::enable_if<
-				!std::is_same<T, basic_string_view>::value &&
-				!std::is_convertible<const T&, const_pointer>::value &&
-				std::is_convertible<const T&, basic_string_view>::value
-			>::type = 0>
-		LINGO_CONSTEXPR14 size_type find(const T& str, size_type pos) const noexcept
+			!std::is_same<T, basic_string_view>::value &&
+			!std::is_convertible<const T&, const_pointer>::value&&
+			std::is_convertible<const T&, basic_string_view>::value
+		>::type = 0>
+			LINGO_CONSTEXPR14 size_type find(const T& str, size_type pos) const noexcept
 		{
 			return find(basic_string_view(str), pos);
 		}
@@ -476,19 +476,19 @@ namespace lingo
 		}
 
 		#if !defined(LINGO_DISABLE_CHAR_COMPATIBILITY)
-		template <typename _ = int, typename std::enable_if<is_char_compatible && is_execution_set, _>::type = 0, typename = void>
+		template <typename _ = int, typename std::enable_if<is_char_compatible&& is_execution_set, _>::type = 0, typename = void>
 		LINGO_CONSTEXPR14 size_type rfind(const char* str) const noexcept
 		{
 			return rfind(basic_string_view(str));
 		}
 
-		template <typename _ = int, typename std::enable_if<is_char_compatible && is_execution_set, _>::type = 0, typename = void>
+		template <typename _ = int, typename std::enable_if<is_char_compatible&& is_execution_set, _>::type = 0, typename = void>
 		LINGO_CONSTEXPR14 size_type rfind(const char* str, size_type pos) const noexcept
 		{
 			return rfind(basic_string_view(str), pos);
 		}
 
-		template <typename _ = int, typename std::enable_if<is_char_compatible && is_execution_set, _>::type = 0, typename = void>
+		template <typename _ = int, typename std::enable_if<is_char_compatible&& is_execution_set, _>::type = 0, typename = void>
 		LINGO_CONSTEXPR14 size_type rfind(const char* str, size_type pos, size_type count) const noexcept
 		{
 			return rfind(basic_string_view(str, count, false), pos);
@@ -526,22 +526,22 @@ namespace lingo
 
 		template <typename T,
 			typename std::enable_if<
-				!std::is_same<T, basic_string_view>::value &&
-				!std::is_convertible<const T&, const_pointer>::value &&
-				std::is_convertible<const T&, basic_string_view>::value
-			>::type = 0>
-		LINGO_CONSTEXPR14 size_type rfind(const T& str) const noexcept
+			!std::is_same<T, basic_string_view>::value &&
+			!std::is_convertible<const T&, const_pointer>::value&&
+			std::is_convertible<const T&, basic_string_view>::value
+		>::type = 0>
+			LINGO_CONSTEXPR14 size_type rfind(const T& str) const noexcept
 		{
 			return rfind(basic_string_view(str), npos);
 		}
 
 		template <typename T,
 			typename std::enable_if<
-				!std::is_same<T, basic_string_view>::value &&
-				!std::is_convertible<const T&, const_pointer>::value &&
-				std::is_convertible<const T&, basic_string_view>::value
-			>::type = 0>
-		LINGO_CONSTEXPR14 size_type rfind(const T& str, size_type pos) const noexcept
+			!std::is_same<T, basic_string_view>::value &&
+			!std::is_convertible<const T&, const_pointer>::value&&
+			std::is_convertible<const T&, basic_string_view>::value
+		>::type = 0>
+			LINGO_CONSTEXPR14 size_type rfind(const T& str, size_type pos) const noexcept
 		{
 			return rfind(basic_string_view(str), pos);
 		}
@@ -571,7 +571,7 @@ namespace lingo
 		}
 
 		#if !defined(LINGO_DISABLE_CHAR_COMPATIBILITY)
-		template <typename _ = int, typename std::enable_if<is_char_compatible && is_execution_set, _>::type = 0, typename = void>
+		template <typename _ = int, typename std::enable_if<is_char_compatible&& is_execution_set, _>::type = 0, typename = void>
 		LINGO_CONSTEXPR14 bool starts_with(const char* str) const noexcept
 		{
 			return starts_with(basic_string_view(str));
@@ -603,7 +603,7 @@ namespace lingo
 		}
 
 		#if !defined(LINGO_DISABLE_CHAR_COMPATIBILITY)
-		template <typename _ = int, typename std::enable_if<is_char_compatible && is_execution_set, _>::type = 0, typename = void>
+		template <typename _ = int, typename std::enable_if<is_char_compatible&& is_execution_set, _>::type = 0, typename = void>
 		LINGO_CONSTEXPR14 bool ends_with(const char* str) const noexcept
 		{
 			return ends_with(basic_string_view(str));
@@ -612,7 +612,7 @@ namespace lingo
 
 		LINGO_CONSTEXPR14 basic_string_view& operator = (const basic_string_view&) noexcept = default;
 		LINGO_CONSTEXPR14 basic_string_view& operator = (basic_string_view&&) noexcept = default;
-		
+
 		private:
 		template <typename TextIterator, typename PatternIterator>
 		LINGO_CONSTEXPR14 TextIterator naive_find(TextIterator text_begin, TextIterator text_end, PatternIterator pattern_begin, PatternIterator pattern_end) const noexcept
@@ -686,42 +686,42 @@ namespace lingo
 
 	template <typename Encoding, typename Page,
 		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value, int>::type = 0>
-	LINGO_CONSTEXPR14 bool operator == (basic_string_view<Encoding, Page> left, const typename Encoding::unit_type* right) noexcept(noexcept(left.compare(right)))
+		LINGO_CONSTEXPR14 bool operator == (basic_string_view<Encoding, Page> left, const typename Encoding::unit_type* right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) == 0;
 	}
 
 	template <typename Encoding, typename Page,
 		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value, int>::type = 0>
-	LINGO_CONSTEXPR14 bool operator != (basic_string_view<Encoding, Page> left, const typename Encoding::unit_type* right) noexcept(noexcept(left.compare(right)))
+		LINGO_CONSTEXPR14 bool operator != (basic_string_view<Encoding, Page> left, const typename Encoding::unit_type* right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) != 0;
 	}
 
 	template <typename Encoding, typename Page,
 		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value, int>::type = 0>
-	LINGO_CONSTEXPR14 bool operator < (basic_string_view<Encoding, Page> left, const typename Encoding::unit_type* right) noexcept(noexcept(left.compare(right)))
+		LINGO_CONSTEXPR14 bool operator < (basic_string_view<Encoding, Page> left, const typename Encoding::unit_type* right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) < 0;
 	}
 
 	template <typename Encoding, typename Page,
 		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value, int>::type = 0>
-	LINGO_CONSTEXPR14 bool operator > (basic_string_view<Encoding, Page> left, const typename Encoding::unit_type* right) noexcept(noexcept(left.compare(right)))
+		LINGO_CONSTEXPR14 bool operator > (basic_string_view<Encoding, Page> left, const typename Encoding::unit_type* right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) > 0;
 	}
 
 	template <typename Encoding, typename Page,
 		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value, int>::type = 0>
-	LINGO_CONSTEXPR14 bool operator <= (basic_string_view<Encoding, Page> left, const typename Encoding::unit_type* right) noexcept(noexcept(left.compare(right)))
+		LINGO_CONSTEXPR14 bool operator <= (basic_string_view<Encoding, Page> left, const typename Encoding::unit_type* right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) <= 0;
 	}
 
 	template <typename Encoding, typename Page,
 		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value, int>::type = 0>
-	LINGO_CONSTEXPR14 bool operator >= (basic_string_view<Encoding, Page> left, const typename Encoding::unit_type* right) noexcept(noexcept(left.compare(right)))
+		LINGO_CONSTEXPR14 bool operator >= (basic_string_view<Encoding, Page> left, const typename Encoding::unit_type* right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) >= 0;
 	}
@@ -729,84 +729,84 @@ namespace lingo
 
 	template <typename Encoding, typename Page,
 		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value, int>::type = 0>
-	LINGO_CONSTEXPR14 bool operator == (const typename Encoding::unit_type* left, const basic_string_view<Encoding, Page>& right) noexcept(noexcept(right.compare(left)))
+		LINGO_CONSTEXPR14 bool operator == (const typename Encoding::unit_type* left, const basic_string_view<Encoding, Page>& right) noexcept(noexcept(right.compare(left)))
 	{
 		return right.compare(left) == 0;
 	}
 
 	template <typename Encoding, typename Page,
 		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value, int>::type = 0>
-	LINGO_CONSTEXPR14 bool operator != (const typename Encoding::unit_type* left, basic_string_view<Encoding, Page> right) noexcept(noexcept(right.compare(left)))
+		LINGO_CONSTEXPR14 bool operator != (const typename Encoding::unit_type* left, basic_string_view<Encoding, Page> right) noexcept(noexcept(right.compare(left)))
 	{
 		return right.compare(left) != 0;
 	}
 
 	template <typename Encoding, typename Page,
 		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value, int>::type = 0>
-	LINGO_CONSTEXPR14 bool operator < (const typename Encoding::unit_type* left, basic_string_view<Encoding, Page> right) noexcept(noexcept(right.compare(left)))
+		LINGO_CONSTEXPR14 bool operator < (const typename Encoding::unit_type* left, basic_string_view<Encoding, Page> right) noexcept(noexcept(right.compare(left)))
 	{
 		return right.compare(left) > 0;
 	}
 
 	template <typename Encoding, typename Page,
 		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value, int>::type = 0>
-	LINGO_CONSTEXPR14 bool operator > (const typename Encoding::unit_type* left, basic_string_view<Encoding, Page> right) noexcept(noexcept(right.compare(left)))
+		LINGO_CONSTEXPR14 bool operator > (const typename Encoding::unit_type* left, basic_string_view<Encoding, Page> right) noexcept(noexcept(right.compare(left)))
 	{
 		return right.compare(left) < 0;
 	}
 
 	template <typename Encoding, typename Page,
 		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value, int>::type = 0>
-	LINGO_CONSTEXPR14 bool operator <= (const typename Encoding::unit_type* left, basic_string_view<Encoding, Page> right) noexcept(noexcept(right.compare(left)))
+		LINGO_CONSTEXPR14 bool operator <= (const typename Encoding::unit_type* left, basic_string_view<Encoding, Page> right) noexcept(noexcept(right.compare(left)))
 	{
 		return right.compare(left) >= 0;
 	}
 
 	template <typename Encoding, typename Page,
 		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value, int>::type = 0>
-	LINGO_CONSTEXPR14 bool operator >= (const typename Encoding::unit_type* left, basic_string_view<Encoding, Page> right) noexcept(noexcept(right.compare(left)))
+		LINGO_CONSTEXPR14 bool operator >= (const typename Encoding::unit_type* left, basic_string_view<Encoding, Page> right) noexcept(noexcept(right.compare(left)))
 	{
 		return right.compare(left) <= 0;
 	}
 
 
 	template <typename Encoding, typename Page,
-		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value && lingo::utility::is_char_compatible<Encoding, Page>::value, int>::type = 0>
+		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value&& lingo::utility::is_char_compatible<Encoding, Page>::value, int>::type = 0>
 		LINGO_CONSTEXPR14 bool operator == (basic_string_view<Encoding, Page> left, const char* right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) == 0;
 	}
 
 	template <typename Encoding, typename Page,
-		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value && lingo::utility::is_char_compatible<Encoding, Page>::value, int>::type = 0>
+		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value&& lingo::utility::is_char_compatible<Encoding, Page>::value, int>::type = 0>
 		LINGO_CONSTEXPR14 bool operator != (basic_string_view<Encoding, Page> left, const char* right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) != 0;
 	}
 
 	template <typename Encoding, typename Page,
-		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value && lingo::utility::is_char_compatible<Encoding, Page>::value, int>::type = 0>
+		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value&& lingo::utility::is_char_compatible<Encoding, Page>::value, int>::type = 0>
 		LINGO_CONSTEXPR14 bool operator < (basic_string_view<Encoding, Page> left, const char* right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) < 0;
 	}
 
 	template <typename Encoding, typename Page,
-		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value && lingo::utility::is_char_compatible<Encoding, Page>::value, int>::type = 0>
+		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value&& lingo::utility::is_char_compatible<Encoding, Page>::value, int>::type = 0>
 		LINGO_CONSTEXPR14 bool operator > (basic_string_view<Encoding, Page> left, const char* right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) > 0;
 	}
 
 	template <typename Encoding, typename Page,
-		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value && lingo::utility::is_char_compatible<Encoding, Page>::value, int>::type = 0>
+		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value&& lingo::utility::is_char_compatible<Encoding, Page>::value, int>::type = 0>
 		LINGO_CONSTEXPR14 bool operator <= (basic_string_view<Encoding, Page> left, const char* right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) <= 0;
 	}
 
 	template <typename Encoding, typename Page,
-		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value && lingo::utility::is_char_compatible<Encoding, Page>::value, int>::type = 0>
+		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value&& lingo::utility::is_char_compatible<Encoding, Page>::value, int>::type = 0>
 		LINGO_CONSTEXPR14 bool operator >= (basic_string_view<Encoding, Page> left, const char* right) noexcept(noexcept(left.compare(right)))
 	{
 		return left.compare(right) >= 0;
@@ -814,42 +814,42 @@ namespace lingo
 
 
 	template <typename Encoding, typename Page,
-		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value && lingo::utility::is_char_compatible<Encoding, Page>::value, int>::type = 0>
+		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value&& lingo::utility::is_char_compatible<Encoding, Page>::value, int>::type = 0>
 		LINGO_CONSTEXPR14 bool operator == (const char* left, basic_string_view<Encoding, Page> right) noexcept(noexcept(right.compare(left)))
 	{
 		return right.compare(left) == 0;
 	}
 
 	template <typename Encoding, typename Page,
-		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value && lingo::utility::is_char_compatible<Encoding, Page>::value, int>::type = 0>
+		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value&& lingo::utility::is_char_compatible<Encoding, Page>::value, int>::type = 0>
 		LINGO_CONSTEXPR14 bool operator != (const char* left, basic_string_view<Encoding, Page> right) noexcept(noexcept(right.compare(left)))
 	{
 		return right.compare(left) != 0;
 	}
 
 	template <typename Encoding, typename Page,
-		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value && lingo::utility::is_char_compatible<Encoding, Page>::value, int>::type = 0>
+		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value&& lingo::utility::is_char_compatible<Encoding, Page>::value, int>::type = 0>
 		LINGO_CONSTEXPR14 bool operator < (const char* left, basic_string_view<Encoding, Page> right) noexcept(noexcept(right.compare(left)))
 	{
 		return right.compare(left) > 0;
 	}
 
 	template <typename Encoding, typename Page,
-		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value && lingo::utility::is_char_compatible<Encoding, Page>::value, int>::type = 0>
+		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value&& lingo::utility::is_char_compatible<Encoding, Page>::value, int>::type = 0>
 		LINGO_CONSTEXPR14 bool operator > (const char* left, basic_string_view<Encoding, Page> right) noexcept(noexcept(right.compare(left)))
 	{
 		return right.compare(left) < 0;
 	}
 
 	template <typename Encoding, typename Page,
-		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value && lingo::utility::is_char_compatible<Encoding, Page>::value, int>::type = 0>
+		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value&& lingo::utility::is_char_compatible<Encoding, Page>::value, int>::type = 0>
 		LINGO_CONSTEXPR14 bool operator <= (const char* left, basic_string_view<Encoding, Page> right) noexcept(noexcept(right.compare(left)))
 	{
 		return right.compare(left) >= 0;
 	}
 
 	template <typename Encoding, typename Page,
-		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value && lingo::utility::is_char_compatible<Encoding, Page>::value, int>::type = 0>
+		typename std::enable_if<lingo::utility::is_execution_set<Encoding, Page>::value&& lingo::utility::is_char_compatible<Encoding, Page>::value, int>::type = 0>
 		LINGO_CONSTEXPR14 bool operator >= (const char* left, basic_string_view<Encoding, Page> right) noexcept(noexcept(right.compare(left)))
 	{
 		return right.compare(left) <= 0;
@@ -858,11 +858,22 @@ namespace lingo
 
 	template <typename Unit>
 	std::basic_ostream<Unit>& operator << (std::basic_ostream<Unit>& os,
-		const lingo::basic_string_view<encoding::execution_encoding_t<Unit>, page::execution_page_t<Unit>>& str)
+										   const lingo::basic_string_view<encoding::execution_encoding_t<Unit>, page::execution_page_t<Unit>>& str)
 	{
 		return os.write(str.data(), static_cast<std::streamsize>(str.size()));
 	}
+}
 
+#include <lingo/page/ascii.hpp>
+#include <lingo/page/unicode.hpp>
+
+#include <lingo/encoding/none.hpp>
+#include <lingo/encoding/utf8.hpp>
+#include <lingo/encoding/utf16.hpp>
+#include <lingo/encoding/utf32.hpp>
+
+namespace lingo
+{
 	// Fixed code page typedefs
 	template <typename Encoding>
 	using basic_ascii_string_view = basic_string_view<Encoding, page::ascii>;

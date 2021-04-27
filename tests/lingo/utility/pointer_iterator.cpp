@@ -1,6 +1,10 @@
 #include <catch/catch.hpp>
 
+#if LINGO_TEST_SPLIT
 #include <lingo/utility/pointer_iterator.hpp>
+#else
+#include <lingo/test/include_all.hpp>
+#endif
 
 namespace
 {

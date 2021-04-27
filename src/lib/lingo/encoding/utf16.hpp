@@ -3,8 +3,6 @@
 
 #include <lingo/platform/constexpr.hpp>
 
-#include <lingo/encoding/endian.hpp>
-#include <lingo/encoding/join.hpp>
 #include <lingo/encoding/result.hpp>
 #include <lingo/encoding/internal/bit_converter.hpp>
 
@@ -240,8 +238,16 @@ namespace lingo
 		LINGO_CONSTEXPR11 typename utf16<Unit, Point>::size_type utf16<Unit, Point>::min_unit_bits;
 		template <typename Unit, typename Point>
 		LINGO_CONSTEXPR11 typename utf16<Unit, Point>::size_type utf16<Unit, Point>::min_point_bits;
+	}
+}
 
+#include <lingo/encoding/endian.hpp>
+#include <lingo/encoding/join.hpp>
 
+namespace lingo
+{
+	namespace encoding
+	{
 		template <typename Unit, typename Point>
 		using utf16_se = join<swap_endian<Unit>, utf16<Unit, Point>>;
 

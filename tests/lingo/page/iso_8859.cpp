@@ -1,10 +1,14 @@
 #include <catch/catch.hpp>
 
+#if LINGO_TEST_SPLIT
 #include <lingo/page/iso_8859.hpp>
 #include <lingo/page/unicode.hpp>
 
 #include <lingo/page/intermediate.hpp>
 #include <lingo/page/point_mapper.hpp>
+#else
+#include <lingo/test/include_all.hpp>
+#endif
 
 #include <fstream>
 #include <iomanip>

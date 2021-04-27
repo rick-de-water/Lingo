@@ -1,9 +1,13 @@
 #include <catch/catch.hpp>
 
+#if LINGO_TEST_SPLIT
 #include <lingo/string_view.hpp>
+#else
+#include <lingo/test/include_all.hpp>
+#endif
 
-#include "test_case.hpp"
-#include "test_strings.hpp"
+#include <lingo/test/test_case.hpp>
+#include <lingo/test/test_strings.hpp>
 
 #include <type_traits>
 
@@ -138,6 +142,17 @@ LINGO_UNIT_TEST_CASE("string_view can be constructed from a cstring")
 	REQUIRE(test_string_view5.size() == size);
 	REQUIRE(test_string_view5.data() == data);
 	REQUIRE(test_string_view5.null_terminated());
+}
+
+TEST_CASE("lingo::string_view can be constructed from a std::string")
+{
+	auto str1 = std::basic_string<char>("foo");
+	auto str2 = std::basic_string<char8_t>(u8"bar");
+	auto str_view1 = lingo::string_view(str1);
+	auto str_view2 = lingo::string_view(str2);
+
+	REQUIRE(str_view1 == "foo");
+	REQUIRE(str_view2 == "bar");
 }
 
 LINGO_UNIT_TEST_CASE("string_view can be copied")

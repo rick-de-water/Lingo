@@ -1,10 +1,14 @@
 #include <catch/catch.hpp>
 
+#if LINGO_TEST_SPLIT
 #include <lingo/page/ascii.hpp>
 #include <lingo/page/unicode.hpp>
 
 #include <lingo/page/intermediate.hpp>
 #include <lingo/page/point_mapper.hpp>
+#else
+#include <lingo/test/include_all.hpp>
+#endif
 
 #include <limits>
 #include <type_traits>
@@ -82,5 +86,26 @@ TEST_CASE("ascii can be mapped to and from unicode")
 
 		const auto mapped_source_result = destination_point_mapper::map(destination_point);
 		REQUIRE(mapped_source_result.error == lingo::error::error_code::no_mapping);
+	}
+}
+
+TEST_CASE("ascii can check if a code point is valid")
+{
+	for (std::ptrdiff_t i = -256; i < 256; ++i)
+	{
+		auto point = (char)i;
+		if (point != i)
+		{
+			continue;
+		}
+
+		if (i >= 0 && i < 128)
+		{
+			REQUIRE(lingo::page::ascii::is_valid(point));
+		}
+		else
+		{
+			REQUIRE_FALSE(lingo::page::ascii::is_valid(point));
+		}
 	}
 }

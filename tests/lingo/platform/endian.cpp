@@ -1,6 +1,10 @@
 #include <catch/catch.hpp>
 
+#if LINGO_TEST_SPLIT
 #include <lingo/platform/endian.hpp>
+#else
+#include <lingo/test/include_all.hpp>
+#endif
 
 #include <cstring>
 #include <limits>

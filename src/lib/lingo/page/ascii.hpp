@@ -55,6 +55,10 @@ namespace lingo
 				}
 			}
 
+			static LINGO_CONSTEXPR11 bool is_valid(point_type point) noexcept
+			{
+				return point >= 0 && point < 128;
+			}
 		};
 	}
 }

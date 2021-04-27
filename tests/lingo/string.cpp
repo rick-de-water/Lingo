@@ -1,12 +1,15 @@
 ﻿#include <catch/catch.hpp>
 
+#if LINGO_TEST_SPLIT
 #include <lingo/string.hpp>
-
 #include <lingo/encoding/point_iterator.hpp>
+#else
+#include <lingo/test/include_all.hpp>
+#endif
 
-#include "test_case.hpp"
-#include "test_strings.hpp"
-#include "test_types.hpp"
+#include <lingo/test/test_case.hpp>
+#include <lingo/test/test_strings.hpp>
+#include <lingo/test/test_types.hpp>
 
 #include <tuple>
 

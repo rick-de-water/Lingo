@@ -9,19 +9,10 @@
 #include <lingo/string_view.hpp>
 
 #include <lingo/encoding/execution.hpp>
-#include <lingo/encoding/endian.hpp>
-#include <lingo/encoding/none.hpp>
 #include <lingo/encoding/point_iterator.hpp>
-#include <lingo/encoding/utf8.hpp>
-#include <lingo/encoding/utf16.hpp>
-#include <lingo/encoding/utf32.hpp>
 
-#include <lingo/page/ascii.hpp>
 #include <lingo/page/execution.hpp>
 #include <lingo/page/point_mapper.hpp>
-#include <lingo/page/unicode.hpp>
-
-#include <lingo/platform/endian.hpp>
 
 #include <lingo/utility/object_builder.hpp>
 #include <lingo/utility/pointer_iterator.hpp>
@@ -1440,7 +1431,20 @@ namespace lingo
 	{
 		return os.write(str.data(), static_cast<std::streamsize>(str.size()));
 	}
+}
 
+#include <lingo/encoding/endian.hpp>
+#include <lingo/encoding/none.hpp>
+#include <lingo/encoding/point_iterator.hpp>
+#include <lingo/encoding/utf8.hpp>
+#include <lingo/encoding/utf16.hpp>
+#include <lingo/encoding/utf32.hpp>
+
+#include <lingo/page/ascii.hpp>
+#include <lingo/page/unicode.hpp>
+
+namespace lingo
+{
 	// Fixed page typedefs
 	template <typename Encoding, typename Allocator = internal::default_allocator<Encoding>>
 	using basic_ascii_string = basic_string<Encoding, page::ascii, Allocator>;

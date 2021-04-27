@@ -3,8 +3,6 @@
 
 #include <lingo/platform/constexpr.hpp>
 
-#include <lingo/encoding/endian.hpp>
-#include <lingo/encoding/join.hpp>
 #include <lingo/encoding/result.hpp>
 #include <lingo/encoding/internal/bit_converter.hpp>
 
@@ -93,7 +91,16 @@ namespace lingo
 				return { source.subspan(1), destination.subspan(1), error::error_code::success };
 			}
 		};
+	}
+}
 
+#include <lingo/encoding/endian.hpp>
+#include <lingo/encoding/join.hpp>
+
+namespace lingo
+{
+	namespace encoding
+	{
 		template <typename Unit, typename Point>
 		using none_se = join<swap_endian<Unit>, none<Unit, Point>>;
 
