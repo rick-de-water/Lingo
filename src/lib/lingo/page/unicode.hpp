@@ -61,12 +61,12 @@ namespace lingo
 				return map_result<typename DestinationPage::point_type>{ point, error::error_code::success };
 			}
 
-			static LINGO_CONSTEXPR14 bool is_valid(point_type point) noexcept
+			static LINGO_CONSTEXPR14 bool is_valid(point_type) noexcept
 			{
 				return false;
 			}
 
-			static LINGO_CONSTEXPR14 const point_info_type& info(point_type point)
+			static LINGO_CONSTEXPR14 const point_info_type& info(point_type)
 			{
 				throw std::out_of_range("Invalid code point");
 			}

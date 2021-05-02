@@ -74,10 +74,10 @@ list(APPEND LINGO_MANUAL_HEADERS "error/strict.hpp")
 # Utility
 list(APPEND LINGO_MANUAL_HEADERS "utility/compressed_pair.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "utility/integer_sequence.hpp")
+list(APPEND LINGO_MANUAL_HEADERS "utility/item_traits.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "utility/pointer_iterator.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "utility/span.hpp")
 list(APPEND LINGO_MANUAL_HEADERS "utility/type_traits.hpp")
-list(APPEND LINGO_MANUAL_HEADERS "utility/object_builder.hpp")
 
 # Strings
 list(APPEND LINGO_MANUAL_HEADERS "null_terminated_string.hpp")

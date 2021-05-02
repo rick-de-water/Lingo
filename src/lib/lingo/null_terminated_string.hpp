@@ -1,7 +1,7 @@
 #ifndef H_LINGO_NULL_TERMINATED_STRING
 #define H_LINGO_NULL_TERMINATED_STRING
 
-#include <lingo/utility/object_builder.hpp>
+#include <lingo/utility/item_traits.hpp>
 #include <lingo/utility/type_traits.hpp>
 
 #include <memory>
@@ -36,9 +36,8 @@ namespace lingo
 		using size_type = typename std::allocator_traits<allocator_type>::size_type;
 		using difference_type = typename std::allocator_traits<allocator_type>::difference_type;
 
-		using object_builder = utility::object_builder<unit_type>;
-
 		private:
+		using item_traits = utility::item_traits<value_type>;
 		using string = basic_string<encoding_type, page_type, allocator_type>;
 		using string_view = basic_string_view<encoding_type, page_type>;
 
@@ -71,7 +70,7 @@ namespace lingo
 				str.copy(_allocation.get(), str.size());
 
 				LINGO_CONSTEXPR11 const unit_type null_terminator = {};
-				object_builder::copy_construct(_allocation.get() + _size, &null_terminator, 1);
+				item_traits::copy(_allocation.get() + _size, &null_terminator, 1);
 			}
 		}
 

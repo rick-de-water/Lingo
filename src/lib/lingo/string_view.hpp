@@ -12,7 +12,7 @@
 #include <lingo/encoding/execution.hpp>
 #include <lingo/encoding/point_iterator.hpp>
 
-#include <lingo/utility/object_builder.hpp>
+#include <lingo/utility/item_traits.hpp>
 #include <lingo/utility/pointer_iterator.hpp>
 #include <lingo/utility/type_traits.hpp>
 
@@ -56,9 +56,9 @@ namespace lingo
 		static LINGO_CONSTEXPR11 const size_type npos = static_cast<size_type>(-1);
 
 		private:
-		static_assert(std::is_same<typename page_type::point_type, typename encoding_type::point_type>::value, "page_type::point_type must be the same type as encoding_type::point_type");
+		static_assert(std::is_same<typename page_type::point_type, typename encoding_type::point_type>::value, "page_type::point_type must be the same type as encoding_type::point_type");\
 
-		using object_builder = utility::object_builder<value_type>;
+		using item_traits = utility::item_traits<value_type>;
 		using point_iterator = encoding::point_iterator<encoding_type>;
 		using storage_type = basic_string_view_storage<value_type>;
 
@@ -305,7 +305,7 @@ namespace lingo
 		LINGO_CONSTEXPR14 size_type copy(value_type* dest, size_type count, size_type pos = 0) const
 		{
 			const basic_string_view str = substr(pos, count);
-			object_builder::copy_construct(dest, str.data(), str.size());
+			item_traits::copy(dest, str.data(), str.size());
 			return str.size();
 		}
 

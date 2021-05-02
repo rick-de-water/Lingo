@@ -14,7 +14,7 @@
 #include <lingo/page/execution.hpp>
 #include <lingo/page/point_mapper.hpp>
 
-#include <lingo/utility/object_builder.hpp>
+#include <lingo/utility/item_traits.hpp>
 #include <lingo/utility/pointer_iterator.hpp>
 #include <lingo/utility/type_traits.hpp>
 
@@ -65,7 +65,7 @@ namespace lingo
 		static_assert(std::is_same<typename page_type::point_type, typename encoding_type::point_type>::value, "page_type::point_type must be the same type as encoding_type::point_type");
 		static_assert(std::is_same<typename allocator_type::value_type, typename encoding_type::unit_type>::value, "allocator_type::value_type must be the same type as encoding_type::unit_type");
 
-		using object_builder = utility::object_builder<value_type>;
+		using item_traits = utility::item_traits<value_type>;
 		using storage_type = basic_string_storage<value_type, allocator_type>;
 		using basic_string_view = lingo::basic_string_view<encoding_type, page_type>;
 
@@ -360,15 +360,15 @@ namespace lingo
 			{
 				for (size_type i = original_size; i < new_size; ++i)
 				{
-					object_builder::copy_construct(data() + i, &null_terminator, 1);
+					item_traits::copy(data() + i, &null_terminator, 1);
 				}
 			}
 			else
 			{
-				object_builder::destruct(data() + new_size, original_size - new_size);
+				item_traits::destruct(data() + new_size, original_size - new_size);
 			}
 
-			object_builder::copy_construct(data() + new_size, &null_terminator, 1);
+			item_traits::copy(data() + new_size, &null_terminator, 1);
 			_storage.set_size(new_size);
 		}
 
@@ -404,11 +404,11 @@ namespace lingo
 			// Fill memory
 			for (size_type i = 0; i < count; ++i)
 			{
-				object_builder::copy_construct(destination_data + i * point_size, encoded_point, point_size);
+				item_traits::copy(destination_data + i * point_size, encoded_point, point_size);
 			}
 
 			// Construct null terminator
-			object_builder::copy_construct(destination_data + destination_size, &null_terminator, 1);
+			item_traits::copy(destination_data + destination_size, &null_terminator, 1);
 
 			// Update size
 			_storage.set_size(destination_size);
@@ -555,11 +555,11 @@ namespace lingo
 			// Fill memory
 			for (size_type i = 0; i < count; ++i)
 			{
-				object_builder::copy_construct(destination_data + original_size + i * point_size, encoded_point, point_size);
+				item_traits::copy(destination_data + original_size + i * point_size, encoded_point, point_size);
 			}
 
 			// Construct null terminator
-			object_builder::copy_construct(destination_data + destination_size, &null_terminator, 1);
+			item_traits::copy(destination_data + destination_size, &null_terminator, 1);
 
 			// Update size
 			_storage.set_size(destination_size);
@@ -689,17 +689,17 @@ namespace lingo
 			// Destruct old data (null terminator was destructed by grow_append)
 			for (size_type i = index; i < old_size; ++i)
 			{
-				object_builder::destruct(_storage.data() + new_size, 1);
+				item_traits::destruct(_storage.data() + new_size, 1);
 			}
 
 			// Copy string count times
 			for (size_type i = 0; i < count; ++i)
 			{
-				object_builder::copy_construct(_storage.data() + index + string.size() * i, string.data(), string.size());
+				item_traits::copy(_storage.data() + index + string.size() * i, string.data(), string.size());
 			}
 
 			// Construct new null terminator
-			object_builder::copy_construct(_storage.data() + new_size, &null_terminator, 1);
+			item_traits::copy(_storage.data() + new_size, &null_terminator, 1);
 
 			// Update size
 			_storage.set_size(new_size);
