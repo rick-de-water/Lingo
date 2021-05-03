@@ -364,7 +364,7 @@ namespace lingo
 
 		#if !defined(LINGO_DISABLE_CHAR_COMPATIBILITY)
 		template <typename _ = int, typename std::enable_if<is_char_compatible&& is_execution_set, _>::type = 0, typename = void>
-		int compare(const char* str) const noexcept(noexcept(find(basic_string_view(str))))
+		int compare(const char* str) const noexcept(noexcept(std::declval<const basic_string_view&>().compare(basic_string_view(str))))
 		{
 			return compare(basic_string_view(str));
 		}
