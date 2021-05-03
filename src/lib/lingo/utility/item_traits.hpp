@@ -16,16 +16,16 @@ namespace lingo
 			struct construct_impl;
 
 			template <typename Item>
-			struct construct_impl<Item, std::enable_if_t<
-				std::is_trivially_default_constructible<Item>::value>>
+			struct construct_impl<Item, typename std::enable_if<
+				std::is_trivially_default_constructible<Item>::value>::type>
 			{
 				void operator () (Item*, size_t) noexcept {};
 			};
 
 			template <typename Item>
-			struct construct_impl<Item, std::enable_if_t<
+			struct construct_impl<Item, typename std::enable_if<
 				!std::is_trivially_default_constructible<Item>::value &&
-				std::is_default_constructible<Item>::value>>
+				std::is_default_constructible<Item>::value>::type>
 			{
 				void operator () (Item* destination, size_t size) noexcept(noexcept(new (destination) Item()))
 				{
@@ -41,8 +41,8 @@ namespace lingo
 			struct copy_impl;
 
 			template <typename Item>
-			struct copy_impl<Item, std::enable_if_t<
-				std::is_trivially_copy_constructible<Item>::value>>
+			struct copy_impl<Item, typename std::enable_if<
+				std::is_trivially_copy_constructible<Item>::value>::type>
 			{
 				void operator () (Item* destination, const Item* source, size_t size) noexcept
 				{
@@ -51,9 +51,9 @@ namespace lingo
 			};
 
 			template <typename Item>
-			struct copy_impl<Item, std::enable_if_t<
+			struct copy_impl<Item, typename std::enable_if<
 				!std::is_trivially_copy_constructible<Item>::value &&
-				std::is_copy_constructible<Item>::value>>
+				std::is_copy_constructible<Item>::value>::type>
 			{
 				void operator () (Item* destination, const Item* source, size_t size) noexcept(noexcept(new (destination) Item()))
 				{
@@ -69,8 +69,8 @@ namespace lingo
 			struct move_impl;
 
 			template <typename Item>
-			struct move_impl<Item, std::enable_if_t<
-				std::is_trivially_move_constructible<Item>::value>>
+			struct move_impl<Item, typename std::enable_if<
+				std::is_trivially_move_constructible<Item>::value>::type>
 			{
 				void operator () (Item* destination, Item* source, size_t size) noexcept
 				{
@@ -79,9 +79,9 @@ namespace lingo
 			};
 
 			template <typename Item>
-			struct move_impl<Item, std::enable_if_t<
+			struct move_impl<Item, typename std::enable_if<
 				!std::is_trivially_move_constructible<Item>::value &&
-				std::is_move_constructible<Item>::value>>
+				std::is_move_constructible<Item>::value>::type>
 			{
 				void operator () (Item* destination, Item* source, size_t size) noexcept(noexcept(new (destination) Item()))
 				{
@@ -97,16 +97,16 @@ namespace lingo
 			struct destruct_impl;
 
 			template <typename Item>
-			struct destruct_impl<Item, std::enable_if_t<
-				std::is_trivially_destructible<Item>::value>>
+			struct destruct_impl<Item, typename std::enable_if<
+				std::is_trivially_destructible<Item>::value>::type>
 			{
 				void operator () (Item*, size_t) noexcept {};
 			};
 
 			template <typename Item>
-			struct destruct_impl<Item, std::enable_if_t<
+			struct destruct_impl<Item, typename std::enable_if<
 				!std::is_trivially_destructible<Item>::value &&
-				std::is_destructible<Item>::value>>
+				std::is_destructible<Item>::value>::type>
 			{
 				void operator () (Item* destination, size_t size) noexcept(noexcept(new (destination) Item()))
 				{
