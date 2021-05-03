@@ -18,6 +18,7 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <ios>
 #include <iterator>
 #include <memory>
 #include <stdexcept>

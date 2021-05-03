@@ -19,7 +19,7 @@
 #include <lingo/utility/type_traits.hpp>
 
 #include <cassert>
-#include <iosfwd>
+#include <ios>
 #include <iterator>
 #include <memory>
 #include <type_traits>
