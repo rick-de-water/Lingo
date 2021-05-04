@@ -37,9 +37,14 @@ namespace lingo
 		using difference_type = typename std::allocator_traits<allocator_type>::difference_type;
 
 		private:
-		using item_traits = utility::item_traits<value_type>;
 		using string = basic_string<encoding_type, page_type, allocator_type>;
 		using string_view = basic_string_view<encoding_type, page_type>;
+
+		using construct_items = utility::construct_items<value_type>;
+		using copy_items = utility::copy_items<value_type>;
+		using move_items = utility::move_items<value_type>;
+		using destruct_items = utility::destruct_items<value_type>;
+		using destructive_move_items = utility::destructive_move_items<value_type>;
 
 		public:
 		basic_null_terminated_string() noexcept:
@@ -70,7 +75,7 @@ namespace lingo
 				str.copy(_allocation.get(), str.size());
 
 				LINGO_CONSTEXPR11 const unit_type null_terminator = {};
-				item_traits::copy(_allocation.get() + _size, &null_terminator, 1);
+				copy_items{}(_allocation.get() + _size, &null_terminator, 1);
 			}
 		}
 

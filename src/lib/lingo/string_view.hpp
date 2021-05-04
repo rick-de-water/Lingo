@@ -59,9 +59,14 @@ namespace lingo
 		private:
 		static_assert(std::is_same<typename page_type::point_type, typename encoding_type::point_type>::value, "page_type::point_type must be the same type as encoding_type::point_type");\
 
-		using item_traits = utility::item_traits<value_type>;
 		using point_iterator = encoding::point_iterator<encoding_type>;
 		using storage_type = basic_string_view_storage<value_type>;
+
+		using construct_items = utility::construct_items<value_type>;
+		using copy_items = utility::copy_items<value_type>;
+		using move_items = utility::move_items<value_type>;
+		using destruct_items = utility::destruct_items<value_type>;
+		using destructive_move_items = utility::destructive_move_items<value_type>;
 
 		static LINGO_CONSTEXPR11 const bool is_execution_set = lingo::utility::is_execution_set<encoding_type, page_type>::value;
 		static LINGO_CONSTEXPR11 const bool is_char_compatible = lingo::utility::is_char_compatible<encoding_type, page_type>::value;
@@ -306,7 +311,7 @@ namespace lingo
 		LINGO_CONSTEXPR14 size_type copy(value_type* dest, size_type count, size_type pos = 0) const
 		{
 			const basic_string_view str = substr(pos, count);
-			item_traits::copy(dest, str.data(), str.size());
+			copy_items{}(dest, str.data(), str.size());
 			return str.size();
 		}
 

@@ -13,17 +13,17 @@ namespace lingo
         {
 			// Default
 			template <typename Item, typename = void>
-			struct construct_impl;
+			struct construct_items_impl;
 
 			template <typename Item>
-			struct construct_impl<Item, typename std::enable_if<
+			struct construct_items_impl<Item, typename std::enable_if<
 				std::is_trivially_default_constructible<Item>::value>::type>
 			{
 				void operator () (Item*, size_t) noexcept {};
 			};
 
 			template <typename Item>
-			struct construct_impl<Item, typename std::enable_if<
+			struct construct_items_impl<Item, typename std::enable_if<
 				!std::is_trivially_default_constructible<Item>::value &&
 				std::is_default_constructible<Item>::value>::type>
 			{
@@ -38,10 +38,10 @@ namespace lingo
 
 			// Copy
 			template <typename Item, typename = void>
-			struct copy_impl;
+			struct copy_items_impl;
 
 			template <typename Item>
-			struct copy_impl<Item, typename std::enable_if<
+			struct copy_items_impl<Item, typename std::enable_if<
 				std::is_trivially_copy_constructible<Item>::value>::type>
 			{
 				void operator () (Item* destination, const Item* source, size_t size) noexcept
@@ -51,7 +51,7 @@ namespace lingo
 			};
 
 			template <typename Item>
-			struct copy_impl<Item, typename std::enable_if<
+			struct copy_items_impl<Item, typename std::enable_if<
 				!std::is_trivially_copy_constructible<Item>::value &&
 				std::is_copy_constructible<Item>::value>::type>
 			{
@@ -66,10 +66,10 @@ namespace lingo
 
 			// Move
 			template <typename Item, typename = void>
-			struct move_impl;
+			struct move_items_impl;
 
 			template <typename Item>
-			struct move_impl<Item, typename std::enable_if<
+			struct move_items_impl<Item, typename std::enable_if<
 				std::is_trivially_move_constructible<Item>::value>::type>
 			{
 				void operator () (Item* destination, Item* source, size_t size) noexcept
@@ -79,7 +79,7 @@ namespace lingo
 			};
 
 			template <typename Item>
-			struct move_impl<Item, typename std::enable_if<
+			struct move_items_impl<Item, typename std::enable_if<
 				!std::is_trivially_move_constructible<Item>::value &&
 				std::is_move_constructible<Item>::value>::type>
 			{
@@ -94,17 +94,17 @@ namespace lingo
 
 			// destruct
 			template <typename Item, typename = void>
-			struct destruct_impl;
+			struct destruct_items_impl;
 
 			template <typename Item>
-			struct destruct_impl<Item, typename std::enable_if<
+			struct destruct_items_impl<Item, typename std::enable_if<
 				std::is_trivially_destructible<Item>::value>::type>
 			{
 				void operator () (Item*, size_t) noexcept {};
 			};
 
 			template <typename Item>
-			struct destruct_impl<Item, typename std::enable_if<
+			struct destruct_items_impl<Item, typename std::enable_if<
 				!std::is_trivially_destructible<Item>::value &&
 				std::is_destructible<Item>::value>::type>
 			{
@@ -118,44 +118,29 @@ namespace lingo
 			};
         }
 
-        template <typename Item>
-        struct item_traits
-        {
-			using value_type = Item;
-			using reference = value_type&;
-			using const_reference = const value_type&;
-			using pointer = value_type*;
-			using const_pointer = const value_type*;
+		template <typename Item>
+		struct construct_items : internal::construct_items_impl<Item> {};
 
-			using size_type = std::size_t;
-			using difference_type = std::ptrdiff_t;
+		template <typename Item>
+		struct destruct_items : internal::destruct_items_impl<Item> {};
 
-			static void construct(pointer destination, size_type size) noexcept(noexcept(std::declval<internal::construct_impl<value_type>>()(destination, size)))
-			{
-				internal::construct_impl<Item>{}(destination, size);
-			}
-			
-			static void destruct(pointer destination, size_type size) noexcept(noexcept(std::declval<internal::destruct_impl<value_type>>()(destination, size)))
-			{
-				internal::destruct_impl<Item>{}(destination, size);
-			}
+		template <typename Item>
+		struct copy_items : internal::copy_items_impl<Item> {};
 
-			static void copy(pointer destination, const_pointer source, size_type size) noexcept(noexcept(std::declval<internal::copy_impl<value_type>&>()(destination, source, size)))
-			{
-				internal::copy_impl<Item>{}(destination, source, size);
-			}
+		template <typename Item>
+		struct move_items : internal::move_items_impl<Item> {};
 
-			static void move(pointer destination, pointer source, size_type size) noexcept(noexcept(std::declval<internal::move_impl<value_type>&>()(destination, source, size)))
+		template <typename Item>
+		struct destructive_move_items
+		{
+			void operator () (Item* destination, Item* source, size_t size) noexcept(
+				noexcept(std::declval<move_items<Item>&>()(destination, source, size)) &&
+				noexcept(std::declval<destruct_items<Item>&>()(source, size)))
 			{
-				internal::move_impl<Item>{}(destination, source, size);
+				move_items<Item>{}(destination, source, size);
+				destruct_items<Item>{}(source, size);
 			}
-
-			static void destructive_move(pointer destination, pointer source, size_type size) noexcept(noexcept(move(destination, source, size)) && noexcept(destruct(source, size)))
-			{
-				move(destination, source, size);
-				destruct(source, size);
-			}
-        };
+		};
     }
 }
 

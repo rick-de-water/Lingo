@@ -104,7 +104,12 @@ namespace lingo
 
 		private:
 		using compressed_pair = utility::compressed_pair<internal::basic_string_storage_data<unit_type>, allocator_type>;
-		using item_traits = utility::item_traits<value_type>;
+
+		using construct_items = utility::construct_items<value_type>;
+		using copy_items = utility::copy_items<value_type>;
+		using move_items = utility::move_items<value_type>;
+		using destruct_items = utility::destruct_items<value_type>;
+		using destructive_move_items = utility::destructive_move_items<value_type>;
 
 		struct allocation
 		{
@@ -127,7 +132,7 @@ namespace lingo
 			basic_string_storage(allocator)
 		{
 			grow_discard(storage.size());
-			item_traits::copy(data(), storage.data(), storage.size() + 1);
+			copy_items{}(data(), storage.data(), storage.size() + 1);
 			set_size(storage.size());
 		}
 
@@ -151,7 +156,7 @@ namespace lingo
 				else
 				{
 					// No need to grow because we know it can fit inside the storage itself
-					item_traits::copy(data(), storage.data(), storage.size() + 1);
+					copy_items{}(data(), storage.data(), storage.size() + 1);
 					set_size(storage.size());
 				}
 			}
@@ -159,14 +164,14 @@ namespace lingo
 			else
 			{
 				grow_discard(storage.size());
-				item_traits::copy(data(), storage.data(), storage.size() + 1);
+				copy_items{}(data(), storage.data(), storage.size() + 1);
 				set_size(storage.size());
 			}
 		}
 
 		~basic_string_storage() noexcept
 		{
-			item_traits::destruct(data(), size() + 1);
+			destruct_items{}(data(), size() + 1);
 			free(current_allocation());
 		}
 
@@ -234,7 +239,7 @@ namespace lingo
 			const auto alloc = allocate(new_capacity);
 			try
 			{
-				item_traits::destruct(data(), size() + 1);
+				destruct_items{}(data(), size() + 1);
 				swap_data(alloc);
 			}
 			catch (...)
@@ -263,10 +268,7 @@ namespace lingo
 			try
 			{
 				// Move all data over to the new buffer
-				item_traits::move(alloc.data, current_alloc.data, size() + 1);
-
-				// Destruct old data
-				item_traits::destruct(current_alloc.data, size() + 1);
+				destructive_move_items{}(alloc.data, current_alloc.data, size() + 1);
 
 				// Swap allocations
 				swap_data(alloc);
@@ -290,7 +292,7 @@ namespace lingo
 			// Current allocation is already big enough, so we only need to remove the null terminator
 			if (current_alloc.data == alloc.data)
 			{
-				item_traits::destruct(data() + size(), 1);
+				destruct_items{}(data() + size(), 1);
 			}
 			// New buffer has been allocated
 			else
@@ -298,10 +300,10 @@ namespace lingo
 				try
 				{
 					// Move all data over to the new buffer
-					item_traits::move(alloc.data, current_alloc.data, size());
+					destructive_move_items{}(alloc.data, current_alloc.data, size());
 
-					// Destruct old data
-					item_traits::destruct(current_alloc.data, size() + 1);
+					// Destruct the null terminator
+					destruct_items{}(current_alloc.data + size(), 1);
 
 					// Swap allocations
 					swap_data(alloc);
@@ -325,8 +327,8 @@ namespace lingo
 
 			// Copy data
 			LINGO_CONSTEXPR11 const value_type null_terminator{};
-			item_traits::copy(destination, str, length);
-			item_traits::copy(destination + length, &null_terminator, 1);
+			copy_items{}(destination, str, length);
+			copy_items{}(destination + length, &null_terminator, 1);
 
 			// Update size
 			set_size(length);
@@ -341,8 +343,8 @@ namespace lingo
 
 			// Copy data
 			LINGO_CONSTEXPR11 const value_type null_terminator{};
-			item_traits::copy(destination, str, length);
-			item_traits::copy(destination + length, &null_terminator, 1);
+			copy_items{}(destination, str, length);
+			copy_items{}(destination + length, &null_terminator, 1);
 
 			// Update size
 			set_size(new_size);
@@ -353,7 +355,7 @@ namespace lingo
 			if (&storage != this)
 			{
 				grow_discard(storage.size());
-				item_traits::copy(data(), storage.data(), storage.size() + 1);
+				copy_items{}(data(), storage.data(), storage.size() + 1);
 				set_size(storage.size());
 			}
 			return *this;
@@ -372,7 +374,7 @@ namespace lingo
 						// Destruct existing data if it exists
 						if (is_long())
 						{
-							item_traits::destruct(data(), size() + 1);
+							destruct_items{}(data(), size() + 1);
 						}
 
 						// Copy allocation from source
