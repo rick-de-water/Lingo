@@ -583,7 +583,7 @@ namespace lingo
 		void append(const basic_string& str, size_type pos, size_type count)
 		{
 			const size_type original_size = size();
-			const size_type source_size = std::min(str.size() - pos, count);
+			const size_type source_size = (std::min)(str.size() - pos, count);
 			const size_type new_size = original_size + source_size;
 			_storage.grow_append(new_size);
 
@@ -607,7 +607,7 @@ namespace lingo
 			assert(str.data() < data() || str.data() > data() + capacity());
 
 			const size_type original_size = size();
-			const size_type source_size = std::min(str.size() - pos, count);
+			const size_type source_size = (std::min)(str.size() - pos, count);
 			const size_type new_size = original_size + source_size;
 			_storage.grow_append(new_size);
 

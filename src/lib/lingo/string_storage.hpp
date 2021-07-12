@@ -20,7 +20,7 @@ namespace lingo
 		template <typename Unit>
 		struct basic_string_storage_long_marker
 		{
-			static LINGO_CONSTEXPR11 Unit value = std::numeric_limits<Unit>::max();
+			static LINGO_CONSTEXPR11 Unit value = (std::numeric_limits<Unit>::max)();
 		};
 
 		template <typename Unit>
@@ -211,7 +211,7 @@ namespace lingo
 
 		size_type max_size() const noexcept
 		{
-			return std::numeric_limits<size_t>::max();
+			return (std::numeric_limits<size_t>::max)();
 		}
 
 		size_type capacity() const noexcept

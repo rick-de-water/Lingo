@@ -89,7 +89,7 @@ namespace lingo
 				while (point_bit_count > 0)
 				{
 					// Take some bits
-					const size_type bit_count = std::min(bits_per_unit - unit_bit_count, point_bit_count);
+					const size_type bit_count = (std::min)(bits_per_unit - unit_bit_count, point_bit_count);
 					const size_type bit_shift = (bits_per_point - bit_count);
 					const point_bits_type bit_mask = point_bit_mask << bit_shift;
 					point_bits_type bits = (point_bits & bit_mask) >> bit_shift;
@@ -200,7 +200,7 @@ namespace lingo
 					}
 
 					// Add the bits to the point type
-					const size_type bit_count = std::min(unit_bit_count, bits_per_point - point_bit_count);
+					const size_type bit_count = (std::min)(unit_bit_count, bits_per_point - point_bit_count);
 					const point_bits_type bits = unit_bits >> (bits_per_unit - bit_count);
 					const size_type bit_shift = bits_per_point - (point_bit_count + bit_count);
 					point_bits |= bits << bit_shift;

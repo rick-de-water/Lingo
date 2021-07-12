@@ -688,3 +688,11 @@ LINGO_UNIT_TEST_CASE("string can be copied to an array")
 
 	REQUIRE_THROWS_AS(source.copy(nullptr, 0, size + 1), std::out_of_range);
 }
+
+TEST_CASE("A wide string can be converted to a string")
+{
+	const lingo::wide_string wide_string(lingo::test::test_string<wchar_t>::value);
+	lingo::string string(wide_string);
+
+	REQUIRE(string == lingo::test::test_string<lingo::string::unit_type>::value);
+}

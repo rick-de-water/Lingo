@@ -508,7 +508,7 @@ namespace lingo
 
 		LINGO_CONSTEXPR14 size_type rfind(basic_string_view str, size_type pos) const noexcept
 		{
-			pos = std::min(pos, size() - 1);
+			pos = (std::min)(pos, size() - 1);
 			if (str.size() > pos + 1)
 			{
 				return npos;
