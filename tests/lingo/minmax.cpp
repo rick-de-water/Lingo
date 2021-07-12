@@ -1,3 +1,5 @@
+#ifndef _GLIBCXX_RELEASE
+
 #include <catch/catch.hpp>
 
 #define min(x, y) x + y
@@ -10,4 +12,6 @@
 #include <lingo/string_view.hpp>
 #else
 #include <lingo/test/include_all.hpp>
+#endif
+
 #endif
