@@ -25,13 +25,21 @@ namespace
 
 TEST_CASE_METHOD(test_fixture, "pointer_iterator has the correct typedefs")
 {
+	#ifdef __cpp_lib_ranges
+	REQUIRE(std::is_same<test_pointer_iterator::iterator_category, std::contiguous_iterator_tag>::value);
+	#else
 	REQUIRE(std::is_same<test_pointer_iterator::iterator_category, std::random_access_iterator_tag>::value);
+	#endif
 	REQUIRE(std::is_same<test_pointer_iterator::value_type, test_struct>::value);
 	REQUIRE(std::is_same<test_pointer_iterator::difference_type, std::ptrdiff_t>::value);
 	REQUIRE(std::is_same<test_pointer_iterator::pointer, test_struct*>::value);
 	REQUIRE(std::is_same<test_pointer_iterator::reference, test_struct&>::value);
 
+	#ifdef __cpp_lib_ranges
+	REQUIRE(std::is_same<const_test_pointer_iterator::iterator_category, std::contiguous_iterator_tag>::value);
+	#else
 	REQUIRE(std::is_same<const_test_pointer_iterator::iterator_category, std::random_access_iterator_tag>::value);
+	#endif
 	REQUIRE(std::is_same<const_test_pointer_iterator::value_type, const test_struct>::value);
 	REQUIRE(std::is_same<const_test_pointer_iterator::difference_type, std::ptrdiff_t>::value);
 	REQUIRE(std::is_same<const_test_pointer_iterator::pointer, const test_struct*>::value);
