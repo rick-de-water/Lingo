@@ -100,6 +100,14 @@ Lingo is a header only library, but some of the header files do have to be gener
 
 If you want the library yourself, you will have to build the CMake project. All you need is CMake 3.12 or higher, Python 3 (for the code gen) and a C++11 compatible compiler. The tests are written using [Catch](https://github.com/catchorg/Catch2) and can be run with `ctest`.
 
+Note: If you are using windows.h you will need to define NOMINMAX to prevent the winapi from overriding the stdlib min and max defenitions. 
+For example:
+```cpp
+#define NOMINMAX
+#include <windows.h>
+#undef NOMINMAX
+```
+
 ## How to include in your project
 Since Lingo is a header only library, all you need to do is copy the header files and add it as an include directory. 
 
