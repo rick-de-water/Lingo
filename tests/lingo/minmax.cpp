@@ -1,4 +1,4 @@
-#ifndef _GLIBCXX_RELEASE
+#ifdef WIN32
 
 #include <catch/catch.hpp>
 
