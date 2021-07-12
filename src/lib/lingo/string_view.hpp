@@ -272,7 +272,7 @@ namespace lingo
 			}
 
 			const const_pointer d = data() + pos;
-			const size_type s = std::min(count, size() - pos);
+			const size_type s = (std::min)(count, size() - pos);
 			const bool nt = null_terminated() && (s == size() - pos);
 
 			return basic_string_view(d, s, nt);

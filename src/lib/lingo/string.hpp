@@ -449,7 +449,7 @@ namespace lingo
 
 			if (this != &str)
 			{
-				assign(basic_string_view(str.data() + pos, std::min(count, str.length() - pos)));
+				assign(basic_string_view(str.data() + pos, (std::min)(count, str.length() - pos)));
 			}
 		}
 
@@ -477,7 +477,7 @@ namespace lingo
 
 		void assign(basic_string_view str, size_type pos, size_type count)
 		{
-			assign(basic_string_view(str.data() + pos, std::min(count, str.length() - pos)));
+			assign(basic_string_view(str.data() + pos, (std::min)(count, str.length() - pos)));
 		}
 
 		template <typename _ = int, typename std::enable_if<is_execution_set, _>::type = 0>
